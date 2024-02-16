@@ -40,7 +40,7 @@ Linux 的⽂件组织模式犹如⼀颗倒置的树，这与 Windows ⽂件系�
 
 <img src="assets/image-20240216111850048.png" alt="image-20240216111850048" style="zoom: 33%;" />
 
-## 1.路径含义
+## 2.1路径含义
 
 **/bin**：bin 是⼆进制（binary）英⽂缩写。 
 
@@ -56,3 +56,16 @@ Linux 的⽂件组织模式犹如⼀颗倒置的树，这与 Windows ⽂件系�
 
 **/root**：根⽤户（超级⽤户）的主⽬录。
 
+## 2.2常用快捷键
+
+开启一个新的终端：ctrl + alt + t
+
+虚拟机全屏：ctrl + alt + 回⻋
+
+清屏：clear命令、Ctrl + l
+
+终端字体变大：Ctrl 加 shift 加 +
+
+终端字体缩小：ctrl + - 
+
+鼠标退出虚拟机控制：ctrl + alt
