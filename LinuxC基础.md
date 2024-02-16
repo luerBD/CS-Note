@@ -61,22 +61,37 @@ Linux 的⽂件组织模式犹如⼀颗倒置的树，这与 Windows ⽂件系�
 **练习**
 
 进⼊ / home/linux ⽬录, 利⽤ ls 查看当前⽂件下的内容，⽤ pwd 命令观察路径。
+
 在次进⼊ / etc ⽬录, 利⽤ ls 查看当前⽬录下的内容。
+
 再次进⼊到 / home/linux ⽬录下新建⼀个 first ⽂件夹
+
 进⼊ first ⽂件夹中新建⼀个 log1.tx 和 log2.txt, ⿏标双击打开写⼊ "Hello World"
+
 然后把 log1.txt 拷⻉到上层⽬录.
+
 然后把 log2.txt 重命名为 log.c
 
 **答案**
 
 cd /home/linux
+
 ls 
+
 pwd
+
 cd /etc
+
 ls
+
 cd /home/linux
+
 mkdir first
+
 cd first
+
 touch log1.txt log2.txt
+
 cp log1.txt ../
+
 mv log2.txt log.c
