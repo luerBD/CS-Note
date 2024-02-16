@@ -1,36 +1,10 @@
-# 第一章 开发环境搭建
+# 第一章 Linux基础命令
 
-## 1.VM软件简介
+## 1.1开发环境搭建
 
-VMware Workstation Pro 是 VMware（威睿公司）发布的⼀代虚拟机软件，中⽂名称⼀般称为 "VMware ⼯作站". 它的主要功能是可以给⽤户在单⼀的桌⾯上同时运⾏不同的操作系统，它也是可进 ⾏开发、测试、部署新的应⽤程序的最佳解决⽅案。Vmware WorkStation 可在⼀部实体机器上模拟 完整的⽹络环境，以及可便于携带的虚拟机器。对于企业的 IT 开发⼈员和系统管理员⽽⾔，Vmware 在虚拟⽹络，实时快照，拖拽共享⽂件夹等⽅⾯的特点使它成为必不可少的⼯具。
+安装VM，安装ubuntu18.04
 
-## 2.软件安装
-
-<img src="assets/image-20240216102724619.png" alt="image-20240216102724619" style="zoom: 33%;" />
-
-<img src="assets/image-20240216102836779.png" alt="image-20240216102836779" style="zoom: 33%;" />
-
-<img src="assets/image-20240216102945184.png" alt="image-20240216102945184" style="zoom: 33%;" />
-
-<img src="assets/image-20240216103016568.png" alt="image-20240216103016568" style="zoom: 33%;" />
-
-<img src="assets/image-20240216103034846.png" alt="image-20240216103034846" style="zoom: 33%;" />
-
-<img src="assets/image-20240216103048467.png" alt="image-20240216103048467" style="zoom: 33%;" />
-
-<img src="assets/image-20240216103213943.png" alt="image-20240216103213943" style="zoom: 33%;" />
-
-点击许可证，许可证自行搜索，都可以搜到的。
-
-<img src="assets/image-20240216103252309.png" alt="image-20240216103252309" style="zoom: 33%;" />
-
-输入秘钥后安装就完成了！
-
-<img src="assets/image-20240216103421907.png" alt="image-20240216103421907" style="zoom: 33%;" />
-
-
-
-# 第二章 Linux基础命令
+## 1.2Windows和Linux
 
 微软 Windows 操作系统将硬盘上的⼏个分区，⽤ A：、B：、C：、D：等符号标识。存取⽂件时⼀定要清楚存放在哪个磁盘的哪个⽬录下。
 
@@ -40,7 +14,7 @@ Linux 的⽂件组织模式犹如⼀颗倒置的树，这与 Windows ⽂件系�
 
 <img src="assets/image-20240216111850048.png" alt="image-20240216111850048" style="zoom: 33%;" />
 
-## 2.1路径含义
+## 1.3Linux路径含义
 
 **/bin**：bin 是⼆进制（binary）英⽂缩写。 
 
@@ -56,7 +30,7 @@ Linux 的⽂件组织模式犹如⼀颗倒置的树，这与 Windows ⽂件系�
 
 **/root**：根⽤户（超级⽤户）的主⽬录。
 
-## 2.2常用快捷键
+## 1.4常用快捷键
 
 开启一个新的终端：ctrl + alt + t
 
