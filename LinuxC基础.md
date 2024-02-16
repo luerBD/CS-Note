@@ -6,24 +6,24 @@ VMware Workstation Pro 是 VMware（威睿公司）发布的⼀代虚拟机软�
 
 ## 2.软件安装
 
-<img src="assets/image-20240216102724619.png" alt="image-20240216102724619" style="zoom: 50%;" />
+<img src="assets/image-20240216102724619.png" alt="image-20240216102724619" style="zoom: 33%;" />
 
-<img src="assets/image-20240216102836779.png" alt="image-20240216102836779" style="zoom:50%;" />
+<img src="assets/image-20240216102836779.png" alt="image-20240216102836779" style="zoom: 33%;" />
 
-<img src="assets/image-20240216102945184.png" alt="image-20240216102945184" style="zoom:50%;" />
+<img src="assets/image-20240216102945184.png" alt="image-20240216102945184" style="zoom: 33%;" />
 
-<img src="assets/image-20240216103016568.png" alt="image-20240216103016568" style="zoom:50%;" />
+<img src="assets/image-20240216103016568.png" alt="image-20240216103016568" style="zoom: 33%;" />
 
-<img src="assets/image-20240216103034846.png" alt="image-20240216103034846" style="zoom:50%;" />
+<img src="assets/image-20240216103034846.png" alt="image-20240216103034846" style="zoom: 33%;" />
 
-<img src="assets/image-20240216103048467.png" alt="image-20240216103048467" style="zoom:50%;" />
+<img src="assets/image-20240216103048467.png" alt="image-20240216103048467" style="zoom: 33%;" />
 
-<img src="assets/image-20240216103213943.png" alt="image-20240216103213943" style="zoom:50%;" />
+<img src="assets/image-20240216103213943.png" alt="image-20240216103213943" style="zoom: 33%;" />
 
 点击许可证，许可证自行搜索，都可以搜到的。
 
-<img src="assets/image-20240216103252309.png" alt="image-20240216103252309" style="zoom:50%;" />
+<img src="assets/image-20240216103252309.png" alt="image-20240216103252309" style="zoom: 33%;" />
 
 输入秘钥后安装就完成了！
 
-<img src="assets/image-20240216103421907.png" alt="image-20240216103421907" style="zoom:50%;" />
+<img src="assets/image-20240216103421907.png" alt="image-20240216103421907" style="zoom: 33%;" />
