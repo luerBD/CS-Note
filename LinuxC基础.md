@@ -58,33 +58,65 @@ Linux 的⽂件组织模式犹如⼀颗倒置的树，这与 Windows ⽂件系�
 | cp    | 复制⽂件 / ⽂件夹到指定⽬录                                  | 拷贝源文件到指定目录：   cp   源文件   目标路径<br />创建文件副本：   cp   源文件   目标文件<br />拷贝源文件夹：   cp   源文件夹   目标文件夹   -a |
 | mv    | 移动文件                                                     | 把源文件移动到指定目录：mv   源文件   目标路径<br />把源文件重命名为目标文件：mv   源文件   目标文件<br />把源文件夹移动到指定目录：mv   原文件夹   目标文件夹 |
 
-**练习**
+**例1：cd用法**
 
-进⼊ / home/linux ⽬录, 利⽤ ls 查看当前⽂件下的内容，⽤ pwd 命令观察路径。
+```shell
+cd  /home/linux/Desktop   		#绝对路径的⽤法
+cd  /home/linux           		#相对路径的⽤法
+cd  ./Desktop
+cd  ../                   		#返回上层⽬录
+cd  -                     		#返回上次操作的路径
+```
 
-在次进⼊ / etc ⽬录, 利⽤ ls 查看当前⽬录下的内容。
+**例2：ls和pwd用法**
 
-再次进⼊到 / home/linux ⽬录下新建⼀个 first ⽂件夹
+```shell
+pwd                          	#显示当前⽬录
+cd   /home/linux             	#进⼊linux⽂件夹中
+ls                           	#列出当前⽬录下的内容
+pwd
+cd   ..                      	#进⼊上层⽬录
+pwd
+cd  ./linux                  	#进⼊当前⽬录下的linux⽂件夹中
+ 
+```
 
-进⼊ first ⽂件夹中新建⼀个 log1.tx 和 log2.txt, ⿏标双击打开写⼊ "Hello World"
+**例3：mkdir、touch、rm用法**
 
-然后把 log1.txt 拷⻉到上层⽬录.
+```shell
+cd     /home/linux                      #进⼊/home/linux⽂件夹
+mkdir  Cbase                            #新建⽂件Cbase⽂件夹
+cd    ./Cbase                           #进⼊Cbase⽂件夹
+touch  log1.txt  log2.txt log3.txt      #创建log1.txt log2.txt log3.txt⽂件
+mkdir  dirTest                          #新建dirTest⽬录
+clear                                   #清屏
+rm     log1.txt log2.txt                #删除log1.txt log2.txt⽂件
+rm  -rf dirTest                         #删除dirTest⽂件夹
+```
 
-然后把 log2.txt 重命名为 log.c
+
+
+**练习**5
+
+①进⼊ / home/linux ⽬录, 利⽤ ls 查看当前⽂件下的内容，⽤ pwd 命令观察路径。
+
+②再次进⼊ / etc ⽬录, 利⽤ ls 查看当前⽬录下的内容。
+
+③再次进⼊到 / home/linux ⽬录下新建⼀个 first ⽂件夹
+
+④进⼊ first ⽂件夹中新建⼀个 log1.txt 和 log2.txt, ⿏标双击打开写⼊ "Hello World"
+
+⑤然后把 log1.txt 拷⻉到上层⽬录.
+
+⑥然后把 log2.txt 重命名为 log.c
 
 **答案**
 
-cd /home/linux
+①cd /home/linux；   ls；    pwd；
 
-ls 
+②cd /etc；ls
 
-pwd
-
-cd /etc
-
-ls
-
-cd /home/linux
+⑥cd /home/linux
 
 mkdir first
 
