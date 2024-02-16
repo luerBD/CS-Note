@@ -94,6 +94,18 @@ rm     log1.txt log2.txt                #删除log1.txt log2.txt⽂件
 rm  -rf dirTest                         #删除dirTest⽂件夹
 ```
 
+**例4：cp用法**
+
+```shell
+cp  hello.c   /home/linux/Cbase          #把hello.c拷⻉到Cbase⽂件夹中
+cp  hello.c   world.c                    #把hello.c复制⼀份命名为world.c
+cp  Cbase   ../    -a                    #把Cbase⽂件夹拷⻉到上层⽬录
+```
+
+
+
+
+
 
 
 **练习**5
