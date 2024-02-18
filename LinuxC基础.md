@@ -204,7 +204,7 @@ sudo apt-get install gcc
 #include <stdio.h>
 int main()
 {
-	int a = 10;
+    int a = 10;
     int sum = 0;
     sum = sum + 1;
     sum = sum + 2;
