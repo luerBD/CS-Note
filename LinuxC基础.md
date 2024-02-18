@@ -197,3 +197,22 @@ sudo apt-get install gcc
 汇编 ----> 把汇编代码⽣成我们的⽬标⽂件 xx.o
 
 链接 ----> 把我们的⽬标⽂件⽣成我们的可执⾏⽂件
+
+**练习：⾃⼰把下列代码写出来，⽤ GCC 编译器运⾏，运⾏查看结果。**
+
+```c
+#include <stdio.h>
+ int main()
+ {
+    int a = 10;
+    int sum = 0;
+    sum = sum + 1;
+    sum = sum + 2;
+    sum = sum + 3;
+    sum = sum + 4;
+    sum = sum + 5;
+    printf("sum = %d\n",sum);
+    return 0;
+ }
+```
+
