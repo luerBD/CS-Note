@@ -202,9 +202,9 @@ sudo apt-get install gcc
 
 ```c
 #include <stdio.h>
- int main()
- {
-    int a = 10;
+int main()
+{
+	int a = 10;
     int sum = 0;
     sum = sum + 1;
     sum = sum + 2;
@@ -213,6 +213,6 @@ sudo apt-get install gcc
     sum = sum + 5;
     printf("sum = %d\n",sum);
     return 0;
- }
+}
 ```
 
