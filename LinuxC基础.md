@@ -515,7 +515,7 @@ int main()
 
 **练习：**
 
-要求⽤从键盘输⼊两个数据，赋值给 a 和 b，并输出a和b的值；利⽤ %p 输出 a 和 b 的地址观察结果。
+①要求⽤从键盘输⼊两个整形数据，赋值给 a 和 b，并输出a和b的值；利⽤ %p 输出 a 和 b 的地址观察结果。
 
 ```c
 #include<stdio.h>
@@ -526,6 +526,21 @@ int main()
 	scanf("%d%d", &a, &b);
 	printf("a = %d, b = %d\n", a, b);
 	printf("&a = %p, &b = %p\n", &a, &b);
+}
+```
+
+②要求⽤从键盘输⼊两个字符型数据，赋值给 a 和 b，并输出a和b的值；利⽤ %p 输出 a 和 b 的地址观察结果。
+
+```c
+#include<stdio.h>
+int main()
+{
+	char a, b;
+	printf("please input two character:");
+	scanf("%c%c", &a, &b);
+	printf("a = %c, b = %c\n", a, b);
+	printf("&a = %p, &b = %p\n", &a, &b);
+	return 0;
 }
 ```
 
