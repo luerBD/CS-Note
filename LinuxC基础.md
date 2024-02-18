@@ -324,3 +324,28 @@ oct = 012
 hex = 0xa
 ```
 
+**例2：**
+
+```c
+#include <stdio.h>
+ int main()
+ {
+        printf("%c = %d\n",'A','A');
+        printf("%c = %d\n",'A' + 32,'A' + 32);
+        printf("%c = %d\n",'1','1' - 48); 
+        printf("%c = %d\n",'\141','\141'); 
+        printf("%c = %d\n",'\x61','\x61'); 
+        return 0;
+ }
+```
+
+**输出：**
+
+```
+ A = 65
+ a = 97
+ 1 = 1
+ a = 97
+ a = 97
+```
+
