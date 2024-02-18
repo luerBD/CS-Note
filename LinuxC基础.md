@@ -349,3 +349,55 @@ hex = 0xa
  a = 97
 ```
 
+**例3：**
+
+```c
+ #include <stdio.h>
+ #define N  10
+ #define M  N + N
+ #define SUM  M * M
+ int main()
+ {
+        printf("M = %d\n",M);  
+        printf("SUM = %d\n",SUM);
+        return 0;
+ }
+```
+
+**输出：**
+
+```
+120
+```
+
+**练习：**
+
+①要求利⽤ "%c : %d" 这种格式，向屏幕上输出’a’,‘m’,’ '对应的字符形式和⼗进制数形式。
+	要求利⽤ %f 输出 3.14159287
+	要求利⽤ %e 输出 31455452232.88232
+
+```c
+#include<stdio.h>
+int main()
+{
+	printf("%c = %d\n", 'a', 'a');
+	printf("%c = %d\n", 'm', 'm');
+	printf("%f\n", 3.14159287);
+	printf("%e\n", 31455452232.88232);
+
+}
+```
+
+②printf(“data1 = %c : %d”,?,?); //? 中包含’A’思考如何变成’a’
+	printf(“data2 = %d”, ?); //? 中包含’1’，思考如何通过’1’要求输出⼗进制数 1
+
+```c
+#include<stdio.h>
+int main()
+{
+	printf("%c:%d\n", 'A'+32, 'A' + 32);
+	printf("%d\n", '1' - 48);
+	return 0;
+}
+```
+
