@@ -1,3 +1,5 @@
+
+
 # 1.Linux基础命令
 
 ## 1.1 开发环境搭建
@@ -666,3 +668,75 @@ b的补码：0010	1100
 b的原码：0010	1100
 
 输出：44
+
+# 9.强制数据类型转换
+
+## 9.1 显式强转
+
+采⽤某⽅⽅式将某种数据类型强制转换位我们需要的数据类型。
+
+注：强转只是临时强转，本身的数据类型没有改变。
+
+格式：(需要强制的数据类型) 变量名
+
+**例：**
+
+```c
+#include <stdio.h>
+int main()
+{
+        int a = 0;
+        float b = 3.1415926;
+        a = (int)b;
+        printf("a = %d\n",a);
+        return 0;
+}
+```
+
+输出：a=3
+
+## 9.2 隐式强转
+
+若是⽤户使⽤运算符两边的类型不匹配，并且⽤户没有显示的指定匹配那种类型。系统会默认触发隐式的强转, 强转规则如下：
+
+```
+double ←←←←←← float			⾼                     
+↑
+↑
+long
+↑
+↑
+unsigned 
+↑
+↑
+int ←←←←←← char,short		低                   
+```
+
+**例：**
+
+```c
+#include <stdio.h>
+int main()
+{
+    int a = -20;            
+    unsigned int b = 6;     
+    if((a + b) > 0)
+    {
+    	printf("a + b > 0\n");        
+    }
+    else
+    {
+    	printf("a + b <= 0\n");        
+    }
+    printf("result = %u\n",a + b); 
+    return 0;
+}
+```
+
+输出：
+
+a + b > 0
+result = 4294967282
+
+分析：int和unsigned int相遇，int会自动转换成unsigned int，所以-20变20与6进行相加，故a+b>0.
+
