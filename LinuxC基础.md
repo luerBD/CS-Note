@@ -172,7 +172,7 @@ Gcc编译器：编译代码的工具。
 | v    | v+↑or↓键，选中多行<br />v+←or→键，选中多个字符<br />相当于windows中的shift键 |
 | y    | 复制                                                         |
 | p    | 粘贴                                                         |
-| x    | 删除，相当于windows中的Backspace                             |
+| x    | 剪切                                                         |
 
 
 
@@ -978,11 +978,85 @@ int main()
 }
 ```
 
+运行结果：
+
 ```
 please input your name : jack
 NAME
 jack
 ```
 
-例：初始化一个字符数组，末尾不要加'\0'，输出看看是否会乱码。
+例：定义一个长度为16的字符数组，不要初始化，分别将'h'、'e'、'l'、‘l'、'o'四个字符赋值给下标为0到4的元素，下标为5的元素不要赋值'\0'，用字符串的形式%s输出看看是否会乱码。
+
+```c
+#include<stdio.h>
+int main()
+{
+	char buf[16];
+	buf[0] = 'h';
+	buf[1] = 'e';
+	buf[2] = 'l';
+    buf[3] = 'l';
+	buf[4] = 'o';
+	printf("%s\n", buf);
+	return 0;
+}
+```
+
+例：一个字符串中有多个’\0‘的时候，会输出第一个’\0‘之前的字符串。
+
+```c
+ #include <stdio.h>
+ int main()
+ {
+	char buf[100] = {'h','e','l','\0','X','Y','Z','\0'};
+	printf("buf = %s\n",buf);
+	return 0;
+ }
+```
+
+运行结果：
+
+```
+hello
+```
+
+**练习：**
+
+char buf[100] = {0};
+
+要求⽤户从键盘输⼊字符数串存放到buf中，若是⽤户输⼊的字符数组中存在⼤写字符，则转换为⼩写字符，若是⼩写字符则不管，然后输出⽤户输⼊的数据。
+
+```c
+#include<stdio.h>
+int main()
+{
+	char buf[100] = {0};
+	int i;
+	printf("please input a string:\n");
+	scanf("%s", buf);
+	printf("your string:\n%s\n", buf);
+	for(i = 0; buf[i] != '\0'; i++)
+	{
+		if(buf[i] >= 'A' && buf[i] <= 'Z')
+		{
+			buf[i] += 32;
+		}
+	}
+	printf("after converting:\n%s\n", buf);
+	return 0;
+}
+
+```
+
+运行结果：
+
+```
+please input a string:
+AbCdEfGh! 
+your string:
+AbCdEfGh!
+after converting:
+abcdefgh!
+```
 
