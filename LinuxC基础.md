@@ -1212,3 +1212,108 @@ data1 * data2 = 200
 data1 / data2 = 2
 ```
 
+## 11.3 c语言中的特殊指针
+
+### 11.3.1 野指针
+
+**野指针**：野指针指的是指针中保存的是⽆效的内存地址。⽤户直接使⽤，系统会提示段错误。
+
+**例如：**
+
+```c
+int *p;
+*p = 800;
+```
+
+Segmentation fault (core dumped) 
+
+段错误：⼀般由⽤户访问了⾮法的内存所导致。
+
+**例：**
+
+```c
+#include <stdio.h>
+int main()
+{
+    int * p;
+    *p = 800;
+    printf("*p = %d\n", *p);
+    return 0;
+}
+```
+
+运行结果：
+
+```
+Segmentation fault (core dumped)
+```
+
+### 11.3.2 void * 指针
+
+void * 是⼀种特殊的指针类型，可⽤于存放任意对象的地址。
+
+**例如：**
+
+```c
+int  a = 10;
+void *p = &a; 
+```
+
+**缺点**：由于不知道地址中存放的是何种类型的数据，因此不能直接操作void*指针所指的对象。
+
+**例：**
+
+```c
+#include <stdio.h>
+int main()
+{
+    int data = 100;
+    void *p = &data;
+    printf("result = %d\n", *(int *)p);
+    return 0;
+}
+```
+
+运⾏结果：
+
+```
+result = 100
+```
+
+### 11.3.3 NULL指针
+
+```c
+#define	NULL (void *)0 
+```
+
+**⽤户习惯：**
+
+```c
+int *p = NULL;
+```
+
+含义：定义指针的时候，⼀般会把指针的值初始化为0地址，仅仅⽤于初始化，0地址我们⽤户⼀般没有执⾏权限。直接对0地址操作操作，系统会提示段错误。例如：
+
+```c
+int *p = NULL; 
+*p = 800;
+```
+
+Segmentation fault (core dumped) 
+
+段错误：⼀般由⽤户访问了⾮法的内存所导致。
+
+**例：**
+
+```c
+#include <stdio.h>
+int main()
+{
+    int data = 800;
+    int *p = NULL;
+    p = &data;
+    printf("result = %d\n", *p);
+    return 0;
+}
+```
+
