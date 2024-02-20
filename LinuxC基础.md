@@ -750,7 +750,9 @@ result = 4294967282
 
 ## 10.1 一维数组的定义
 
+```
 数据类型 数组名 [元素的个数];
+```
 
 **注意：**
 
@@ -1058,5 +1060,155 @@ your string:
 AbCdEfGh!
 after converting:
 abcdefgh!
+```
+
+## 10.4 二维数组的定义
+
+⼀维数组是相同数据类型元素的集合，但是只能表示⼀⾏数据。 若是存在⾏和列相关的信息 (例如矩阵)，我们就需要⽤⼆位数组来表示。
+
+```
+数据类型 数组名 [⾏数][列数];
+```
+
+**例：**
+
+```c
+int a[3][2];
+//在内存中按照还是按照⼀维数组的顺序排序的。只不过，为了⽅便⼈们识别，我们是按照⼆维的来理解。
+```
+
+①数组在内存中所占大小：sizeof(a) or 元素个数 * 一个元素大小；
+
+②内存的存放方式：按行优先存放；
+
+③定义⼆维数组的时候，⾏数可以省略不写，系统会根据默认初始化元素的个数来分配对应的内存空间。但是列数⼀定要写。(因为⼆维数组默认按⾏来进⾏优先存放的)
+
+# 11.c语言中的指针基础
+
+## 11.1 指针基础
+
+```
+      write
+ data ------>ram
+      read
+ ram  ------> data
+```
+
+**把数据写入内存，把数据从内存中读取出来，通常有两种方式：**
+
+①通过操作变量名来实现
+
+```c
+int  a; 
+a = 100;  
+printf("a = %d\n",a); 
+```
+
+②通过内存地址来进行读写操作
+
+```c
+int  a;
+```
+
+内存地址的获得⽅法:  &a
+
+规则：*  +  地址：访问地址中的内存
+
+```c
+*(&a) = 100 ;
+printf("*(&a) = %d\n",*(&a));
+```
+
+**例：**
+
+```c
+#include <stdio.h>
+int main()
+{
+    int a = 80;
+    *(&a) = 66; 
+    printf("*(&a) = %d\n",*(&a));
+    printf("a = %d\n",a); 
+    return 0;
+}
+```
+
+运⾏结果：
+
+```shell
+*(&a) = 66
+a = 66
+```
+
+**指针类型的变量：**
+
+```
+常量				 变量的类型
+-------------------------------
+10					int 
+3.15				float 
+'A'					char 
+0xdff88				?
+(内存地址)
+```
+
+思考：内存地址该⽤什么样的类型来保存呢？
+
+答：为了解决这样的问题，C语⾔的设计者创建了指针类型，来保存内存地址。
+
+## 11.2 指针的定义
+
+```c
+数据类型 * 指针变量名;
+```
+
+**例：**
+
+```c
+char * p;  
+short * q;  
+int * m;    
+int  data = 10;
+int * p = &data;
+*p = 88;
+printf("*p = %d\n",*p)
+```
+
+<img src="assets/image-20240220113449959.png" alt="image-20240220113449959" style="zoom:50%;" />
+
+**例：**
+
+```c
+#include <stdio.h>
+int main()
+{
+        int data1 = 0,data2 = 0;
+        int * p = &data1;  
+        int * q = &data2;  
+        int sum = 0;
+        printf("please input two data : ");
+        scanf("%d%d",p,q);
+        printf("data1 = %d data2 = %d\n",data1,data2);
+        sum = *p + *q;
+        printf("data1 + data2 = %d\n",sum);
+        sum = *p - *q;
+        printf("data1 - data2 = %d\n",sum);
+        sum = data1 * data2;
+        printf("data1 * data2 = %d\n",sum);
+        sum = data1 / data2;
+        printf("data1 / data2 = %d\n",sum);
+        return 0;
+}
+```
+
+运⾏结果：
+
+```
+please input two data : 20 10
+data1 = 20 data2 = 10
+data1 + data2 = 30
+data1 - data2 = 10
+data1 * data2 = 200
+data1 / data2 = 2
 ```
 
