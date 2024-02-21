@@ -1945,3 +1945,200 @@ int *p = NULL;
 int **q = NULL;
 ```
 
+## 11.7 指针数组
+
+**前言：**
+
+5个int类型变量组成的数组，我们叫做整型数组，例如int a[5]。
+
+5个char类型变量组成的数组，我们叫做字符数组，例如char b[5]。
+
+5个指针类型变量组成的数组，我们叫做指针数组。
+
+**含义：**
+
+指针数组：它本质是⼀个数组, 只不过该数组由多个指针来构成，所以，我们叫做指针数组。每个指针中存放的都是地址值，定义⼀个指针数组等价于定义了多个指针变量。
+
+### 11.7.1 定义方式
+
+```c
+数据类型 * 变量名[元素个数];
+```
+
+例如： 
+
+```
+int * p[5];
+```
+
+①数组中的元素：p[0] p[1] p[2] p[3] p[4]；
+
+②数组中每个元素的类型：int *
+
+③整个数组的⼤⼩：sizeof(p)   ===>20bytes
+
+④⼀个元素的⼤⼩：sizeof(p[0])  ===>4bytes
+
+⑤元素的个数：sizeof(p) / sizeof(p[0])
+
+⑥数组的⾸地址：p <===> &p[0]
+
+<img src="assets/image-20240221220723337.png" alt="image-20240221220723337" style="zoom:50%;" />
+
+示例代码：
+
+```c
+#include <stdio.h>
+int main()
+{
+        int a = 10,b = 20,c = 30;
+        int *p[3] = {&a,&b,&c};
+        int n = sizeof(p)/sizeof(p[0]);
+        int i = 0;
+        printf("&a = %p\n",&a);
+        printf("&b = %p\n",&b);
+        printf("&c = %p\n",&c);
+        printf("============================\n");
+        printf("n = %d\n",n);
+        for(i = 0;i < n;i++)
+        {
+                printf("*p[%d] = %d\n",i,*p[i]);        
+        }
+        return 0;
+}
+```
+
+运⾏结果：
+
+```
+&a = 0xfff0e9cc
+&b = 0xfff0e9d0
+&c = 0xfff0e9d4
+============================
+n = 3
+*p[0] = 10
+*p[1] = 20
+*p[2] = 30
+```
+
+### 11.7.2 指针数组⼯程的⽤法 (模拟 linux 底层的内核代码)
+
+```c
+int a = 10,b = 20,c = 30;
+int  *p_array[] = {&a,&b,&c,NULL};
+int i = 0;
+for(i = 0;p_array[i] != NULL;i++)
+{
+       printf("%p\n",p_array[i])
+}
+```
+
+示例代码：
+
+```c
+#include <stdio.h>
+int main()
+{
+        char a[] = {"zhao"};
+        char b[] = {"qian"};
+        char c[] = {"sun"};
+        char *q[] = {a,b,c,NULL};
+        int i = 0;
+        char *t = NULL;
+        for(i = 0;q[i] != NULL;i++)
+        {
+                for(t = q[i];*t != '\0' ;t++)
+                {
+                    printf("%c ",*t);   
+                }      
+                printf("\n");
+        }
+        return 0;
+}
+```
+
+运⾏结果：
+
+```
+z h a o 
+q i a n 
+s u n
+```
+
+### 11.7.3 二级指针保存指针数组的地址
+
+示例⽤法：
+
+```c
+char a = 10,b = 20,c = 30;
+char *array[] = {&a,&b,&c,NULL};
+```
+
+array <====>&array[0];
+
+array[0]的类型是char *
+
+&array[0]应该定义char ** 的类型来保存。故
+
+```c
+char a = 10,b = 20,c = 30;
+char *array[] = {&a,&b,&c,NULL};
+char ** q = array;  
+```
+
+⼀维数组的特性：
+
+int a[5] = {10,20,30,40,50};   
+
+int *p = a;
+
+a[i] <===> *(a + i) <===> *(p + i) <==> p[i]
+
+```
+char a = 10,b = 20,c = 30;
+char *array[] = {&a,&b,&c,NULL};
+char ** q = array;    
+```
+
+指针数组的特点：取出元素获得的是地址
+
+array[i] <====> *(array + i) <===> *(q + i) <===> q[i]
+
+获得数据的⽅法：
+
+*array[i] <====> *( *(array + i) ) <===> *( *(q + i) ) <===> *q[i]
+
+示例代码：
+
+```c
+#include <stdio.h>
+int main()
+{
+        int a = 100,b = 200,c = 300;
+        int *t[] = {&a, &b,  &c,NULL};
+        int i = 0,j = 0;
+        int **q = t; 
+        for(i = 0;t[i] != NULL;i++)
+        {
+                printf("%d ",*q[i]);        
+        }
+        printf("\n");
+        return 0;
+}
+```
+
+
+
+练习：
+
+```
+char a1[] = "abcde";
+char a2[] = "XYZBBQ";
+char *p_array[] = {a1,a2,NULL};
+```
+
+①要求把通过p_array把a1所有所有⼩写字符换成⼤写字符。
+
+②要求把通过p_array把a2所有所有⼤写字符换成⼩写字符。
+
+③输出a1和a2字符串的数据观察效果。
