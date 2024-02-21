@@ -1509,6 +1509,84 @@ y = 0xff8734de
 z = 0xff8734e0
 ```
 
+**练习1：**
+
+定义⼀个数组int a[5] = {0};要求⼤家从键盘上输⼊数据给数组赋值。
+
+然后定义⼀个指针int *p_max;要求它保存最⼤值的地址。
+
+然后通过*p_max输出最⼤值。
+
+```c
+#include<stdio.h>
+int main()
+{
+	int a[5] = {0};
+	int * p_max = a;
+	int i;
+	printf("请输入五个数字：");
+	for(i = 0; i < 5; i++)
+	{
+		scanf("%d", &a[i]);
+		if(*p_max < a[i])
+		{
+			p_max = &a[i];
+		}
+	}
+	printf("p_max = %d\n", *p_max);
+	return 0;
+}
+
+```
+
+**练习2：**
+
+```c
+unsigned int data = 0x11223344;:
+unsigned short *q = NULL;
+unsigned short t1 = 0;
+unsigned short t2 = 0; 
+```
+
+①要求指针q保存data的地址；
+
+②要求利⽤q读取data的低2个字节赋值給t1 ===>0x3344；
+
+​	要求利⽤q读取data的⾼2个字节赋值給t2 ===>0x1122；
+
+③输出t1和t2的和与差。
+
+```c
+#include<stdio.h>
+int main()
+{
+	unsigned int data = 0x11223344;
+	unsigned short *q = NULL;
+	unsigned short t1 = 0;
+	unsigned short t2 = 0;
+	q = (short *)&data;
+	t1 = *q;
+	t2 = *++q;
+	printf("t1 = %#x\n", t1);
+	printf("t2 = %#x\n", t2);
+	printf("t1 + t2 = %#x\n", t1 + t2);
+	printf("t1 - t2 = %#x\n", t1 - t2);
+	return 0;
+}
+
+```
+
+运行结果：
+
+```
+t1 = 0x3344
+t2 = 0x1122
+t1 + t2 = 0x4466
+t1 - t2 = 0x2222
+```
+
+
+
 ## 11.5 一级指针和一维数组
 
 ### 11.5.1 回忆数组
@@ -1670,6 +1748,8 @@ char a[5] = {10,20,31,32,40};
 
 *(((char *)(&a + 1)) - 3) - 2 ====>输出多少？
 
+答案：19
+
 **练习：**
 
 ```c
@@ -1678,3 +1758,43 @@ int *p = a;
 ```
 
 要求通过a，a[i]和p，p[i]四种不同的形式输出数组的内容。
+
+```c
+#include<stdio.h>
+int main()
+{
+	int a[5] = {10, 20, 30, 40, 50};
+	int *p = a;	
+	int i;
+	printf("a的形式：");
+	for(i = 0; i < 5; i++)
+	{
+		printf("%d ", *(a + i));
+	}
+	printf("\n");
+
+	printf("a[i]的形式：");
+	for(i = 0; i < 5; i++)
+	{
+		printf("%d ", a[i]);
+	}
+	printf("\n");
+
+	printf("p的形式：");
+	for(i = 0; i < 5; i++)
+	{
+		printf("%d ", *(p + i));
+	}
+	printf("\n");
+
+	printf("p[i]的形式：");
+	for(i = 0; i < 5; i++)
+	{
+		printf("%d ", p[i]);
+	}
+	printf("\n");
+	return 0;
+}
+
+```
+
