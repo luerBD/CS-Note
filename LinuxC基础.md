@@ -1099,7 +1099,7 @@ int a[3][2];
 
 ③定义⼆维数组的时候，⾏数可以省略不写，系统会根据默认初始化元素的个数来分配对应的内存空间。但是列数⼀定要写。(因为⼆维数组默认按⾏来进⾏优先存放的)
 
-# 11.c语言中的指针基础
+# 11.c语言中的指针
 
 ## 11.1 指针基础
 
@@ -1796,5 +1796,152 @@ int main()
 	return 0;
 }
 
+```
+
+## 11.6 多级指针的使用
+
+### 11.6.1 指针的设计规则
+
+本质：所有的指针都是⽤来保存地址的，只不过因为保存地址的数据类型不同，从⽽拥有多种指针类型。
+
+规则：
+
+⼀级指针变量是⽤来保存普通变量的地址；
+
+⼆级指针变量是⽤来保存⼀级指针变量本身⾃⼰的地址；
+
+三级指针变量是⽤来保存⼆级指针变量本身⾃⼰的地址；
+......
+
+以⼆级指针为例，定义⽅式如下：
+
+```c
+数据类型 ** 变量名;
+```
+
+例如：
+
+```c
+int a = 10;
+int * p = &a;  
+int ** q = &p;
+```
+
+### 11.6.2 指针的使用结论
+
+**①在 32bit 的系统中，所有的指针变量都是 4bytes。**
+
+示例代码：
+
+```c
+#include <stdio.h>
+int main()
+{
+        int *p = NULL;
+        char **p_char = (char **)&p;
+        short **p_short = (short **)&p;
+        int **p_int = (int **)&p;
+    	printf("sizeof(p_char) = %d\n", sizeof(p_char));
+    	printf("sizeof(p_short) = %d\n", sizeof(p_short));
+    	printf("sizeof(p_int) = %d\n", sizeof(p_int));
+        return 0;
+}
+```
+
+运⾏结果：
+
+```c
+sizeof(p_char) = 4
+sizeof(p_short) = 4
+sizeof(p_int) = 4
+```
+
+**②在 32bit 的系统中，多级指针 (⼆级和⼆级以上) 在移动的每次移动都是 4bytes，因为⼀个指针⼤⼩是4bytes。**
+
+示例代码：
+
+```c
+#include <stdio.h>
+int main()
+{
+        int *p = NULL;
+        char **p_char = (char **)&p;
+        short **p_short = (short **)&p;
+    	int **p_int = (int **)&p;
+        printf("p_char = %p\n",p_char);
+        printf("p_short = %p\n",p_short);
+        printf("p_int = %p\n",p_int);
+        printf("============================\n");
+        p_char++;
+        p_short++;
+        p_int ++;
+        printf("p_char = %p\n",p_char); 
+        printf("p_short = %p\n",p_short); 
+        printf("p_int = %p\n",p_int); 
+        return 0;
+}
+```
+
+运⾏结果：
+
+```
+p_char = 0xfff0fabc
+p_short = 0xfff0fabc
+p_int = 0xfff0fabc
+============================
+p_char = 0xfff0fac0
+p_short = 0xfff0fac0
+p_int = 0xfff0fac0
+```
+
+### 11.6.3 二级指针和一维数组的转换
+
+```c
+int  a[5] = {10,20,30,40,50};
+int *p = a;
+int **q = &p;  
+```
+
+⽽根据⼀维数组得出结论： 
+
+a[i] <===> *(a + i) <===> *(p + i) <===> p[i]
+
+且当前*q <===> p，故
+
+*(p + i) <===> p[i] <===> *( *q + i ) <===> ( *q )[i]
+
+示例代码：
+
+```c
+#include <stdio.h>
+int main()
+{
+        int a[5] = {10,11,12,13,14};
+        int *p = a;
+        int **q = &p;   
+        printf("a[3] = %d\n",a[3]);
+        printf("*(a + 3) = %d\n",*(a + 3));
+        printf("*(p + 3) = %d\n",*(p + 3));
+        printf("p[3] = %d\n",p[3]);
+        printf("==========================\n");
+        printf("*(*q + 3) = %d\n",*(*q + 3));
+        printf("(*q)[3] = %d\n",(*q)[3]);
+        return 0;
+}
+```
+
+运行结果：
+
+```
+a[3] = 13
+*(a + 3) = 13
+*(p + 3) = 13
+p[3] = 13
+==========================
+*(*q + 3) = 13
+(*q)[3] = 13
+int a[5] = {1,3,5,7,9};
+int *p = NULL;
+int **q = NULL;
 ```
 
