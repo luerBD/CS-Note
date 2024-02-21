@@ -1375,9 +1375,9 @@ int *p = &m;
 
 ### 11.4.2 指针的结论
 
-在 32bit 的操作系统中，所有类型的指针变量都占用4bytes。[因为地址为 4bytes]
+**①在 32bit 的操作系统中，所有类型的指针变量都占用4bytes。[因为地址为 4bytes]**
 
-**示例代码：**
+示例代码：
 
 ```c
 #include <stdio.h>
@@ -1391,5 +1391,121 @@ int main()
         printf("sizeof(z) = %d\n",sizeof(z));
         return 0;
 }
+```
+
+运⾏结果：
+
+```
+ sizeof(x) = 4 
+ sizeof(y) = 4 
+ sizeof(z) = 4
+```
+
+**②不同类型的指针变量，对 C 语⾔中的同⼀块内存进⾏读取的时候，每次读取的字节数不同。**
+
+(读取为指针变量 + *, 剩下数据类型的⼤⼩)，具体如下:
+
+例：int a = 0x12345678; (ubuntu 默认⼩端模式 )
+
+```tex
+低地址
+0xdff30        0x78   <-----
+0xdff31        0x56   
+0xdff32        0x34   
+0xdff33        0x12   
+⾼地址
+```
+
+```c
+char *p = (char *)&a;
+short *q = (short *)&a;
+int *m = &a; 
+// *p = 0x78
+// *q = 0x5678
+// *m = 0x12345678
+```
+
+示例代码：
+
+```c
+#include <stdio.h>
+int main()
+{
+        char *x;
+        short *y;
+        int *z;
+        int t = 0x12345678;
+        x = (char *)&t;
+        y = (short *)&t;
+        z = &t;
+        printf("*x = %#x\n",*x); 
+        printf("*y = %#x\n",*y);
+        printf("*z = %#x\n",*z);
+}
+```
+
+运⾏结果：
+
+```
+*x = 0x78
+*y = 0x5678
+*z = 0x12345678
+```
+
+**③在 32bit 的操作系统中，不同类型的指针变量每次的移动⼤⼩不⼀样。**
+
+（每次移动的⼤⼩为指针变量 + *, 剩下数据类型的⼤⼩），具体如下：
+
+```c
+int a = 0x12345678;
+char *p = (char *)a;
+short *q = (short *)a;
+int *m = a; 
+p++;	// 0x56
+q++; 	// 0x5678
+m++; 	// 0x12345678
+```
+
+示例代码：
+
+```c
+#include <stdio.h>
+int main()
+{
+        char *x;
+        short *y;
+        int *z;
+ 		int t = 0x12345678;
+        x = (char *)&t;
+        y = (short *)&t;
+        z = &t;
+        printf("&t = %p\n",&t);
+        printf("x = %p\n",x);
+        printf("y = %p\n",y);
+        printf("z = %p\n",z);
+        printf("======================\n");
+        x++;
+        y++;
+        z++;
+        printf("&t = %p\n",&t);
+        printf("x = %p\n",x);
+        printf("y = %p\n",y);
+        printf("z = %p\n",z);
+        return 0;
+}
+```
+
+运⾏结果：
+
+```
+&t = 0xff8734dc
+x = 0xff8734dc
+y = 0xff8734dc
+z = 0xff8734dc
+======================
+&t = 0xff8734dc
+x = 0xff8734dd
+y = 0xff8734de
+z = 0xff8734e0
 ```
 
