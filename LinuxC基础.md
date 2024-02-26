@@ -2247,7 +2247,7 @@ const 是 constant 的缩写, 意思是 "恒定不变的量"。在 C 语⾔中 c
 
 ### 12.2.1 修饰普通变量
 
-格式：
+**格式：**
 
 ```c
 数据类型 const 变量名 = 值;
@@ -2255,9 +2255,9 @@ const 是 constant 的缩写, 意思是 "恒定不变的量"。在 C 语⾔中 c
 const 数据类型 变量名 = 值；
 ```
 
-功能：const 给修饰的变量添加了只读属性，⽆法通过变量名来直接修改变量的值。
+**功能：**const 给修饰的变量添加了只读属性，⽆法通过变量名来直接修改变量的值，但可以通过指向该变量的指针来间接修改该变量的值。
 
-例⼦:
+**例⼦:**
 
 ```
 int  const a = 100; 
@@ -2265,7 +2265,7 @@ const int  b = 200;
 a = 800;
 ```
 
-示例代码：
+**示例代码：**
 
 ```c
 #include <stdio.h>
@@ -2279,7 +2279,81 @@ int main()
 }
 ```
 
+运⾏结果：
 
+```
+pi = 88.88
+```
 
-### 12.2.2 修饰指针
+**思考：**为什么通过指针能够修改原来变量的值呢？
+
+这个原因跟编译器有很⼤的关系。我们 gcc 编译是它在编译阶段的时候会进⾏检查。 const 可以理解为修饰了变量名，变量名拥有了只读属性。查看⽤户是否通过变量名来操作 , 若是操作了则会编译错误。
+
+### 12.2.2 修饰指针变量
+
+const 除了修饰变量外，还可以修饰指针变量。修饰指针有以下⼏种⽤法 : 
+
+```c
+int const *p;  
+const int *p;  
+int *const p;  
+int  const * const p; 
+const int * const p;  
+```
+
+**查看⽅法：**
+
+观看 const 后⾯修饰的是什么。若是 p ，表示指针本身不能改。若是 *p 或 int 代表数值不能改。 若是有多个 const 代表都不能改。
+
+**代码示例：**
+
+```c
+ #include <stdio.h>
+ int main()
+ {
+    int data = 100;
+    int const *x = &data;
+    const int *y = &data;
+    int *const z = &data;
+    int const *const p = &data;
+    const int *const q = &data;
+    x++;
+    (*x)++;
+    y++;
+    (*y)++;
+    z++;
+    (*z)++;
+    p++;
+    (*p)++;
+    q++;
+    (*q)++;
+    return 0;
+ }
+```
+
+运行结果：
+
+```
+ hello.c: In function ‘main’:
+ hello.c:16:6: error: increment of read-only location ‘*x’
+  (*x)++;
+      ^~
+ hello.c:19:6: error: increment of read-only location ‘*y’
+  (*y)++;
+      ^~
+ hello.c:21:3: error: increment of read-only variable ‘z’
+  z++;
+   ^~
+ hello.c:24:3: error: increment of read-only variable ‘p’
+  p++;
+   ^~
+ hello.c:25:6: error: increment of read-only location ‘*p’
+  (*p)++;
+      ^~
+ hello.c:27:3: error: increment of read-only variable ‘q’
+  q++;
+   ^~
+ hello.c:28:6: error: increment of read-only location ‘*q’
+  (*q)++;
+```
 
