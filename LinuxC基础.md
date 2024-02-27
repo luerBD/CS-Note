@@ -2650,3 +2650,46 @@ please input word explain : This a hello
 helloThis a hello 
 ```
 
+## 13.5 指针函数
+
+本质：是⼀个函数，只不过返回值是⼀个地址。
+
+思考：如何定义⼀个指针函数？
+
+```c
+返回值类型 * 函数名称 （类型 1 参数 1, 类型 2 参数 2 ,…）;
+```
+
+练习：
+
+①要求⼤家是设计⼀个design_arary()函数，⾃⼰定义返回值和参数。要求design_array()函数中定义⼀个
+
+static char a[100] = {0}; 然后把数组⾸地址和⻓度返回。
+
+②设计⼀个input_array()函数，⾃定义返回值和参数，要求⽤户从键盘输⼊任意的字符串，存放到 a 数组中。
+
+③设计⼀个output_array()函数，要求输出 a 数组中的每个⼀字符，以空格作为区分。w u h a n s h a n g h a i
+
+④设计⼀个 cout_space() 函数，⾃定义返回和参数，要求⽤户统计数组 a 中⽤户 输⼊的空格个数，并返回值给 main 函数。
+
+⑤main()函数调⽤以上函数，并输出空格个数。
+
+```c
+#include<stdio.h>
+char * design_array(int * plen)
+{
+	static char a[100] = {0};
+	*plen = sizeof(a) / sizeof(a[0]);
+	printf("a = %p\n", a);
+	return a;
+}
+int main()
+{
+	int len;
+	char * p = design_array(&len);
+	printf("p = %p\n", p);
+	printf("len = %d\n", len);
+	return 0;
+}
+```
+
