@@ -2654,7 +2654,7 @@ helloThis a hello
 
 本质：是⼀个函数，只不过返回值是⼀个地址。
 
-思考：如何定义⼀个指针函数？
+定义格式：
 
 ```c
 返回值类型 * 函数名称 （类型 1 参数 1, 类型 2 参数 2 ,…）;
@@ -2668,7 +2668,7 @@ static char a[100] = {0}; 然后把数组⾸地址和⻓度返回。
 
 ②设计⼀个input_array()函数，⾃定义返回值和参数，要求⽤户从键盘输⼊任意的字符串，存放到 a 数组中。
 
-③设计⼀个output_array()函数，要求输出 a 数组中的每个⼀字符，以空格作为区分。w u h a n s h a n g h a i
+③设计⼀个output_array()函数，要求输出 a 数组中的每⼀个字符，以空格作为区分。w u h a n s h a n g h a i
 
 ④设计⼀个 cout_space() 函数，⾃定义返回和参数，要求⽤户统计数组 a 中⽤户 输⼊的空格个数，并返回值给 main 函数。
 
@@ -2683,12 +2683,191 @@ char * design_array(int * plen)
 	printf("a = %p\n", a);
 	return a;
 }
+void input_array(char *a)
+{
+	int i;
+	printf("请输入字符串：");
+	gets(a);
+}
+
+void output_array(char * a, int len)
+{
+	int i;
+	printf("您输入的字符串为：");
+	for(i = 0; i < len; i++)
+	{
+		printf("%c ", a[i]);
+	}
+	printf("\n");
+
+}
+
+int cout_space(char * a)
+{
+	int i, cnt = 0;
+	for(i = 0; a[i] != '\0'; i++)
+	{
+		if(a[i] == ' ')
+		{
+			cnt++;
+		}
+	}
+	return cnt;
+}
+
+
 int main()
 {
 	int len;
 	char * p = design_array(&len);
-	printf("p = %p\n", p);
-	printf("len = %d\n", len);
+	input_array(p);
+	output_array(p, len);
+	printf("字符串中空格的数量：%d\n", cout_space(p));
+	return 0;
+}
+```
+
+## 13.6 函数指针
+
+### 13.6.1 函数指针
+
+本质：是⼀个指针，只不过是⽤来保存函数的地址的。 通过函数指针来调⽤，我们需要的函数。
+
+定义格式：
+
+```c
+数据类型 (*指针变量名)(类型1  参数1，类型2 参数2...);
+
+注：
+①函数名代表函数的⾸地址
+②上述中的参数1，参数2..等可省略
+```
+
+例如： 
+
+```c
+int a;   
+short b;  
+int c[5];  
+int add(int a,int b) 
+{
+	return a + b;
+}
+```
+
+判断变量类型的⽅法 : 把变量名去掉，剩下的就是类型。
+
+例如：
+
+```c
+int (*funp)(int ,int) = add;  
+add(10,20);  
+funp(10,20);  
+```
+
+示例代码：
+
+```c
+#include <stdio.h>
+int add(int a,int b) 
+{
+        return a + b;
+}
+int sub(int a,int b) 
+{
+        return a - b;
+}
+int main(int argc, const char *argv[])
+{
+        int ret = 0;        
+        ret = add(10,20);  
+        printf("a + b = %d\n",ret);
+        printf("add = %p\n",add);
+        printf("============================\n");
+        int (*funp)(int ,int ) = add; 
+        printf("funp = %p\n",funp);
+        ret = funp(10,20);  
+        printf("a + b = %d\n",ret);
+        funp = sub;
+        ret = funp(10,20);
+        printf("a - b = %d\n",ret);
+        return 0;
+ }
+```
+
+运行结果：
+
+```
+a + b = 30
+add = 0x5657654d
+============================
+funp = 0x5657654d
+a + b = 30
+a - b = -10
+```
+
+### 13.6.2 回调函数
+
+回调函数就是⼀个通过函数指针调⽤的函数。如果你把函数的地址作为参数传递给另⼀个函数，在另⼀个函数中通过指针来接收，通过指针来调⽤其函数，我们就说这是回调函数。
+
+```c
+#include <stdio.h>
+int add(int a,int b)
+{
+    return a + b;
+}
+int sub(int a,int b)
+{
+    return a - b;
+}
+int calc(int a,int b,int (*pfun)(int,int))
+{
+      int result;
+      result = pfun(a,b);
+      return result;
+}
+int main()
+{
+    int result = 0;
+    result = calc(20,10,add)
+    printf("a + b = %d\n",result);
+    result = calc(20,10,sub)
+    printf("a - b = %d\n",result);
+    return 0;
+}
+```
+
+练习：
+
+设计⼀个int find_max(int x,int y)函数，要求返回两个数中较⼤的值
+
+
+设计⼀个int find_min(int x,int y)函数，要求返回两个数中较⼩的值
+
+
+设计⼀个int get_result(int x,int y,int (*pfun)(int ,int))函数，内部调⽤pfun函数,x,y当作pfun的参数，返回对应的结果。
+
+main函数调⽤上述函数，输出结果。
+
+```c
+#include<stdio.h>
+int min(int a, int b)
+{
+	return a < b ? a : b;
+}
+int max(int a, int b)
+{
+	return a > b ? a : b;
+}
+
+int get_result(int a, int b, int (* pfunc)(int, int))
+{
+	return pfunc(a, b);
+}
+int main()
+{
+	printf("max:%d\n", get_result(10, 20, max));
+	printf("min:%d\n", get_result(10, 20, min));
 	return 0;
 }
 ```
