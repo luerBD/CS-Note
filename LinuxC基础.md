@@ -2495,3 +2495,158 @@ int main()
 13
 ```
 
+## 13.3 函数传参之数组
+
+本质 ：函数传参的本质是变量间的赋值操作，数组名本质是⾸元素的地址，传递数组的⾸地址，我们定义指针来接收接⼝。
+
+示例代码：
+
+```c
+ #include <stdio.h>
+ void input_array(int *p,const int plen)
+ {
+        int i = 0;
+        printf("please input %d data : ",plen);
+        for(i = 0;i < plen;i++)
+        {
+                scanf("%d",&p[i]);        
+        }
+ }
+ void output_array(int *p,const int plen)
+ {
+        int i = 0;
+        for(i = 0;i < plen;i++)
+        {
+                printf("%d ",p[i]);
+        }
+        printf("\n");
+ }
+ int main(void)
+ {
+        int a[5] = {0};
+        int len = sizeof(a)/sizeof(a[0]);
+        input_array(a,len);
+        output_array(a,len);
+        return 0;
+ }
+```
+
+## 13.4 字符串相关操作函数
+
+头⽂件：#include <string.h>
+
+### 13.4.1 strcpy
+
+strcpy(char dest[], char src[])  
+
+功能 :  把 src 数组中 '\0' 之前的所有字符，连同 '\0' ⼀起拷⻉到 dest 中去。要求在定义 dest 的时候，要⾜够⼤ .
+
+参数 :   
+
+```
+@ dest      ⽬标数组 
+@ src       源数组---- [ 数组⾸地址或字符串 ]
+```
+
+例如：
+
+```c
+char buf[20] = {0};
+strcpy(buf,"hello");
+printf("buf = %s\n",buf);
+```
+
+示例代码：
+
+```c
+#include <stdio.h>
+#include <string.h>
+int main()
+{
+        char buf[20] = {'h','e','l','l','o','\0'};
+        int i = 0;
+        strcpy(buf,"QQ");
+        for(i = 0;i < 20;i++)
+        {
+                printf("%c : %d\n",buf[i],buf[i]);        
+        }
+        printf("buf = %s\n",buf); 
+        return 0;
+}
+```
+
+运行结果：
+
+```
+Q : 81
+Q : 81
+  : 0
+l : 108
+o : 111
+  : 0
+  : 0
+  : 0
+  : 0
+  : 0
+  : 0
+  : 0
+  : 0
+  : 0
+  : 0
+  : 0
+  : 0
+  : 0
+  : 0
+  : 0
+buf = QQ
+```
+
+### 13.4.2 strcat
+
+strcat(char dest[], char src[]); 
+
+功能：把 src 数组 '\0' 之前的字符串追加到 dest 字符串后 , 若是 dest 中有 '\0', 会把 dest 中的 '\0' 给覆盖掉 , 然后新组成的 dest 字符串会重新添加 '\0'。
+
+参数：
+
+```
+⽬标数组    @ dest  
+源数组      @ src   [字符数组或字符串]
+```
+
+例如：
+
+```c
+char buf[] = "hello";
+strcat(buf," world");  
+```
+
+示例代码：
+
+```c
+#include <stdio.h> 
+#include <string.h>
+int main()
+{
+        char word[20];
+        char explain[20];
+        char sql[50];
+        printf("please input you select word : ");
+        gets(word);
+        printf("please input word explain : ");
+        gets(explain);
+        strcpy(sql,word);        
+        strcat(sql,explain);
+        printf("%s\n",sql);
+        return 0;
+}
+```
+
+运行结果：
+
+```
+please input you select workd : hello
+please input word explain : This a hello  
+helloThis a hello 
+```
+
