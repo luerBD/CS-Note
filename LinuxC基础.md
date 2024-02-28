@@ -2872,3 +2872,288 @@ int main()
 }
 ```
 
+# 14.C语言宏定义的使用
+
+## 14.1 宏定义
+
+简介：
+
+```c
+格式：#define  宏名	常量
+功能：宏名代替常量，做到⻅名知意
+```
+
+示例用法：
+
+```c
+#define  MAX  100
+说明：
+①表示MAX这个符号标识的值是100
+②编译器会将宏替换成宏后⾯的内容
+```
+
+## 14.2 宏函数
+
+简介：
+
+```
+#define 宏函数名(参数1，参数2)  表达式
+特点：宏都是原样替换
+```
+
+示例用法：
+
+```c
+#define M	10
+#define CALC(x)   (x * x)
+int main()
+{
+    printf("M = %d\n",M);
+    printf("Result = %d\n", CALC(M + M));    
+    return 0;
+}
+```
+
+运行结果：
+
+```
+M = 10
+Result = 120
+```
+
+## 14.3 嵌入式开发常用宏操作do..while(0)
+
+我们来看⼀个简单的例⼦：
+
+```c
+void print_demo_first()
+{
+        printf("demo first\n");
+}
+void print_demo_second()
+{
+        printf("demo second\n");
+}
+void print_demo_third()
+{
+        printf("demo second\n");
+} 
+#define   TEST()     printDemo1();printDemo2();
+int main()
+{
+    TEST(); 
+    return 0;
+}
+```
+
+改变代码架构，若是存在 if… else 语句调⽤则会出错。 
+
+例如：修改main()中代码
+
+```c
+int main()
+{
+	int n;
+	scanf("%d", &n);
+	if(n % 2 == 0)
+		TEST();
+	else
+		print_demo_third();
+    return 0;
+}
+```
+
+解决⽅案：使⽤ do… while 语句防⽌编译出错。 注: 宏定义种 do… while 的 while 后⾯不能加;
+
+例如：用do...while修改宏定义中的代码
+
+```c
+#define  TEST()   do{ \
+	print_demo_first(); \
+	print_demo_second();\
+}while(0)
+```
+
+## 14.4 字符串化运算符
+
+ \# 我们常称为字符串化运算符，因为它会把宏调⽤时的实参转换为字符串。
+
+```
+示例：
+#define  FUN(x)   printf(#x "= %d\n",x)
+
+FUN(4 + 2)
+输出结果：4 + 2 = 6  
+```
+
+示例用法：
+
+```c
+#include <stdio.h>
+#define STR(x)  #x
+#define NUM 10
+int main()
+{
+    printf("%s\n",STR(3));
+    printf("%s\n",STR(NUM));
+    return 0;
+}
+```
+
+## 14.5 不定参数宏
+
+简介：
+
+```
+C99标准中规定允许⽤户定义有省略号的宏，省略号必须放在参数列表的后⾯，以表示可选参数。
+你可以⽤可选参数来调⽤这类宏。在代码中⽤...代表。他们被保存到__VA_ARGS__中。
+__VA_ARGS__ : ⽤于在宏替换部分中，表示可变参数列表；
+```
+
+示例代码：
+
+```c
+#include <stdio.h>
+#define LOG(...)   printf(__VA_ARGS__)
+#define LOGSTR(fm,...) printf(fm,__VA_ARGS__);
+int main()
+{
+    LOG("This Time is %d o'clock\n",9);
+    LOG("This TIme is %d:%d:%d\n",18,12,23);
+    LOGSTR("data = %d%s\n",100,"RMB");
+    return 0;
+}
+```
+
+运行结果：
+
+```
+This Time is 9 o'clock
+This TIme is 18:12:23
+data = 100RMB
+```
+
+练习：
+
+写⼀个宏获取两个数中较⼤的值。 
+
+```
+#define  MAX_VALUE(x,y)   xxx 
+
+例如 : 
+int a = 10; 
+int b = 20; 
+int max;
+```
+
+```c
+#include<stdio.h>
+#define MAX_VALUE(x, y) x > y ? x : y
+int main()
+{
+	int a = 10;
+	int b = 20;
+	int max = MAX_VALUE(a, b);
+	printf("max = %d\n", max);
+	return 0;
+}
+```
+
+# 15.条件编译
+
+## 15.1 判断宏名是否为真
+
+格式：
+
+```
+#if  宏名
+   C语⾔1;
+#else 
+   C语⾔2;
+#endif
+```
+
+功能：为真编译C语⾔代码1，否则编译C语⾔代码2
+
+示例代码：
+
+```c
+#include <stdio.h>
+int main(int argc, const char *argv[])
+{
+        int a[5] = {10,20,30,40,50};        
+        int i = 0;
+        int *p = a;
+	 	#if 0
+	 		for(i = 0;i < 5;i++)
+        	{
+                printf("%d ",a[i]);        
+        	}
+        	putchar('\n');
+ 		#endif
+          	for(i = 0;i < 5;i++)
+        	{
+                printf("%d ",p[i]);        
+        	}
+        	putchar('\n');
+        return 0;
+} 
+```
+
+注意：
+
+```
+int main(int argc, const char *argv[])
+argc:命令行传递参数的个数
+argv[0]:命令行传递的第一个参数
+argv[1]:命令行传递的第二个参数
+argv[2]:命令行传递的第三个参数
+```
+
+## 15.2 判断宏名是否没有定义
+
+格式：
+
+```c
+#ifndef  宏名
+   C语⾔语句
+#endif
+```
+
+功能：若是没有定义，会执⾏对应的C语⾔语句,若是定义了则不会执⾏
+
+示例代码：
+
+```c
+#include <stdio.h>
+#define DEBUG 
+int main(int argc, const char *argv[])
+{
+        int a[5] = {10,20,30,40,50};        
+        int i = 0;
+        int *p = a;
+#ifndef DEBUG     
+        for(i = 0;i < 5;i++)
+        {
+                printf("a[%d] = %d\n",i,a[i]);        
+        }
+#else
+        for(i = 0;i < 5;i++)
+        {
+                printf("p[%d] = %d\n",i,p[i]);        
+        }
+#endif
+        return 0;
+}
+```
+
+运⾏结果：
+
+```
+p[0] = 10
+p[1] = 20
+p[2] = 30
+p[3] = 40
+p[4] = 50
+```
+
