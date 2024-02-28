@@ -29,3 +29,42 @@ struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *he
 }
 ```
 
+## 2.翻转链表
+
+206. Reverse Linked List (Easy)
+
+[Leetcode](https://leetcode.com/problems/reverse-linked-list/description/) / [力扣](https://leetcode-cn.com/problems/reverse-linked-list/description/)
+
+<img src="assets/微信图片_20240228153706.jpg" alt="微信图片_20240228153706" style="zoom: 25%;" />
+
+new_head指针：新链表的头指针，初始时new_head=NULL;
+
+p指针：从旧链表中每次往下选择一个结点进行摘取，放到新链表中；
+
+tmp指针：为了让p可以继续往下选择新结点，每次提前保存p选择结点的后继结点。
+
+关键操作总结如下：
+
+```c
+tmp = p->next;
+p->next = new_head;
+new_head = p;
+p = tmp;
+```
+
+实现代码：
+
+```c
+struct ListNode* reverseList(struct ListNode* head) {
+   struct ListNode *new_head = NULL, *p = head;
+   while(p)
+   {
+       struct ListNode* tmp = p->next;
+       p->next = new_head;
+       new_head = p;
+       p = tmp;
+   }
+   return new_head; 
+}
+```
+
