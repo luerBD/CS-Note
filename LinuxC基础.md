@@ -2495,7 +2495,25 @@ int main()
 13
 ```
 
-## 13.3 函数传参之数组
+## 13.3 函数传参
+
+### 13.3.1 值传递
+
+本质：函数传参的本质, 变量之间的赋值操作。
+
+功能：在传递变量中保存的数据。核⼼思想是传递什么样⼦类型的变量。在接收的位置，就定义什么样类型的变量来接受。
+
+### 13.3.2 地址传递
+
+功能：我们在使⽤函数传参的时候，除了传递普通的变量外，在某些时刻不得不传递变量的地址。传递变量的地址，我们在使⽤的时候，就只能通过指针来接收了。
+
+好处：
+
+①传递变量的地址，通过指针接收，可⽤通过指针修改原变量的值。
+
+②变量所占的内存空间有点大，通过指针接受变量地址可以节省内存空间。
+
+### 13.3.3 传输组
 
 本质 ：函数传参的本质是变量间的赋值操作，数组名本质是⾸元素的地址，传递数组的⾸地址，我们定义指针来接收接⼝。
 
@@ -3427,5 +3445,303 @@ int main()
 	return 0;
 
 }
+```
+
+# 17.C语言中的结构体
+
+我们在现实⽣活中，在对具体的对象进⾏描述的时候，发现对象是⽐较复杂的。⼀般是由不同的类型组合
+在⼀起的。例如：我们描述⼀个⼈的时候，习惯性会描述他的姓名，年龄，分数等。这些不同类型的数据
+是互相联系组成了⼀个有机的整体。此时，就要⽤到⼀种新的构造类型数据——结构体（struct）。
+
+现实⽣活中，我们定义⼀个职⼯worker结构体，在这个结构体中包括职⼯编号、姓名、性别、年龄、⼯资、家庭住址、联系电话。这样就可以⽤⼀个结构体数据类型的变量来存放某个职⼯的所有相关信息。并且，⽤户⾃定义的数据类型worker也可以与int、double等基本数据类型⼀样，⽤来作为定义其他变量的数据类型。
+
+```c
+char   name[20];   
+int    age;        
+double offer;      
+int    id;  
+```
+
+## 17.1 结构体的定义
+
+### 17.1.1 先声明，再定义
+
+**结构体类型的声明**
+
+```c
+struct 结构体名
+{
+	数据类型 变量名1;
+	数据类型 变量名2;
+	数据类型 变量名3;
+	...
+}; 
+```
+
+**结构体变量的定义**
+
+```c
+struct  结构体名 变量名;
+```
+
+**访问结构体对象内部成员变量的⽅法：**
+
+①结构体普通变量通过 "." 来访问内存的成员属性。 
+
+②结构体指针变量通过 "->" 来访问内存的成员属性。
+
+例如：
+
+```c
+struct worker
+{
+        char name[20];
+        int  age;
+        double offer;   
+        int id;         
+};
+struct worker wk;  
+struct worker *p = &wk;  
+wk.name                 ===>char [20]; 类型
+wk.id                   ===>int类型
+wk.offer                ===>double类型
+p->name                 ===>char [20]; 类型
+p->id                   ===>int类型
+p->offer                ===>double类型
+```
+
+示例代码：
+
+```c
+#include <stdio.h>
+#include <string.h>
+struct student
+{
+        char name[20];        
+        int id;
+        int score;
+};
+int main(int argc, const char *argv[])
+{
+        struct student st;
+        struct student *sp = &st;
+        strcpy(st.name,"jack");        
+        (&st)->id = 1;
+        st.score = 100;
+        printf("NAME\tID\tSCORE\n");
+        printf("%s\t%d\t%d\n",st.name,st.id,st.score);
+        return 0;
+}
+```
+
+运行结果：
+
+```
+AME        ID        SCORE
+jack        1        100
+```
+
+
+
+### 17.1.2 在声明类型的同时定义变量
+
+```c
+struct 结构体名
+{
+	数据类型 变量名1;
+	数据类型 变量名2;
+	数据类型 变量名3;
+    ...
+}变量名列表;
+```
+
+例如： 
+
+```c
+struct student 
+{
+	char name[20];
+	int id;
+	int score;
+}st,*sp;
+
+struct student s3;
+s3.name 
+st.id 
+sp->score
+```
+
+示例代码：
+
+```c
+#include <stdio.h>
+#include <string.h>
+struct student
+{
+	char name[20];
+	int id;
+	int score;
+}st;
+int main()
+{
+	struct student *sp = &st;
+	strcpy(sp->name,"jack");
+	sp->id = 1;
+	sp->score = 80;
+	printf("NAME\tID\tSCORE\n");
+	printf("%s\t%d\t%d\n",st.name,st.id,st.score);
+	return 0;
+}
+```
+
+运行结果：
+
+```
+NAME        ID        SCORE
+jack        1         80
+```
+
+### 17.1.3 省略结构体名，直接定义变量
+
+```c
+struct
+{
+	数据类型 变量名1;
+	数据类型 变量名2;
+	数据类型 变量名3;
+    ...
+}变量名列表;
+```
+
+注：此种⽅法，只能在变量名列表的位置定义变量，其他位置不能定义变量。
+
+例如：
+
+```c
+struct  
+{
+	char name[20];
+	int id;
+	int score;
+}st,*sp;
+
+struct 
+{
+	int m;
+	int n;
+}s2;
+```
+
+示例代码1：
+
+```c
+#include <stdio.h>
+#include <string.h>
+struct 
+{ 
+    char name[20];
+    int id;
+    int score;
+}st1 = {"rose",2,100};
+int main()
+{
+	printf("NAME\tID\tSCORE\n");
+	printf("%s\t%d\t%d\n",st1.name,st1.id,st1.score);
+	return 0;
+}
+```
+
+运行结果：
+
+```c
+NAME        ID        SCORE
+rose        2         100
+```
+
+示例代码2：
+
+```c
+ struct student{
+        char name[20];
+        int id;
+        int score;
+ }st1 = {"jack",1,100};
+ 
+ int main()
+ {
+        struct student st[3] = 
+        {
+        	{"rose",2,70},
+            {"lilei",3,60},
+            {"hmm",4,50}
+        };
+        int id;                                   
+}
+```
+
+## 17.2 结构体大小的计算
+
+简介：
+
+```
+struct student
+{
+    char name[5];
+    int id;
+    short score;
+};
+打印其⼤⼩，发现和我们实际思考的不⼀样。因为出现了字节对齐现象
+思考：为什么会出现字节对⻬这种现象？
+因为各个硬件平台对内存空间的访问不⼀样。
+⼀些特定的平台只能从特定的地址开始。还有就是提⾼效率
+
+普通变量的⼤⼩
+char  short    int   long  float  double    
+  1     2       4     4      4      8
+位置偏移的⼤⼩
+char  short    int   long  float  double
+  1     2       4      4    4        4
+  
+结构体成员的存放规则：
+规律：
+①结构体成员的相对偏移[成员偏移结构体⾸地址的字节数] % 本身位置偏移 == 0,不满⾜则补⻬，直到可以为0
+②最后结构体总⼤⼩ % 最⼤成员的位置偏移 == 0,不满⾜则补⻬，直到可以为0
+注：不遵从规则需要补⻬，直到满⾜我们的上述关系位置
+```
+
+![image-20240229202037109](assets/image-20240229202037109.png)
+
+示例代码：
+
+```c
+#include <stdio.h>
+struct student
+{
+        char name[5]; 
+        int id;
+        short score;
+};
+void output_student(struct student *sp)
+{
+        printf("sizeof(sp) = %d\n",sizeof(sp));
+        printf("NAME\tID\tSCORE\n");
+        printf("%s\t%d\t%d\n",sp->name,sp->id,sp->score);
+}
+int main()
+{
+        struct student st = {"jack",1,80};
+        printf("sizeof(st) = %d\n",sizeof(st));
+        output_student(&st);
+        return 0;
+}
+```
+
+运行结果：
+
+```
+sizeof(st) = 16
+sizeof(sp) = 4
+NAME   ID    SCORE
+jack   1      80
 ```
 
