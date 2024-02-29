@@ -3157,3 +3157,275 @@ p[3] = 40
 p[4] = 50
 ```
 
+# 16.C语言中的多文件编程
+
+## 16.1 extern  关键字
+
+功能：让全局变量 / 函数可扩展到其他⽂件中使⽤。
+
+```
+格式：extern  数据类型 全局变量名;
+功能：让全局变量在其他⽂件中可⽤
+
+格式：extern  返回值类型 函数名(数据类型 参数1, 数据类型 参数2,...);
+功能：让函数在其他⽂件中可⽤调⽤
+```
+
+示例代码：
+
+fun.c
+
+```c
+#include <stdio.h>
+int global = 20;
+void fun()
+{
+        printf("This is a example!\n");
+        return ;
+}
+```
+
+ main.c
+
+```c
+extern int global;   
+extern void fun();   
+int main()
+{
+        printf("global = %d\n",global);
+        fun();
+        return 0;
+}
+```
+
+编译运⾏⽅法：
+
+```shell
+gcc fun.c  main.c
+./a.out
+```
+
+运行结果：
+
+```
+global = 20
+This is a example!
+```
+
+## 16.2 多文件编程框架
+
+①头文件： head.h
+
+包括内容：
+
+```
+a.防⽌其他头⽂件重复定义的宏
+b.其他需要使⽤的头⽂件
+c.函数的声明
+d.宏定义
+e.结构体或枚举类型的声明。(后⾯详解)
+f.全局变量的声明
+```
+
+②功能文件： calc.c
+
+含义：主要存放⼀些⽤户需要编写的逻辑代码函数，不包括主函数 main()
+
+③组合逻辑的文件：main.c
+
+含义 : main() 主要编写代码的地⽅。⽤于组合功能⽂件提供的函数接⼝，组合逻辑。
+
+
+
+示例代码：
+
+head.h
+
+```c
+#ifndef __HEAD_H__
+#define __HEAD_H__ 
+#include <stdio.h>
+extern int m;
+extern int n;
+extern int find_max();
+#define STR "you will become a better man"
+#endif
+```
+
+ calc.c
+
+```c
+#include "head.h"
+int m; 
+int n;
+int find_max()
+{
+        printf("%s\n",STR);
+        return m > n ? m : n;
+}
+```
+
+main.c
+
+```c
+#include "head.h"
+int main(int argc, const char *argv[])
+{
+        int max_value = 0;
+        printf("please input two number : ");
+        scanf("%d%d",&m,&n);
+        max_value = find_max();
+        printf("max_value = %d\n",max_value);
+        return 0;
+}
+```
+
+编译：
+
+```shell
+gcc calc.c main.c
+./a.out
+```
+
+输出结果： 
+
+```
+you will become a better manmax_value = 20
+```
+
+**以下代码，若是不添加 #ifndef 编译器会提示错误。**
+
+head1.h
+
+```c
+#include <stdio.h>
+int x = 10;
+int y = 20;
+```
+
+head2.h
+
+```c
+#include "head1.h"
+int z = 30;
+void do_fun()
+{
+    printf("x = %d\n",x);
+    return;
+}
+```
+
+ main.c
+
+```c
+#include "head1.h"
+#include "head2.h"
+int main(int argc, const char *argv[])
+{
+        printf("x = %d\n",x);
+        printf("y = %d\n",y);
+        printf("z = %d\n",z);
+        do_fun();
+        return 0;
+}
+```
+
+说明： 上述代码，程序从 main.c 开始运⾏，第⼀次运⾏运⾏到 head1.h 中，int x = 10 和 int y = 20 定义了⼀次，第⼆次 运⾏到 head2.h , ⽽ head2.h 中⼜运⾏了⼀次 head1.h，⼜定义了 int x = 10 和 int y = 20 一次，从⽽编译器会提 示重复定义。
+
+为了防止编译器提示重复定义，我们可以修改head1.h和head2.h中的代码，如下所示：
+
+head1.h
+
+```c
+#ifndef __HEAD1_H__
+#define __HEAD1_H__
+#include<stdio.h>
+
+
+int x = 10;
+int y = 20;
+
+#endif
+```
+
+head2.h
+
+```c
+#ifndef __HEAD2_H__
+#define __HEAD2_H__
+#include "head1.h"
+int z = 30;
+void do_fun()
+{
+    printf("x = %d\n",x);
+    return;
+}
+#endif
+```
+
+练习：
+
+⾃⼰设计⼀个 calc.c head.h main.c 实现多⽂件编程； 
+
+calc.c 中⾃⼰设计 add(),sub(),mul(),div() 等四个函数 ；
+
+main.c 中包含 head.h 头⽂件 , 然后调⽤上⾯的函数，并输出结果。
+
+head.h
+
+```c
+#ifndef __HEAD_H__
+#define __HEAD_H__
+
+#include<stdio.h>
+extern int add(int a, int b);
+extern int sub(int a, int b);
+extern int mul(int a, int b);
+extern double div(int a, int b);
+
+#endif
+```
+
+calc.c
+
+```c
+#include"head.h"
+int add(int a, int b)
+{
+	return a + b;
+}
+
+int sub(int a, int b)
+{
+	return a - b;
+}
+
+int mul(int a, int b)
+{
+	return a * b;
+}
+
+double div(int a, int b)
+{
+	return (double)a / (double)b;
+}
+```
+
+main.c
+
+```c
+#include"head.h"
+int main()
+{
+	int a, b;
+	printf("请输入两个数字：");
+	scanf("%d%d", &a, &b);
+	printf("%d + %d = %d\n", a, b, add(a, b));
+	printf("%d - %d = %d\n", a, b, sub(a, b));
+	printf("%d * %d = %d\n", a, b, mul(a, b));
+	printf("%d / %d = %lf\n", a, b, div(a, b));
+	return 0;
+
+}
+```
+
