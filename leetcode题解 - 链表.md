@@ -68,3 +68,33 @@ struct ListNode* reverseList(struct ListNode* head) {
 }
 ```
 
+## 3. 归并两个有序的链表
+
+21. Merge Two Sorted Lists (Easy)
+
+[Leetcode](https://leetcode.com/problems/merge-two-sorted-lists/description/) / [力扣](https://leetcode-cn.com/problems/merge-two-sorted-lists/description/)
+
+```c
+struct ListNode* mergeTwoLists(struct ListNode* list1, struct ListNode* list2) {
+    struct ListNode *list3 = (struct ListNode *)malloc(sizeof(struct ListNode));
+    struct ListNode *p3 = list3;
+    while(list1 != NULL && list2 != NULL)
+    {
+        if(list1->val <= list2->val)
+        {
+            p3->next = list1;
+            list1 = list1->next;
+        }
+        else
+        {
+            p3->next = list2;
+            list2 = list2->next;
+        }
+        p3 = p3->next;
+    }
+    p3->next = list1 == NULL ? list2 : list1;
+
+    return list3->next;
+}
+```
+
