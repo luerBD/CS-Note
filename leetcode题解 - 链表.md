@@ -2,6 +2,8 @@
 
 ## 1.找出两个链表的交点
 
+160. Intersection of Two Linked Lists (Easy)
+
 [Leetcode](https://leetcode.com/problems/intersection-of-two-linked-lists/description/) / [力扣](https://leetcode-cn.com/problems/intersection-of-two-linked-lists/description/)
 
 <img src="assets/image-20240227211121667.png" alt="image-20240227211121667" style="zoom:50%;" />
@@ -68,7 +70,7 @@ struct ListNode* reverseList(struct ListNode* head) {
 }
 ```
 
-## 3. 归并两个有序的链表
+## 3.归并两个有序的链表
 
 21. Merge Two Sorted Lists (Easy)
 
@@ -95,6 +97,40 @@ struct ListNode* mergeTwoLists(struct ListNode* list1, struct ListNode* list2) {
     p3->next = list1 == NULL ? list2 : list1;
 
     return list3->next;
+}
+```
+
+## 4.从有序链表中删除重复节点
+
+83. Remove Duplicates from Sorted List (Easy)
+
+[Leetcode](https://leetcode.com/problems/remove-duplicates-from-sorted-list/description/) / [力扣](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list/description/)
+
+```
+Given 1->1->2, return 1->2.
+Given 1->1->2->3->3, return 1->2->3.
+```
+
+```c
+struct ListNode* deleteDuplicates(struct ListNode* head) {
+    struct ListNode *p = head, *q = p->next;
+    if(!p || !(p->next))
+    {
+        return NULL; // 如果该链表为空表或者后继结点为空，则返回NULL
+    }
+    while(p->next)
+    {
+        if(p->val == q->val)
+        {
+            p->next = q->next;
+            q = q->next;
+        }
+        else
+        {
+            p = p->next;
+        }
+    }
+    return head;
 }
 ```
 

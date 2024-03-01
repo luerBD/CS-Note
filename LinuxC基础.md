@@ -3745,3 +3745,249 @@ NAME   ID    SCORE
 jack   1      80
 ```
 
+## 17.3 typedef关键字
+
+**功能**：给⼀个已经存在的类型，取⼀个别名。可以通过别名来定义变量。 
+
+**使⽤⽅法**： 
+
+①按照定义变量的⽅法定义⼀个变量。
+
+②在定义变量该⾏的最前⾯，加上 typedef  关键字，那么对应的变量名，就是类型的别名。 
+
+③若是数据类型名较⻓，可以利⽤ typedef  减少类型名的缩写。
+
+例如：
+
+```c
+typedef int int_32;  
+typedef char char_byte; 
+typedef int array[5]; 
+typedef int (*funp)(int,int); 
+===========================================
+typedef struct 
+{
+	char name[20];
+	int id;
+	int score;
+}s_t;
+```
+
+代码示例：
+
+```c
+#include <stdio.h>
+#include <string.h>
+typedef struct { 
+        char name[20];
+        int id;
+        int score;
+}s_t;
+void input_student(s_t *sp)
+{
+        printf("please input student[name id score] : ");        
+        scanf("%s%d%d",sp->name ,&(sp->id),&(sp->score));
+}
+void output_student(s_t *sp)
+{
+        printf("NAME\tID\tSCORE\n");
+        printf("%s\t%d\t%d\n",sp->name ,sp->id,sp->score);
+}
+int main()
+{
+        s_t  s1;
+        input_student(&s1);
+        output_student(&s1);
+        return 0;
+}
+```
+
+运行结果：
+
+```
+ please input student[name id score] : jack 1 90
+ NAME        ID        SCORE
+ jack        1         90
+```
+
+# 18.C语言中的联合体
+
+联合体和结构体的定义形式类似，但是它是所有的成员共享同⼀块内存空间。共⽤最⼤的⼀块内存。
+
+```c
+union  共⽤体名
+{
+	类型 成员1;
+	类型 成员2;
+};
+```
+
+例如：
+
+```c
+union stu
+{
+	char a;
+	int b;
+	short c;
+};
+union stu s1;
+printf("len : %d\n",sizeof(s1));  ===>4
+```
+
+示例代码：
+
+```c
+#include<stdio.h>
+struct student
+{
+	char a;
+	int b;
+	short c;
+};
+union stu
+{
+	char a;
+	int b;
+	short c;
+};
+int main()
+{
+	struct student s;
+	union stu u;
+	printf("sizeof(s) = %d\n", sizeof(s));
+	printf("sizeof(u) = %d\n", sizeof(u));
+	printf("&s = %p\n", &s);
+	printf("&(s.a) = %p\n", &(s.a));
+	printf("&(s.b) = %p\n", &(s.b));
+	printf("&(s.c) = %p\n", &(s.c));
+
+	printf("&u = %p\n", &u);
+	printf("&(u.a) = %p\n", &(u.a));
+	printf("&(u.b) = %p\n", &(u.b));
+	printf("&(u.c) = %p\n", &(u.c));
+	return 0;
+}
+```
+
+运行结果：
+
+```
+sizeof(s) = 12
+sizeof(u) = 4
+&s = 0xff906cb0
+&(s.a) = 0xff906cb0
+&(s.b) = 0xff906cb4
+&(s.c) = 0xff906cb8
+&u = 0xff906cac
+&(u.a) = 0xff906cac
+&(u.b) = 0xff906cac
+&(u.c) = 0xff906cac
+```
+
+**共⽤体和结构体的异同点**
+①相同点：
+
+都是构造类型，含有多个成员，访问成员的规则⼀样。
+
+②不同点：
+
+结构体的每个成员都拥有独⽴空间；
+
+共⽤体的多个成员共⽤同⼀块内存空间，分配的空间最⼤成员所占⽤的内存。
+
+# 19.C语言中的枚举
+
+枚举：⼀种事物代表的多种可能的值，我们把这些值全部列出来使⽤，就是枚举。
+
+```c
+enum 枚举名
+{
+	常量名1,
+	常量名2,
+	常量名3
+}
+```
+
+注意：
+
+①枚举中元素都是常量；
+
+②枚举元素没有赋值，第⼀个元素默认为 0 ，后⾯元素依次 +1；
+
+③枚举是⼀种类型，可以定义变量。
+
+C 标准规定：枚举类型的变量只能赋值为枚举元素的值。⼤部分编译器，对枚举类型做了扩充，允许给枚举类型变量赋值为任意的整型值
+
+例如：
+
+```c
+enum COLOR
+{
+    red = 1,
+    green = 2,	//后面的值依次加一
+    yellow,		//3
+    blue,		//4
+    black,		//5
+};
+enum COLOR  CR;
+```
+
+示例代码：
+
+```c
+ #include <stdio.h>
+ enum DAY
+ {
+        MON = 1,
+        TUE,
+        WED,
+        THU,
+        FRI,
+        SAT,
+        SUN
+ };
+ int main(int argc, const char *argv[])
+ {
+        enum DAY today = THU;        
+        today = 8;
+        printf("today : %d\n",today);
+        int date = 0;
+        printf("please input you wanti check date : ");
+        scanf("%d",&date);
+        switch(date)
+        {
+                case MON:  
+                        printf("today is MON\n");
+                        break;
+                case TUE:// LGOIN    2
+                        printf("today is TUE\n");
+                        break;
+                case WED://UI        3
+                        printf("today is WED\n");
+                        break;
+                case THU:  
+                        printf("today is THU\n");
+                        break;
+                case FRI:// LGOIN    5
+                        printf("today is FRI\n");
+                        break;
+                case SAT://UI        6
+                        printf("today is SAT\n");
+                        break;
+                 case SUN://UI        7
+                        printf("today is SUN\n");
+                        break;
+        }
+        return 0;
+}
+```
+
+运行结果：
+
+```
+today : 8
+please input you wanti check date : 3
+today is WED
+```
+
