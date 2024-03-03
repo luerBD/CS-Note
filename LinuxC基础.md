@@ -4293,3 +4293,340 @@ struct bit
 
 答案：4
 
+# 21.C语言中的内存分配
+
+## 21.1 生命周期和作用域
+
+生命周期：变量占据内存的有效时间 
+
+作用域：变量出现的有效区域
+
+## 21.2 C语言运行时的内存分配
+
+![image-20240303111750817](assets/image-20240303111750817.png)
+
+示例代码：
+
+```c
+#include <stdio.h>
+int gloabl; //.bss
+void local_fun()
+{
+    int a = 100;  //栈区
+}
+int main()
+{
+    static int passwd = 1234; //data
+    if(passwd == 123) //if语句在.text段存储
+	{
+		printf("login successful!\n");
+ 	}
+ 	return 0;
+}
+```
+
+# 22.C 语⾔中的static的使⽤
+
+## 22.1 使用场景
+
+<img src="assets/image-20240303152404831.png" alt="image-20240303152404831" style="zoom:50%;" />
+
+## 22.2 基本用法
+
+### 22.2.1 修饰变量
+
+**修饰局部变量**
+
+在编译的过程中，会在数据区为该变量开辟空间，并对其进⾏初始化，如果代码中未对其进 ⾏ 初始化，则系统默认初始化为 0。
+
+⽤ static 修饰的局部变量，会延⻓局部变量的寿命，超出函数的⽣存期。
+
+代码示例：
+
+```c
+#include <stdio.h>
+void fun1()
+{
+    static int a;
+    printf("a = %d\n",a);
+}
+void fun2()
+{
+    static int b = 10;
+    b++;
+    printf("b = %d\n",b);
+}
+void fun3()
+{
+    fun1();
+    printf("=========================\n");
+    fun2();
+    fun2();
+    fun2();
+    return 0;
+}
+    
+```
+
+内存分配图：
+
+<img src="assets/image-20240303153617667.png" alt="image-20240303153617667" style="zoom:50%;" />
+
+**修饰全局变量**
+
+static 修饰全局变量，在数据区域分配存储空间，未初始化编译器会⾃动初始化为 0. 
+
+static 修饰全局变量，限制全局变量的使⽤范围，让其只能在本⽂件使⽤，其他⽂件不能使⽤。
+
+代码示例：
+
+```c
+//globa.c
+#include <stdio.h>
+static int global_var = 10;
+====================================================
+//main.c
+#include <stdio.h>
+extern int global_var;
+void fun()
+{
+    printf("global_var = %d\n", global_var);
+    return;
+}
+```
+
+### 22.2.2 修饰函数
+
+函数的使⽤⽅式与全局变量类似，在函数的返回类型前加上 static，就是静态函数。其特性如下：
+
+静态函数只能在声明它的⽂件中可⻅，其他⽂件不能引⽤该函数。
+
+不同的⽂件可以使⽤相同名字的静态函数，互不影响。
+
+代码示例：
+
+```c
+//fun1.c
+#include <stdio.h>
+static void fun(void)
+{
+    printf("hello from fun.\n");
+}
+int main(void)
+{
+    fun();
+    fun1();
+    return 0;
+}
+=========================================================
+//fun2.c
+#include <stdio.h>
+static void fun1(void)
+{
+    printf("hello from static fun1.\n");
+}
+```
+
+编译结果：
+
+```
+static_fun.c:(.text+0x20)：对‘fun1’未定义的引⽤
+collect2: error: ld returned 1 exit status
+```
+
+练习：
+
+⾃⼰思考⼀下以下程序的结果。
+
+```c
+#include <stdio.h>
+void fun1(void)
+{
+    int n = 10;
+    printf("n = %d\n", n);
+    n++;
+    printf("n++ = %d\n", n);
+}
+void fun2(void)
+{
+    static int n = 10;
+    printf("static n = %d\n", n);
+    n++;
+    printf("n++ = %d\n", n);
+}
+int main()
+{
+    fun1();
+    fun2();
+    fun1();
+    fun2();
+    return 0;
+}
+```
+
+# 23.C语言堆区内存管理
+
+## 23.1 C 语⾔编译的内存分配
+
+<img src="assets/image-20240303170707688.png" alt="image-20240303170707688" style="zoom:50%;" />
+
+## 23.2 堆区空间的分配
+
+### 23.2.1 malloc 函数
+
+```c
+#include <stdlib.h>
+void  *malloc(unsigned int size)
+功能：从堆区分配内存
+参数：@size 分配内存的字节数 
+返回值：成功返回分配内存的⾸地址，失败返回NULL
+```
+
+### 23.2.2 free 函数
+
+```c
+#include <stdlib.h>
+void  free(void *ptr)
+功能：释放内存
+参数:@ptr 分配内存的⾸地址
+返回值：⽆
+```
+
+### 23.2.3 memset 函数
+
+```c
+#include <string.h>
+void *memset(void *s, int c, size_t n);
+功能：把s所指向内存区域的前n个字节，全部置为c
+
+参数：
+@s   想要操作内存区域的⾸地址
+@c   内存区域填充的值
+@n   需要填充的字节数
+
+返回值：成功返回s所指向的地址，失败返回NULL
+```
+
+示例代码1：
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+int main()
+{
+    int *p = NULL;
+    p = (int *)malloc(sizeof(int));
+    if(NULL == p)
+    {
+        printf("malloc is fail!\n");
+        return -1;
+    }
+    *p = 800;
+    printf("*p = %d\n",*p);
+    free(p);
+    p = NULL;
+    return 0;
+}
+```
+
+运⾏结果：
+
+```
+*p = 800
+```
+
+示例代码2：
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+int main()
+{
+    int *p = NULL;
+    while(1)
+    {
+        p = (int *)malloc(sizeof(int) * 0xfffffff);
+        if(NULL == p)
+        {
+			printf("malloc is fail!\n");
+            return -1;
+        }
+
+        *p = 800;
+        //free(p);
+    }
+    return 0;
+}
+```
+
+运⾏结果：
+
+```
+Killed
+若是不添加 free(p)，堆区空间会⼀直申请，会造成空间耗尽，申请失败。
+```
+
+示例代码3：
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define N 5 
+int *get_memory_addr()
+ {
+        int *addr = NULL;
+        addr = (int *)malloc(sizeof(int) * N);
+        if(NULL == addr)
+        {
+                printf("malloc is fail!\n");
+                return NULL;
+        }
+        memset(addr,0,sizeof(sizeof(int) * N));
+        return addr;
+ }
+ void input_array(int *p)
+ {
+        int i = 0;
+        printf("please input %d data : ",N);
+        for(i = 0;i < N;i++)
+        {
+                scanf("%d",&p[i]);        
+        }
+ }
+ void ouput_array(int *p)
+ {
+        int i = 0;
+        for(i = 0;i < N;i++)
+        {
+                printf("%d ",p[i]);        
+        }
+        printf("\n");
+ }
+ int main()
+ {
+        int *t = NULL;
+        t = get_memory_addr();
+        input_array(t);
+        ouput_array(t);
+        free(t);
+        t = NULL;
+        return 0;
+ }
+```
+
+运⾏结果：
+
+```
+please input 5 data : 10 20 30 40 50
+10 20 30 40 50 
+```
+
+### 23.2.4 使⽤原则
+
+需要使⽤多少内存就分配多少内存，不要过多分配 使⽤完以后⼀定要 free（）。
+
+我们⾃⼰申请多少，就要⼿动释放多少，要不然可能会造成内存 泄漏 【死循环的时候，内存空间没有及时的释放掉，CPU ⼀直占⽤内存空间。】
+
+当⼀个程序在操作系统中运⾏结束后，它运⾏过程中分配的内存都会被释放掉。
