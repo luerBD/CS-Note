@@ -3991,3 +3991,305 @@ please input you wanti check date : 3
 today is WED
 ```
 
+# 20.C语言中的位域
+
+## 20.1 位域简介
+
+有些信息在存储时，并不需要占⽤⼀个完整的字节，⽽只需占⼏个或⼀个⼆进制位。例如在存放⼀个开 关量时，只有 0 和 1 两种状态，⽤ 1 位⼆进位即可。为了节省存储空间，并使处理简便，C 语⾔⼜提 供了⼀种数据结构，称为 "位域" 或 "位段"。 所谓 " 位域 " 是把⼀个字节中的⼆进位划分为⼏个不同的区域，并说明每个区域的位数。每个域有⼀ 个域名，允许在程序中按域名进⾏操作。这样就可以把⼏个不同的对象⽤⼀个字节的⼆进制位域来表 示。
+
+```
+char a = 10; ===> 0000 1010
+```
+
+**典型的实例：**
+
+⽤ 1 位⼆进位存放⼀个开关量时，只有 0 和 1 两种状态。
+
+读取外部⽂件格式——可以读取⾮标准的⽂件格式。例如：9 位的整数。
+
+## 20.2 位域的定义方式
+
+```
+struct 位域结构名
+{
+	类型说明符1 位域名1:位域⻓度1;
+	类型说明符2 位域名2:位域⻓度2;
+	类型说明符3 位域名3:位域⻓度3;
+	……
+	类型说明符N 位域名N:位域⻓度M;
+};
+```
+
+**注意：**
+
+①类型说明符常⽤int,unsigned int ,signed int,unsigned char,char这⼏种类型。
+
+②位域⻓度要⼩于或等于类型的宽度。
+
+例如：
+
+```c
+struct Bit
+{
+ 	int a:8;
+ 	int b:2;
+ 	int c:6;
+};
+
+struct Bit data;
+```
+
+说明：位域变量 data, 共占⽤ 2 个字节 ; 其中 , 位域 a 占 8bit, 位域 b 占 2bit, 位域 c 占 6bit。
+
+代码示例：
+
+```c
+#include <stdio.h>
+#include <string.h>
+struct
+{
+  unsigned int width;
+  unsigned int height;
+} status1;
+struct
+{
+  unsigned int  width:1;
+  unsigned int  height:1;
+} status2;
+int main( )
+{
+   printf( "sizeof(status1) : %d\n", sizeof(status1));
+   printf( "sizeof(status2) : %d\n", sizeof(status2));
+   return 0;
+}
+```
+
+运行结果：
+
+```
+sizeof(status1) : 8
+sizeof(status2) : 4
+```
+
+说明：
+
+上⾯的结构中，因为使用了位域，故先拿出第一个变量数据类型所占的4bytes空间用，所以 status2 占⽤了 4bytes 的空间，但是只有 2 位被⽤来存储值。如果您⽤了 32 个变量，每⼀个变量宽度为 1 位，那么 status 结构将使⽤ 4 个字节，但只要您再多⽤⼀个变量，如果使⽤了33 个变量，那么它将分配内存的下⼀段来存储第 33 个变量，这个时候就开始使⽤ 8 个字节。
+
+## 20.3 位域分析
+
+**使用场景：**
+
+带有预定义宽度的变量被称为位域。位域可以存储多于 1 位的数，例如，需要⼀个变量来存储从 0 到 7 的值，您可以定义⼀个宽度为 3 位的位域，如下：
+
+```c
+struct
+{
+	unsigned int age : 3;
+} age;
+```
+
+上⾯代码中 age 变量将只使⽤ 3 位来存储这个值，如果您试图使⽤超过 3 位，则⽆法完成。
+
+```c
+struct info
+{
+    int a:8;
+    int b:2;
+    int c:6;
+}data;
+```
+
+data 为 info 变量，内存分配 4bytes。实际存储共占两个字节。其中位域 a 占 8 位，位域 b 占 2位，位域 c 占 6 位。
+
+示例代码：
+
+```c
+#include <stdio.h>
+#include <string.h>
+typedef struct
+{
+	unsigned int age : 3;
+}s_t ;
+int main( )
+{
+   s_t t;
+   t.age = 4;
+   printf( "sizeof(t) : %d\n", sizeof(t) );
+   printf( "t.age : %d\n", t.age );
+   t.age = 7;
+   printf( "t.age : %d\n", t.age );
+   t.age = 8; 
+   printf( "t.age : %d\n", t.age );
+   return 0;
+}
+```
+
+运行结果：
+
+```c
+sizeof(t) : 4
+t.age : 4
+t.age : 7
+t.age : 0
+```
+
+## 20.4 位域说明
+
+①⼀个位域存储在同⼀个字节中，如⼀个字节所剩空间不够存放另⼀位域时，则会从下⼀单元起 存放该位域。也可以有意使某位域从下⼀单元开始。
+
+```c
+struct info
+{
+    unsigned char a:4;
+    unsigned char :4;    
+    unsigned char b:4;    
+    unsigned char c:4
+};
+aaaa||||
+bbbbcccc
+```
+
+在上⾯这个位域定义中，a 占第⼀字节的 4 位，后 4 位填 0 表示不使⽤，b 从第⼆字节开始，占⽤ 4位，c 占⽤ 4 位。
+
+②位域的宽度不能超过它所依附的数据类型的⻓度，成员变量都是有类型的，这个类型限制了成 员变量的最⼤⻓度，后⾯的数字不能超过这个⻓度。
+
+③位域可以是⽆名位域，这时它只⽤来作填充或调整位置。⽆名的位域是不能使⽤的。例如：
+
+```c
+struct info
+{
+    int a:1;
+    int  :2;    
+    int b:3;
+    int c:2;
+}st;
+
+a||bbbcc
+```
+
+从以上分析可以看出，位域在本质上就是⼀种结构类型，不过其成员是按⼆进位分配的。
+
+## 20.5 位域的使用
+
+位域的使⽤和结构成员的使⽤相同，其⼀般形式为： 
+
+位域变量名 . 位域名 
+
+位域指针变量名-> 位域名
+
+代码示例：
+
+```c
+#include <stdio.h>
+typedef struct bs
+{
+    unsigned int a:1;
+    unsigned int b:3;
+    unsigned int c:4;
+}bit_t;                                     
+int main()
+{
+    bit_t  bit;
+    bit_t  *pbit;
+    bit.a=1;   
+    bit.b=7;   
+    bit.c=15;   
+    printf("%d,%d,%d\n",bit.a,bit.b,bit.c);   
+    pbit=&bit;   
+    pbit->a=0;   
+    pbit->b&=3;    
+    pbit->c|=1; 
+ 	printf("%d,%d,%d\n",pbit->a,pbit->b,pbit->c);    
+}
+
+/*
+abbbcccc
+*/
+```
+
+## 20.6 位域的大小计算
+
+**存储规则：**
+
+①如果相邻的两个位域字段的类型相同, 且其位宽之和⼩于或等于其类型的 sizeof() ⼤⼩, 则其后⾯的位域字段将紧邻前⼀个字段存储, 直到不能容纳为⽌;
+
+例如: ⼀个位域变量有三个位域字段 a、b、c, 且类型完全相同, 位域字段 a 和 b 的位宽之和⼩于或等于其类型的 sizeof() ⼤⼩, 那么位域字段 c 紧接着位域字段 b 后⾯存储;
+
+用法1：
+
+```c
+struct Bit
+{
+	unsigned char a:2;
+	unsigned char b:3;
+	unsigned char c:3;
+}t1;
+sizeof(t1) = 1;
+```
+
+2 + 3 + 3 = 8,1bytes 刚刚能存储
+
+②如果相邻的两个位域字段的类型相同, 且其位宽之和⼤于其类型的 sizeof() ⼤⼩, 则较⼤的位域字段将从下⼀个存储单元的起始地址处开始存放, 其偏移量恰好为其类型的 sizeof() ⼤⼩的整数倍;
+
+⽐如: 如果位域字段 a 和 b 的位宽之和⼤于其类型的 sizeof() ⼤⼩, 则位域字段 b 就从下⼀个存储单元的起始地址初开始存放, 其偏移量恰好是其类型的 sizeof() ⼤⼩的整数倍;
+
+用法2：
+
+```c
+struct Bit
+{
+    unsigned char a:2;
+    unsigned char b:7;  
+    unsigned char c:4; 
+}t2;
+sizeof(t2) = 3
+
+a a | | | | | |
+b b b b b b b |
+c c c c | | | |
+```
+
+③如果相邻的两个位域字段的类型不同, 则各个编译器的具体实现有差异, VC6 采取不压缩⽅式，GCC 和 Dev-C++ 都采⽤压缩⽅式;
+
+用法3：
+
+```c
+struct bs
+{
+    unsigned int m: 12;
+    unsigned char ch: 4;
+    unsigned int p: 4;
+}t1;
+sizeof(t1) = 4;  
+```
+
+④如果位域字段之间穿插着非位域字段，则不进行压缩；
+
+用法4：
+
+```c
+struct bs
+{
+    unsigned int m: 12;
+    unsigned int h;
+    unsigned int p: 4;
+}t1;
+```
+
+注意： 位域成员往往不占⽤完整的字节，有时候也不处于字节的开头位置，因此使⽤ & 获取位域成员的地址 是没有意义的，C 语⾔也禁⽌这样做。地址是字节（Byte）的编号，⽽不是位（Bit）的编号。
+
+练习：
+
+```c
+struct bit
+{
+    unsigned int a: 6;
+    unsigned int b: 12;
+    unsigned int c: 4;
+}bt;
+```
+
+求 sizeof(bt) 的⼤⼩。
+
+答案：4
+
