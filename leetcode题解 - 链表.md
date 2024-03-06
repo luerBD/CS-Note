@@ -134,3 +134,72 @@ struct ListNode* deleteDuplicates(struct ListNode* head) {
 }
 ```
 
+## 5.删除链表的倒数第 n 个节点
+
+19.Remove Nth Node From End of List (Medium)
+
+[Leetcode](https://leetcode.com/problems/remove-nth-node-from-end-of-list/description/) / [力扣](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/description/)
+
+第一步：统计链表结点数，记作l
+
+第二步：寻找删除结点的前驱结点，
+
+当l>1时，倒数第n个结点就是正数第l-n个结点，故我们需要找到第l-n结点的前驱结点，将其删除即可；
+
+当l=1时，倒数第1个结点就是正数第1个结点，故我们直接将该结点删除即可，再令head=NULL;
+
+情形1：链表中的结点数 > 1，则
+
+![image-20240305231350083](assets/image-20240305231350083.png)
+
+```
+q=p->next;
+p->next = q->next;
+free(q);
+```
+
+情形2：链表中的结点数=1，则
+
+![image-20240305232346122](assets/image-20240305232346122.png)
+
+```
+free(p);
+head=NULL;
+```
+
+完整代码实现：
+
+```c
+struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
+    struct ListNode * p = head;
+    struct ListNode * q;
+    int i, l = 0;
+    if(!p)
+    {
+        return NULL;
+    }
+    while(p)
+    {
+        l++;
+        p = p->next;
+    }
+    p = head;
+    for(i = 0; i < l - n - 1; i++)
+    {
+        p = p->next;
+    }
+    if(p->next != NULL)
+    {
+        q = p->next;
+        p->next = q->next;
+        free(q);
+    }
+    else
+    {
+        free(p);
+        head = NULL;
+    }
+    return head;
+}
+```
+
