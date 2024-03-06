@@ -223,6 +223,21 @@ sudo apt-get install 软件包名
 例如： sudo apt-get install sl 或 sudo apt-get install btanks
 ```
 
+注意：sudo apt-get install sl执行时可能会报告以下错误：
+
+```
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+You might want to run 'apt --fix-broken install' to correct these.
+The following packages have unmet dependencies:
+ linux-headers-5.19.17-051917-generic : Depends: libc6 (>= 2.34) but 2.27-3ubuntu1.5 is to be installed
+                                        Depends: libssl3 (>= 3.0.0) but it is not installable
+E: Unmet dependencies. Try 'apt --fix-broken install' with no packages (or specify a solution).
+```
+
+使用sudo apt --fix-broken install修复即可！
+
 ### 3.3.5 卸载命令
 
 ```bash
@@ -261,7 +276,7 @@ sudo apt-get clean
 
 ![apt-get原理图](assets/apt-get原理图.png)
 
-例：sudo apt-get install g++，当执行这条命令时，会先在/etc/apt/sources.list中找g++所在的网站A，然后 在/var/lib/apt/lists找到网站A对应的缓存，网站A对应的缓存中记录了g++在远程服务器的索引号，然后后台自动登录远程服务器并且拿着g++的索引号找到g++.dep，然后再将g++.dep下载到主机的/var/cache/apt/archives中。
+例：sudo apt-get install g++，当执行这条命令时，会先在/etc/apt/sources.list中找g++所在的网站A，然后 在/var/lib/apt/lists找到网站A对应的缓存，网站A对应的缓存中记录了g++在远程服务器的索引号，然后后台自动登录远程服务器并且拿着g++的索引号（05）找到05.g++.dep，然后再将g++.dep下载到主机的/var/cache/apt/archives目录中。
 
 **练习**
 
