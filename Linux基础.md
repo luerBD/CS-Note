@@ -257,7 +257,9 @@ sudo apt-get clean
 
 我们使⽤ apt-get 命令下载⽂件的时候，默认是在镜像站点软件包的索引⽂件 [缓存] /var/lib/apt/lists中查找该软件的⼀些信息。
 
-![apt-get原理图](assets/apt-get原理图.png)当我们找到索引⽂件中的软件信息之后，就进⼊了我们 的镜像站点服务器[⽹站]/etc/apt/sources.list地址来下载我们需要的软件，下载的⽂件存放在/var/cache/apt/archives⽬录下。
+当我们找到索引⽂件中的软件信息之后，就进⼊了我们 的镜像站点服务器[⽹站]/etc/apt/sources.list地址来下载我们需要的软件，下载的⽂件存放在/var/cache/apt/archives⽬录下。
+
+![apt-get原理图](assets/apt-get原理图.png)
 
 例：sudo apt-get install g++，当执行这条命令时，会先在/etc/apt/sources.list中找g++所在的网站A，然后 在/var/lib/apt/lists找到网站A对应的缓存，网站A对应的缓存中记录了g++在远程服务器的索引号，然后后台自动登录远程服务器并且拿着g++的索引号找到g++.dep，然后再将g++.dep下载到主机的/var/cache/apt/archives中。
 
