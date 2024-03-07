@@ -205,7 +205,9 @@ struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
 
 ## 6.两两交换链表中的节点
 
+24.Swap Nodes in Pairs (Medium)
 
+[Leetcode](https://leetcode.com/problems/swap-nodes-in-pairs/description/) / [力扣](https://leetcode-cn.com/problems/swap-nodes-in-pairs/description/)
 
 ```c
 struct ListNode* swapPairs(struct ListNode* head) {
