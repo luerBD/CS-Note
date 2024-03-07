@@ -203,3 +203,25 @@ struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
 }
 ```
 
+## 6.两两交换链表中的节点
+
+
+
+```c
+struct ListNode* swapPairs(struct ListNode* head) {
+    struct ListNode *tmp_head = (struct ListNode *)malloc(sizeof(struct ListNode));
+    struct ListNode *t = tmp_head;
+    tmp_head->next = head;
+    while(t->next != NULL && t->next->next != NULL)
+    {
+        struct ListNode *pi = t->next;
+        struct ListNode *pj = t->next->next;
+        pi->next = pj->next;
+        pj->next = pi;
+        t->next = pj;
+        t = pi;
+    }
+    return tmp_head->next;
+}
+```
+
