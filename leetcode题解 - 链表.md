@@ -227,3 +227,63 @@ struct ListNode* swapPairs(struct ListNode* head) {
 }
 ```
 
+## 7. 链表求和
+
+445. Add Two Numbers II (Medium)
+
+[Leetcode](https://leetcode.com/problems/add-two-numbers-ii/description/) / [力扣](https://leetcode-cn.com/problems/add-two-numbers-ii/description/)
+
+```c
+struct ListNode* reverse(struct ListNode *l)
+{
+    struct ListNode *p = l;
+    struct ListNode *head = (struct ListNode *)malloc(sizeof(struct ListNode));
+    head->next = NULL;
+    while(p)
+    {
+        struct ListNode *q = p->next;
+        p->next = head->next;
+        head->next = p;
+        p = q;
+    }
+    return head->next;
+}
+
+struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2){
+    struct ListNode *p1 = reverse(l1), *p2 = reverse(l2);
+    struct ListNode *p3 = (struct ListNode *)malloc(sizeof(struct ListNode));
+   
+    int t = 0;
+    p3->next = NULL;
+
+    while(p1 && p2)
+    {
+        struct ListNode *new_node = (struct ListNode *)malloc(sizeof(struct ListNode));
+        new_node->val = (p1->val + p2->val) % 10 + t;
+        t = (p1->val + p2->val) / 10;
+        new_node->next = p3->next;
+        p3->next = new_node;
+        p1 = p1->next;
+        p2 = p2->next;
+    }
+    while(p1)
+    {
+        struct ListNode *new_node = (struct ListNode *)malloc(sizeof(struct ListNode));
+        new_node->val = p1->val;
+        new_node->next = p3->next;
+        p3->next = new_node;
+        p1 = p1->next;
+    }
+    while(p2)
+    {
+        struct ListNode *new_node = (struct ListNode *)malloc(sizeof(struct ListNode));
+        new_node->val = p2->val;
+        new_node->next = p3->next;
+        p3->next = new_node;
+        p2 = p2->next;
+    }
+    return p3->next;
+}
+
+```
+
