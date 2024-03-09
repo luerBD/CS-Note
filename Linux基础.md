@@ -724,3 +724,174 @@ ln -s 源文件 软链接文件
 **练习2：**
 
 ⾃⼰新建⼀个 hello.c ⽂件分别设计硬链接和硬链接的操作。
+
+# 6.Linux命令进阶
+
+## 6.1 grep命令
+
+功能：从文件中搜索字符串。
+
+命令格式：
+
+```shell
+grep "字符串"  ⽂件
+```
+
+参数：
+
+```
+-n 显示⾏号
+-R 递归及⼦⽬录
+```
+
+例如：
+
+```shell
+grep "hello" log.c		#在log.c⽂件中搜索"hello"字符串
+grep "main" * -nR		#在当前⽬录及⼦⽬录所有⽂件中搜索main
+```
+
+## 6.2 find命令
+
+功能：在指定路径下搜索文件。
+
+命令格式：
+
+```shell
+find 路径 -name ⽂件名
+```
+
+例如：在/home/linux⽬录下搜索hello.c
+
+```shell
+find /home/linux -name hello.c    
+```
+
+## 6.3 管道连接符|
+
+说明：管道就是将⼀个命令的输出当作另⼀个命令的输⼊，通过 | 连接多个命令。即后⼀个命令的操作，是在前⼀个命令的基础上进⾏的。
+
+例如：
+
+```shell
+cat /etc/passwd | grep -n "linux"
+# cat /etc/passwd 显示出passwd文件的内容
+# grep -n "linux" 在显示出的passwd文件的内容的基础上，在内容中查找"linux"字符串
+
+ls /usr/include | grep "stdio.h"
+# ls /usr/include 列出include文件夹中的内容
+# grep "stdio.h"  在列出的include文件夹中内容的基础上，在这些内容中查找 "stdio.h"字符串
+```
+
+## 6.4 head命令
+
+功能：显示文件开头的内容。
+
+命令格式：
+
+```shell
+head -⾏数 ⽂件
+```
+
+例如：显示/etc/passwd⽂件开头前10⾏
+
+```shell
+head -10 /etc/passwd   
+```
+
+## 6.5 tail命令
+
+功能：显示文件尾部指定的行数。
+
+命令格式：
+
+```shell
+tail -⾏数 ⽂件
+```
+
+例如：显示/etc/passwd⽂件最后⼀⾏的信息
+
+```shell
+tail -1 /etc/passwd   
+```
+
+## 6.6 cut命令
+
+功能：字符串裁剪。
+
+注意：一般与管道联合使用。
+
+命令格式：
+
+```shell
+cut -d "分割字符" -f  字段
+```
+
+参数：
+
+```
+-d	指定我们的分割字符    
+-f	指定我们显示的区域
+```
+
+例如：
+
+```shell
+tail -1 /etc/passwd | cut -d ":" -f 1,3,4
+grep "linux" /etc/passwd | cut -d ":" -f 1,3
+```
+
+## 6.7 wc命令
+
+功能：统计某个⽂件的⾏数 / 单词个数 / 字节数。
+
+命令格式：
+
+```shell
+wc 参数 文件
+```
+
+参数：
+
+```
+-l 显示⼀个⽂件的⾏数
+-w 显示⼀个⽂件的单词个数
+-c 显示⼀个⽂件的字节数
+```
+
+例如：log.txt⽂件内容如下：
+
+```
+{
+	123
+    abc
+    789 ABCD
+}
+```
+
+```shell
+wc -l  log.txt
+wc -w  log.txt
+wc -c  log.txt
+```
+
+练习：
+
+如何⽤命令显示 / etc/passwd 第 34 ⾏这⼀⾏的信息；
+
+```shell
+head -34 /etc/passwd | tail -1
+```
+
+如何获得 root ⽤户在 / etc/passwd 中以 ":" 分割的 1，3，4 ⾏的信息； 
+
+```shell
+grep "root" /etc/passwd | cut -d ":" -f 1,3,4
+```
+
+如何获得 linux ⽤户在 / etc/passwd 中的⾏号。
+
+```shell
+grep -n "linux" /etc/passwd | cut -d ":" -f 1
+```
+
