@@ -895,3 +895,17 @@ grep "root" /etc/passwd | cut -d ":" -f 1,3,4
 grep -n "linux" /etc/passwd | cut -d ":" -f 1
 ```
 
+# 7.shell中的常用特殊字符
+
+## 7.1 shell中的通配符
+
+当⽤户需要⽤命令处理⼀组⽂件，例如 file1.txt, file2.txt, file3.txt … ⽤户不必⼀⼀输⼊⽂件名，可以 使⽤ shell 通配符。shell 通配符如下：
+
+| 通配符 | 含义                             | 实例                                                         |
+| ------ | -------------------------------- | ------------------------------------------------------------ |
+| *      | 匹配任意⻓度的字符串             | ls file_*.txt <br />file_1.txt file_2.txt file_3.txt         |
+| ?      | 匹配⼀个⻓度的字符串             | ls file_?.txt<br />file_1.txt file_a.txt file.x.txt          |
+| [...]  | 匹配其中指定的⼀个字符           | ls file_[otr].txt <br />file_o.txt file_r.txt file_t.txt     |
+| [-]    | 匹配指定的⼀个字符范围           | ls file_[a-z].txt <br />file_a.txt file_b.txt file_z.txt     |
+| [^...] | 除了其中指定的字符，其他均可匹配 | ls file_[ ^obt].txt <br />显示除了 file_o.txt,file_b.txt,file_t.txt 外的其他⽂件 |
+
