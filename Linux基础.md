@@ -909,3 +909,93 @@ grep -n "linux" /etc/passwd | cut -d ":" -f 1
 | [-]    | 匹配指定的⼀个字符范围           | ls file_[a-z].txt <br />file_a.txt file_b.txt file_z.txt     |
 | [^...] | 除了其中指定的字符，其他均可匹配 | ls file_[ ^obt].txt <br />显示除了 file_o.txt,file_b.txt,file_t.txt 外的其他⽂件 |
 
+## 7.2 输入/输出重定向
+
+输⼊ / 输出重定向是改变 shell 命令或程序默认的标准输⼊ / 输出⽬标，重新定向到新的⽬标。 
+
+Linux 中默认的标准输⼊定义为键盘，标准输出定义为终端窗⼝。
+
+⽤户可以为当前操作改变输⼊或输出，迫使某个特定命令的输⼊或输出来源作为外部⽂件。
+
+### 7.2.1 输出重定向(>)
+
+含义：把本来应该输出到屏幕上的正确的数据，修改输出到其他的地⽅ (⽂件)。
+
+例如：
+
+把hello world写⼊log.txt⽂件中，写⼊前会把log.txt⽂件内容清空
+
+```shell
+echo "hello world" > log
+```
+
+把"happy"以追加的⽅式写入log.txt文件中，写入前不会把log.txt文件内容清空
+
+```shell
+echo "happy" >> log 
+```
+
+### 7.2.2 输入重定向(<)
+
+含义：改变默认的输⼊源，把本来应该从键盘输⼊的信息该从其他位置获取 (例如从⽂件中)。
+
+例如：
+
+```shell
+cat /etc/passwd		#这⾥省略输出信息，读者可⾃⾏查看
+cat < /etc/passwd	#输出结果同上⾯命令相同
+#注意，虽然执⾏结果相同，但第⼀⾏代表是以键盘作为输⼊设备，
+#⽽第⼆⾏代码是以/etc/passwd ⽂件作为输⼊设备。
+
+cat a.txt 
+cat < /etc/passwd > a.txt 
+cat a.txt #输出了和/etc/passwd ⽂件内容相同的数据
+#可以看到，通过重定向/etc/passwd 作为输⼊设备，并输出重定向到a.txt，
+#最终实现了将/etc/passwd ⽂件中内容复制到a.txt 中。
+```
+
+### 7.2.3 错误重定向(2>)
+
+含义：把本来应该输出到屏幕上错误的信息改输出到⽂件中。
+
+例如：dasds123 本身是不存在的命令，它是⼀条错误的命令。本来应该向屏幕上输出 command not found ，这条命令现在会输出到 log.txt ⽂件中。
+
+```shell
+dasfs123 2> log.txt
+```
+
+## 7.3 命令置换
+
+含义：将⼀个命令的输出当作另⼀个命令的参数，我们叫做命令置换。
+
+格式：
+
+```shell
+command1 `command2`    
+#command2的输出当作command1的参数
+#注：这⾥不是单引号，⽽是反撇号! esc下⾯的键为反撇号
+```
+
+例如：
+
+```shell
+find `pwd` -name hello.c
+ls `pws`
+```
+
+练习 ： 
+
+利⽤输出重定向把 "Good Good Study" 存放到 log1.txt ⽂件中；
+
+```shell
+echo "Good Good Study" > log1.txt
+```
+
+使⽤ ls -l bye.txt 命令，利⽤出错重定向把出错的信息放到log2.txt中； 
+
+注： [byte.txt 不存在，把命令的效果截图上传]
+
+```shell
+ls -l bye.txt 2> log2.txt
+```
+
