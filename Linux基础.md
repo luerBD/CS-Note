@@ -1374,3 +1374,8 @@ Gao           93
 练习：
 
 获得 df -Th 命令中 / dev/sda1 显示的总磁盘的⼤⼩。
+
+```
+df -Th | grep "/dev/sda1" | awk '{print $3}'
+```
+
