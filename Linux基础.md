@@ -1288,7 +1288,10 @@ ID    NAME     PHP    Linux    MySQL    Avereage
 
 ```
 [linux#linux] awk '{print$2}' student.txt             
-NAME Liming Sc Gao
+NAME 
+Liming 
+Sc 
+Gao
 ```
 
 ③格式输出
@@ -1320,3 +1323,54 @@ tmpfs        391M
 tmpfs        391M
 ```
 
+场景设计：当我们发现我们的 / dev/sda1 磁盘空间占⽤率的数字
+
+```
+[linux#linux] df -Th | grep "dev/sda1" | awk '{print $6}' | cut -d "%" -f
+61
+```
+
+## 9.4 awk流程控制用法
+
+### 9.4.1 awk BEGIN关键字
+
+默认情况下，awk 会从输⼊中读取⼀⾏⽂本，然后针对该⾏的数据执⾏程序脚本，但有 时可能需要在处理数据前运⾏⼀些脚本命令，这就需要使⽤ BEGIN 关键字。
+
+格式：
+
+```shell
+BEGIN{commands}
+```
+
+功能：在执⾏awk命令前，先执⾏BEGIN对应的动作。
+
+示例⽤法：
+
+```
+[linux#linux]  awk '{print $2 "\t" $5}' student.txt 
+NAME         MySQL
+Liming        86
+Sc            87
+Gao           93
+
+[linux#linux]  awk 'BEGIN{print "test start!"}{print $2 "\t" $5}' student.txt 
+test start!
+NAME        MySQL
+Liming        86
+Sc            87
+Gao           93
+```
+
+### 9.4.2 awk END关键字
+
+和 BEGIN 关键字相对应，END 关键字允许我们指定⼀些脚本命令，awk 会在读完数据后执⾏它们， 例如：
+
+```
+[linux#linux] cat /etc/passwd | tail -1 | awk -F ":" 'BEGIN{print "The data3 File Contents:"}{print $2} END{print "game over"}'
+ x
+ End of File
+```
+
+练习：
+
+获得 df -Th 命令中 / dev/sda1 显示的总磁盘的⼤⼩。
