@@ -287,3 +287,38 @@ struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2){
 
 ```
 
+## 8. 回文链表
+
+234.Palindrome Linked List (Easy)
+
+[Leetcode](https://leetcode.com/problems/palindrome-linked-list/description/) / [力扣](https://leetcode-cn.com/problems/palindrome-linked-list/description/)
+
+```c
+bool isPalindrome(struct ListNode* head) {
+    struct ListNode * p = head;
+    int n = 0, *arr = NULL;
+    int i;  
+    bool flag = true;
+    while(p)
+    {
+        n++;
+        p = p->next;
+    }
+    arr = (int *)malloc(sizeof(int) * n);
+    p = head;
+    for(i = 0; p; i++)
+    {
+        arr[i] = p->val;
+        p = p->next;
+    }
+    for(i = 0; i < n / 2; i++)
+    {
+        if(arr[i] != arr[n - i - 1])
+        {
+            flag = false;
+        }
+    }
+    return flag;
+}
+```
+
