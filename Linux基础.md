@@ -1204,3 +1204,119 @@ cat -n < log2.txt | sed '2adrink tea'
 sed 's/Taobao/muke/g' log2.txt
 ```
 
+# 9.awk命令详解
+
+## 9.1 awk命令概述
+
+AWK 语⾔的基本功能是在⽂件或者字符串中基于指定规则浏览和抽取信息。awk 抽取信息后，才能对 其他⽂本操作。它是⼀个强⼤的⽂本分析⼯具。简单来说 awk 就是把⽂件逐⾏的读⼊，以空格为默认 分隔符将每⾏切⽚，切开的部分再进⾏各种分析处理。之所以叫 AWK 是因为其取了三位创始⼈ Alfred Aho，Peter Weinberger, 和 Brian Kernighan 的 Family Name 的⾸字符。
+
+注： sed 命令常⽤于⼀整⾏的处理。⽽ awk 更倾向于把⼀⾏分为多个 "字段" 然后进⾏处理。
+
+**awk的适用场景：**
+
+超⼤⽂件处理； 输出格式化的⽂本报表； 执⾏算数运算； 执⾏字符串操作等。
+
+## 9.2 awk命令语法讲解
+
+**格式：**
+
+```
+awk [options] 'pattern {action}' filename
+```
+
+options：可选参数
+
+```
+-F：指明输⼊时⽤到的字段分隔符，默认分隔符为空格或tab键
+-v (var=VALUE)：⾃定义变量
+```
+
+pattern：匹配规则
+
+action：某些计算操作/格式化数据/流控制语句
+
+filename：⽂件名
+
+示例 :
+
+```shell
+awk -F ":" '{print $1}' /etc/passwd
+```
+
+## 9.3 awk基础用法
+
+```
+awk '条件1 {动作1} 条件2 {动作2} ... ' ⽂件名
+```
+
+### 9.3.1 条件 (pattern) 
+
+⼀般使⽤关系表达式作为条件，条件符合执⾏对应的动作。
+
+```
+x >  10   判断变量 x 是否⼤于10
+x >= 10x  判断变量 x 是否⼤于等于10
+x <= 10   判断变量 x 是否⼩于等于10
+```
+
+### 9.3.2 动作 (Action)
+
+格式化输出、流程控制语句。
+
+**例：新建⼀个 student.txt, 内容如下：**
+
+```
+ID    NAME     PHP    Linux    MySQL    Avereage
+1     Liming   82      95       86         87.66
+2     Sc       74      96       87         85.66
+3     Gao      99      83       93         91.66
+```
+
+命令测试：
+
+①输出⽂件内容
+
+```
+[linux#linux] awk '{print}' student.txt
+ID    NAME     PHP    Linux    MySQL    Avereage
+1     Liming   82      95       86         87.66
+2     Sc       74      96       87         85.66
+3     Gao      99      83       93         91.66
+```
+
+②输出第2列内容
+
+```
+[linux#linux] awk '{print$2}' student.txt             
+NAME Liming Sc Gao
+```
+
+③格式输出
+
+```
+[linux#linux] awk '{print $2 $6}' student.txt    #不调整格式输出，连在⼀起
+NAMEAvereage
+Liming87.66
+Sc85.66
+Gao91.66
+
+[linux#linux] awk '{print $2"\t"$6}' student.txt
+NAME        Avereage
+Liming        87.66
+Sc            85.66
+Gao           91.66
+```
+
+④awk输出磁盘信息
+
+```
+[linux#linux] df -Th | grep tmpfs | awk '{print $1"\t"$5}'
+udev         1.9G
+tmpfs        388M
+tmpfs        2.0G
+tmpfs        5.0M
+tmpfs        2.0G
+tmpfs        391M
+tmpfs        391M
+```
+
