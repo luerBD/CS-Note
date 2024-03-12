@@ -999,3 +999,191 @@ echo "Good Good Study" > log1.txt
 ls -l bye.txt 2> log2.txt
 ```
 
+# 8.sed命令详解
+
+## 8.1 sed命令概述
+
+我们之前的学习中, Vim 采⽤的是交互式⽂本编辑模式，你可以⽤键盘命令来交互性地插⼊、删除或替换数据中的⽂本。但本节要讲的 sed 命令不同，它采⽤的是流编辑模式，最明显的特点 是，在 sed 处理数据之前，需要预先提供⼀组规则，sed 会按照此规则来编辑数据。
+
+**sed命令使用场景：**
+
+超⼤⽂件处理； 
+
+对⽂件进⾏批量增加，替换等。 
+
+有规律的⽂本，例如以分号，空格等分隔的⽇志⽂件等；
+
+**说明：**
+
+sed 会根据脚本命令来处理⽂本⽂件中的数据，这些命令要么从命令⾏中输⼊，要么存储在⼀ 个⽂本⽂件中，此命令执⾏数据的顺序如下： 
+
+①每次仅读取⼀⾏内容； 
+
+②根据提供的规则命令匹配并修改数据。注意，sed 默认不会直接修改源⽂件数据，⽽是会将数据复制到缓冲区中，修改也仅限于缓冲区中的数据； 
+
+③将执⾏结果输出。
+
+当⼀⾏数据匹配完成后，它会继续读取下⼀⾏数据，并重复这个过程，直到将⽂件中所有数据处理完毕。
+
+![image-20240311194610849](assets/image-20240311194610849.png)
+
+## 8.2 sed命令语法讲解
+
+**命令格式：**
+
+```shell
+sed [options] '{command}[flags]' [filename]
+#注意：[]中的数据必须存在，{}内容可以省略
+```
+
+**options命令选项：**
+
+```
+-e 脚本命令：该选项会将其后⾯的脚本命令添加到已有的命令中。
+-f 脚本⽂件：该选项会将其⽂件中的脚本命令添加到已有的命令中。
+-n：只显示匹配的⾏
+-i：直接对原⽂件进⾏操作，会修改原⽂件内容。
+```
+
+**{command}[flags]：**
+
+sed内部常⽤命令：
+
+```
+i：insert，在指定匹配到的⾏前⾯添加新⾏内容为string；
+a：append，在指定或匹配到的⾏后⾯追加新⾏，内容为string；
+d：delete，删除符合地址定界条件的的⾏；
+p：print，默认sed对模式空间内的处理完毕后，将输出的结果输出在标准输出，添加p命令，相当于输出了原⽂，⼜⼀次输出了模式匹配处理后的内容；
+s：查找并替换，默认只替换每⾏中第⼀次被模式匹配到的字符串，如果修饰符为g, 则为全部替换。
+```
+
+flags：
+
+```
+n：1~512之间的数字表示指定要替换的字符串出现第⼏次时才进⾏替换。
+   例如，⼀⾏中有3个A，但⽤户只想替换第⼆个A，这时就⽤到这个标记；
+g：对数据中所有匹配到的内容进⾏替换，如果没有g，则只会在第⼀次匹配成功时做替换操作。
+   例如，⼀⾏数据中有3个A，则只会替换第⼀个A；
+p：会打印与替换命令中指定的模式匹配的⾏。此标记通常与-n 选项⼀起使⽤。
+```
+
+## 8.3 使用场景
+
+**场景1：显示/etc/passwd第三⾏的信息**
+
+```shell
+sed -n '3p' /etc/passwd      
+#注：这⾥的3代表⾏数，p代表输出结果
+===========================================================
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+```
+
+**场景2：在/etc/passwd中第⼀⾏前添加⼀⾏内容为”Good Good Study"**
+
+```shell
+ sed -e '1iGood Good Study' /etc/passwd
+ #注：这⾥的1代表第⼀⾏，i代表insert插⼊的意思。表示在第1⾏前插⼊新的字符串。
+ =========================================================
+ Good Good Study
+ root:x:0:0:root:/root:/bin/bash
+ daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+ bin:x:2:2:bin:/bin:/usr/sbin/nologin
+ sys:x:3:3:sys:/dev:/usr/sbin/nologin
+ sync:x:4:65534:sync:/bin:/bin/sync
+ games:x:5:60:games:/usr/games:/usr/sbin/nologin
+ man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+ lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+ mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+ ....
+```
+
+**场景3：把 /etc/passwd 中所有名字为 root 的字符串改为class**
+
+格式：
+
+```
+sed 's/旧字符串/新字符串/g' ⽂件名
+功能: 替换所有的字符串
+ 
+sed 's/旧字符串/新字符串/数字' ⽂件名
+功能：替换每⾏中第⼆次出现该字符串的数据
+```
+
+例：
+
+```shell
+sed -e 's/root/class/g' /etc/passwd
+======================================================
+class:x:0:0:class:/class:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+...
+```
+
+```shell
+sed 's/root/class/2' /etc/passwd
+=======================================================
+root:x:0:0:class:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+```
+
+```shell
+sed -n 's/root/class/2p' /etc/passwd
+=======================================================
+class:x:0:0:class:/class:/bin/bash
+```
+
+注：-n 选项会禁⽌ sed 输出，但 p 标记会输出修改过的⾏，将⼆者匹配使⽤的效果就是只输出被替换命令修改过的⾏。
+
+**场景 4： 删除 / etc/passwd 中内容并列出⾏号，并且将第 2~5 ⾏删除！**
+
+```
+cat -n /etc/passwd | sed '2,5d'
+=======================================================
+1        root:x:0:0:root:/root:/bin/bash
+3        bin:x:2:2:bin:/bin:/usr/sbin/nologin
+4        sys:x:3:3:sys:/dev:/usr/sbin/nologin
+5        sync:x:4:65534:sync:/bin:/bin/sync
+6        games:x:5:60:games:/usr/games:/usr/sbin/nologin
+...
+```
+
+注： cat -n 会显示⾏号，这⾥利⽤管道来显示内容。
+
+**场景 5： 把 / etc/passwd ⽂件中 root ⽤户的信息以带⾏号的形式重定向到 log.txt ⽂件中， 要求把 log.txt。⽂件中 root 替换为 linux. 并且 log.txt 中保存替换后的⽂件。**
+
+```
+cat /etc/passwd | grep -n "root" > log.txt
+sed -i 's/root/linux/g' log.txt
+cat log.txt
+=====================================================
+1:linux:x:0:0:linux:/linux:/bin/bash
+```
+
+练习：
+
+```
+HELLO LINUX!  
+Linux is a free unix-type opterating system.  
+This is a linux testfile!  
+Linux test 
+newLine
+Google
+Taobao
+Runoob
+Tesetfile
+Wiki
+```
+
+把 2-6 ⾏信息删除，输出到屏幕上；
+
+在第 2 ⾏后添加 "drink tea" 字符串，并输出到屏幕上；
+
+把 Taobao 替换为 muke。
