@@ -1097,7 +1097,7 @@ bin:x:2:2:bin:/bin:/usr/sbin/nologin
  ....
 ```
 
-**场景3：把 /etc/passwd 中所有名字为 root 的字符串改为class**
+**场景3：**
 
 格式：
 
@@ -1106,10 +1106,10 @@ sed 's/旧字符串/新字符串/g' ⽂件名
 功能: 替换所有的字符串
  
 sed 's/旧字符串/新字符串/数字' ⽂件名
-功能：替换每⾏中第⼆次出现该字符串的数据
+功能：替换每⾏中第几次出现该字符串的数据，数字是几，就替换每行中第几次出现该字符串的数据
 ```
 
-例：
+例：把 /etc/passwd 中所有名字为 root 的字符串改为class
 
 ```shell
 sed -e 's/root/class/g' /etc/passwd
@@ -1124,6 +1124,8 @@ man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
 ...
 ```
 
+例：把 /etc/passwd 每一行中root 第二次出现的字符串改为class
+
 ```shell
 sed 's/root/class/2' /etc/passwd
 =======================================================
@@ -1133,6 +1135,8 @@ bin:x:2:2:bin:/bin:/usr/sbin/nologin
 sys:x:3:3:sys:/dev:/usr/sbin/nologin
 sync:x:4:65534:sync:/bin:/bin/sync
 ```
+
+
 
 ```shell
 sed -n 's/root/class/2p' /etc/passwd
@@ -1144,7 +1148,7 @@ class:x:0:0:class:/class:/bin/bash
 
 **场景 4： 删除 / etc/passwd 中内容并列出⾏号，并且将第 2~5 ⾏删除！**
 
-```
+```shell
 cat -n /etc/passwd | sed '2,5d'
 =======================================================
 1        root:x:0:0:root:/root:/bin/bash
@@ -1184,6 +1188,19 @@ Wiki
 
 把 2-6 ⾏信息删除，输出到屏幕上；
 
+```
+cat -n < log2.txt | sed -e '2,6d' 
+```
+
 在第 2 ⾏后添加 "drink tea" 字符串，并输出到屏幕上；
 
+```
+cat -n < log2.txt | sed '2adrink tea'
+```
+
 把 Taobao 替换为 muke。
+
+```
+sed 's/Taobao/muke/g' log2.txt
+```
+
