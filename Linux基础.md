@@ -1543,9 +1543,18 @@ read
 ①在⽤户主⽬录新建⼀个⽬录 shell；
 ②拷⻉/etc/passwd⽂件到你的shell⽬录；
 ③将shell⽬录备份成shell-bak；
-④对shell-bak进⾏压缩，压缩成shll-bak.tar.gz； 
+④对shell-bak进⾏压缩，压缩成shell-bak.tar.gz； 
 ⑤复制压缩后的⽂件到你的共享⽬录；
 ⑥查看共享⽬录 shell-bak.tar.gz 的⼤⼩。 ls -l 
+```
+
+```shell
+mkdir shell
+cp /etc/passwd /home/linux/shell 
+cp /home/linux/shell /home/linux/shell-bak -a
+sudo tar -czvf shell-bak.tar.gz /home/linux/shell-bak
+cp /home/linux/shell-bak.tar.gz /mnt/hgfs/share/ 
+ls -l /mnt/hgfs/share/shell-bak.tar.gz  
 ```
 
 执行./home2.sh welcome to wuhan后要求输出实现以下功能：
