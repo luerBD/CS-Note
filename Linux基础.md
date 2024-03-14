@@ -769,7 +769,21 @@ find /home/linux -name hello.c
 
 ## 6.3 管道连接符|
 
-说明：管道就是将⼀个命令的输出当作另⼀个命令的输⼊，通过 | 连接多个命令。即后⼀个命令的操作，是在前⼀个命令的基础上进⾏的。
+在Linux中，管道连接符 | 是一个非常有用且简单的工具，它允许我们将一个命令的输出作为另一个命令的输入。我们可以将它想象成一根“管子”，连接了两个命令，让第一个命令的“话”能够传给第二个命令“听”。
+
+具体来说，当你使用 | 连接两个命令时，第一个命令的执行结果（通常是输出到屏幕的内容）会被“传递”到第二个命令，作为第二个命令的输入。这样，两个命令就可以协同工作，完成更复杂的任务。
+
+举个例子，假设你想查看当前目录中所有文件的列表，并且只想看其中那些包含“txt”的文件。你可以使用以下命令组合：
+
+```shell
+ls -l | grep "txt"
+```
+
+这里，ls -l 命令会列出当前目录的所有文件和文件夹的详细信息，然后通过管道 |，这些信息被传递给 grep "txt" 命令。grep "txt" 命令会搜索包含“txt”的行，并把这些行打印到屏幕上。
+
+所以，整个命令组合的意思就是：“列出当前目录的所有文件和文件夹的详细信息，并从中找出包含‘txt’的行”。
+
+管道连接符 | 是Linux命令行中非常强大且灵活的工具，它允许你轻松地组合多个命令，完成各种复杂的任务。通过使用管道，你可以将简单的命令组合成强大的命令序列，从而实现各种高效的文本处理和数据处理操作。
 
 例如：
 
@@ -1208,7 +1222,15 @@ sed 's/Taobao/muke/g' log2.txt
 
 ## 9.1 awk命令概述
 
-AWK 语⾔的基本功能是在⽂件或者字符串中基于指定规则浏览和抽取信息。awk 抽取信息后，才能对 其他⽂本操作。它是⼀个强⼤的⽂本分析⼯具。简单来说 awk 就是把⽂件逐⾏的读⼊，以空格为默认 分隔符将每⾏切⽚，切开的部分再进⾏各种分析处理。之所以叫 AWK 是因为其取了三位创始⼈ Alfred Aho，Peter Weinberger, 和 Brian Kernighan 的 Family Name 的⾸字符。
+awk，实际上是一个强大的文本分析工具，它特别擅长对文本数据进行处理并生成报告。你可以将它想象成一个文本处理的小助手，专门帮助你对文本文件进行各种操作。
+
+awk命令的工作方式是逐行读取文本文件的内容。它默认以空格或制表符（tab键）作为分隔符，将每行的内容切分成多个部分，每个部分我们称之为“字段”。然后，awk会根据你设定的条件或模式，对这些字段进行各种操作，比如打印、计算、比较等。
+
+例如，假设你有一个包含学生成绩的文本文件，每行包括学生的姓名和分数。你可以使用awk命令来提取分数大于某个值的学生名单，或者计算所有学生的平均分等等。
+
+调用awk命令有几种方式。最常见的是在命令行中直接使用，你可以指定分隔符、命令和要处理的文件。另外，你也可以将awk命令写入一个脚本文件，并通过脚本文件来执行awk命令。
+
+之所以叫 AWK 是因为其取了三位创始⼈ Alfred Aho，Peter Weinberger, 和 Brian Kernighan 的 Family Name 的⾸字符。
 
 注： sed 命令常⽤于⼀整⾏的处理。⽽ awk 更倾向于把⼀⾏分为多个 "字段" 然后进⾏处理。
 
@@ -1227,13 +1249,13 @@ awk [options] 'pattern {action}' filename
 options：可选参数
 
 ```
--F：指明输⼊时⽤到的字段分隔符，默认分隔符为空格或tab键
--v (var=VALUE)：⾃定义变量
+-F：指明输⼊时⽤到的字段分隔符，-F省略时默认分隔符为空格或tab键；
+-v (var=VALUE)：⾃定义变量。
 ```
 
-pattern：匹配规则
+pattern：条件
 
-action：某些计算操作/格式化数据/流控制语句
+action：动作是awk要执行的操作。这些操作可以是打印文本、计算数值、修改文本等。动作通常放在大括号 {} 里，这样awk就知道要执行哪些操作。
 
 filename：⽂件名
 
@@ -1274,46 +1296,63 @@ ID    NAME     PHP    Linux    MySQL    Avereage
 
 命令测试：
 
-①输出⽂件内容
+①输出student.txt⽂件所有内容
+
+```shell
+awk '{print}' student.txt
+```
 
 ```
-[linux#linux] awk '{print}' student.txt
 ID    NAME     PHP    Linux    MySQL    Avereage
 1     Liming   82      95       86         87.66
 2     Sc       74      96       87         85.66
 3     Gao      99      83       93         91.66
 ```
 
-②输出第2列内容
+②输出student.txt⽂件第2列内容
+
+```shell
+awk '{print $2}' student.txt   
+```
 
 ```
-[linux#linux] awk '{print$2}' student.txt             
 NAME 
 Liming 
 Sc 
 Gao
 ```
 
-③格式输出
+③格式输出student.txt⽂件第2列和第6列内容
+
+```shell
+awk '{print $2 $6}' student.txt    #不调整格式输出，连在⼀起
+```
 
 ```
-[linux#linux] awk '{print $2 $6}' student.txt    #不调整格式输出，连在⼀起
 NAMEAvereage
 Liming87.66
 Sc85.66
 Gao91.66
+```
 
-[linux#linux] awk '{print $2"\t"$6}' student.txt
+```shell
+awk '{print $2 "\t" $6}' student.txt
+```
+
+```
 NAME        Avereage
 Liming        87.66
 Sc            85.66
 Gao           91.66
 ```
 
-④awk输出磁盘信息
+④找出tmpfs相关的磁盘信息，并输出第1列和第5列的内容
+
+```shell
+df -Th | grep "tmpfs" | awk '{print $1"\t"$5}'
+```
 
 ```
-[linux#linux] df -Th | grep tmpfs | awk '{print $1"\t"$5}'
 udev         1.9G
 tmpfs        388M
 tmpfs        2.0G
@@ -1325,8 +1364,11 @@ tmpfs        391M
 
 场景设计：当我们发现我们的 / dev/sda1 磁盘空间占⽤率的数字
 
+```shell
+df -Th | grep "dev/sda1" | awk '{print $6}' | cut -d "%" -f
 ```
-[linux#linux] df -Th | grep "dev/sda1" | awk '{print $6}' | cut -d "%" -f
+
+```
 61
 ```
 
@@ -1346,14 +1388,22 @@ BEGIN{commands}
 
 示例⽤法：
 
+```shell
+awk '{print $2 "\t" $5}' student.txt 
 ```
-[linux#linux]  awk '{print $2 "\t" $5}' student.txt 
+
+```
 NAME         MySQL
 Liming        86
 Sc            87
 Gao           93
+```
 
-[linux#linux]  awk 'BEGIN{print "test start!"}{print $2 "\t" $5}' student.txt 
+```shell
+awk 'BEGIN{print "test start!"}{print $2 "\t" $5}' student.txt 
+```
+
+```
 test start!
 NAME        MySQL
 Liming        86
@@ -1365,17 +1415,20 @@ Gao           93
 
 和 BEGIN 关键字相对应，END 关键字允许我们指定⼀些脚本命令，awk 会在读完数据后执⾏它们， 例如：
 
+```shell
+cat /etc/passwd | tail -1 | awk -F ":" 'BEGIN{print "The data3 File Contents:"}{print $2} END{print "game over"}'
 ```
-[linux#linux] cat /etc/passwd | tail -1 | awk -F ":" 'BEGIN{print "The data3 File Contents:"}{print $2} END{print "game over"}'
- x
- End of File
+
+```
+x
+End of File
 ```
 
 练习：
 
 获得 df -Th 命令中 / dev/sda1 显示的总磁盘的⼤⼩。
 
-```
+```shell
 df -Th | grep "/dev/sda1" | awk '{print $3}'
 ```
 
