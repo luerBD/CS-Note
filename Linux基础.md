@@ -1549,6 +1549,7 @@ read
 ```
 
 ```shell
+#! /bin/bash 
 mkdir shell
 cp /etc/passwd /home/linux/shell 
 cp /home/linux/shell /home/linux/shell-bak -a
@@ -1564,5 +1565,28 @@ file_name : home2.sh
 word_count : 3 
 return_value : 0 
 string : welcome to wuhan
+```
+
+```shell
+#! /bin/bash 
+echo 'file_name' : "$0"
+echo 'word_count' : "$#"
+echo 'return_value' : "$?"
+echo 'string' : "$1 $2 $3"
+```
+
+或：
+
+```shell
+#! /bin/bash
+file_name=$0
+word_count=$#
+return_value=$?
+string="$1 $2 $3"
+
+echo 'file_name' : "$file_name"
+echo 'word_count' : "$word_count"
+echo 'return_value' : "$return_value"
+echo 'string' : "$string"
 ```
 
