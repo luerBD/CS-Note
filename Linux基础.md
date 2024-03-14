@@ -1537,28 +1537,23 @@ read
 
 练习：
 
-要求写⼀个 home1.sh 实现以下功能 
+要求写⼀个 home1.sh 实现以下功能 ：
 
-1 、在⽤户主⽬录新建⼀个⽬录 shell 
+```
+①在⽤户主⽬录新建⼀个⽬录 shell；
+②拷⻉/etc/passwd⽂件到你的shell⽬录；
+③将shell⽬录备份成shell-bak；
+④对shell-bak进⾏压缩，压缩成shll-bak.tar.gz； 
+⑤复制压缩后的⽂件到你的共享⽬录；
+⑥查看共享⽬录 shell-bak.tar.gz 的⼤⼩。 ls -l 
+```
 
-2 、拷⻉ /etc/passwd ⽂件到你的 shell ⽬录 
+执行./home2.sh welcome to wuhan后要求输出实现以下功能：
 
-3 、将 shell ⽬录备份成 shell-bak 
-
-4 、对 shell-bak 进⾏压缩，压缩成 shll-bak.tar.gz 
-
-5 、复制压缩后的⽂件到你的共享⽬录 
-
-6 、查看共享⽬录 shell-bak.tar.gz 的⼤⼩。 ls -l 
-
-./home2.sh welcome to wuhan 
-
-要求输出实现以下功能： 
-
+```
 file_name : home2.sh 
-
 word_count : 3 
-
 return_value : 0 
-
 string : welcome to wuhan
+```
+
