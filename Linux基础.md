@@ -1643,3 +1643,212 @@ echo 'return_value' : "$return_value"
 echo 'string' : "$string"
 ```
 
+## 10.3 shell中的功能性语句
+
+### 10.3.1 输入-read
+
+**格式：**
+
+```shell
+read  变量1  变量2  变量3
+```
+
+**功能：**从键盘标准读⼊⼀⾏，并赋值给后⾯的变量。
+
+**示例：**
+
+```shell
+read  var1  var2
+```
+
+**特点：**shell 编程中若是利⽤ read 函数读取参数的时候，若是输⼊ > ⼤于当前参数，则当前参数前⾯依次对⻬，最后⼀个把所有输⼊之后的参数全部当做最后一个参数输入。
+
+若是输⼊ = 当前参数，正常输⼊
+
+若是输⼊ < 当前参数，取输⼊的个数与当前参数对⻬，不⾜者补空格。
+
+**示例代码：**
+
+test-01.sh
+
+```shell
+#!  /bin/bash     
+echo -n "Input var : "
+read VAR1 VAR2
+echo VAR1 : $VAR1
+echo VAR2 : $VAR2
+```
+
+### 10.3.2 算数计算-expr
+
+**格式：**
+
+```shell
+expr 第⼀个操作数 运算符 第⼆个操作数
+```
+
+**示例：**
+
+```shell
+var=`expr 1 + 3`
+echo "var = $var"
+```
+
+**示例代码：**
+
+expr.sh
+
+```shell
+#！/bin/bash
+echo -n "Input two num : "
+read DAT1  DAT2
+RES=`expr $DAT1 + $DAT2`
+echo "$DAT1 + $DAT2 = $RES"
+RES=`expr $DAT1 - $DAT2`
+echo "$DAT1 - $DAT2 = $RES"
+RES=`expr $DAT1 \* $DAT2`
+echo "$DAT1 * $DAT2 = $RES"
+RES=`expr $DAT1 / $DAT2`
+echo "$DAT1 / $DAT2 = $RES"
+```
+
+运行结果：
+
+```
+Input two num :  12  4
+12 + 4 = 16
+12 - 4 = 8
+12 * 4 = 48
+12 / 4 = 3
+```
+
+### 10.3.3 测试-test
+
+注：test 测试的时候，若是⽤到 =，= 两边要有空格。
+
+**比较字符串：**
+
+`STR1 = STR2` 或 `STR1 == STR2`：如果STR1等于STR2，则为真
+
+`STR1 != STR2`：如果STR1不等于STR2，则为真
+
+`-z STR`：如果STR的长度为零，则为真
+
+`-n STR`：如果STR的长度非零，则为真
+
+示例：
+
+```shell
+test 123 == 321
+echo $?
+
+test -z 456
+echo $?
+
+STR=123
+test $STR == 123
+echo $?
+```
+
+示例代码：
+
+```shell
+# -n 代表输出不换⾏
+echo -n "Input str1 str2 : "
+read STR1 STR2
+
+#test测试命令字符串的时候，建议被⼦字符串⽤""引⽤起来
+test "$STR1" = "$STR2"
+echo "|$STR1| = |$STR2|" : $?
+test "STR1"  !=  "STR2"
+test -n "$STR1"
+echo "|$STR1| len is  no  zeor : $?"
+test -z "$STR2"
+echo "|$STR2| len is zero : $?"
+```
+
+**比较整数：**
+
+`INT1 -eq INT2`：如果INT1等于INT2，则为真。
+
+`INT1 -ne INT2`：如果INT1不等于INT2，则为真。
+
+`INT1 -gt INT2`：如果INT1大于INT2，则为真。
+
+`INT1 -ge INT2`：如果INT1大于等于INT2，则为真。
+
+`INT1 -lt INT2`：如果INT1小于INT2，则为真。
+
+`INT1 -le INT2`：如果INT1小于等于INT2，则为真。
+
+示例代码：
+
+```shell
+echo -n "please input two int data : "
+read VAR1 VAR2
+test $VAR1 -eq $VAR2
+echo "$VAR1 -eq $VAR2 : $?"
+test $VAR1 -ne $VAR2
+echo "$VAR1 -ne $VAR2 : $?"
+test $VAR1 -gt $VAR2
+echo "$VAR1 -gt $VAR2 : $?"
+test $VAR1 -ge $VAR2
+echo "$VAR1 -ge $VAR2 : $?"
+test $VAR1 -lt $VAR2
+echo "$VAR1 -lt $VAR2 : $?"
+test $VAR1 -le $VAR2
+echo "$VAR1 -le $VAR2 : $?"
+```
+
+**逻辑测试**：
+
+`! EXPR`：如果EXPR为假，则为真。
+
+`EXPR1 -a EXPR2` 或 `EXPR1 && EXPR2`：如果EXPR1和EXPR2都为真，则为真。
+
+`EXPR1 -o EXPR2` 或 `EXPR1 || EXPR2`：如果EXPR1或EXPR2为真，则为真。
+
+示例代码：
+
+```
+echo  -n  "Input on  number : "
+read x
+#(( x > 8 && x < 100))
+test $x -gt 8 -a $x -lt 100
+echo $?
+```
+
+**检查文件或目录是否存在**：
+
+`-e FILE`：如果FILE存在，则为真。
+
+`-d FILE`：如果FILE存在且为目录，则为真。
+
+`-f FILE`：如果FILE存在且为普通文件，则为真。
+
+**检查文件的读、写、执行权限**：
+
+`-r FILE`：如果FILE存在且可读，则为真。
+
+`-w FILE`：如果FILE存在且可写，则为真。
+
+`-x FILE`：如果FILE存在且可执行，则为真。
+
+```
+echo -n "please input a filename : "
+read filename
+#test -f $filename
+[ -f $filename ]
+echo "$filename : $?"
+#test -d /home/linux
+[ -d /home/linux ]
+echo "/home/linux : $?"
+```
+
+练习 1：写⼀个 shell 脚本，要求⽤户从键盘输⼊年，⽉，⽇，输出的时候格式为 XX-XX-XX 
+
+例如： 输⼊ 2022 9 1 , 输出 2022-9-1 
+
+练习 2：写⼀个 shell 脚本，要求从键盘输⼊ 2 个数，输出这两个数的 +,-,*,/,%
+
+练习3：写⼀个 shell 脚本，要求⽤户从键盘输⼊⼀个数。若是该数在 [0~60) 之间输出 0， 否则输出 1.
