@@ -1029,11 +1029,13 @@ ls -l bye.txt 2> log2.txt
 
 **说明：**
 
-sed 会根据脚本命令来处理⽂本⽂件中的数据，这些命令要么从命令⾏中输⼊，要么存储在⼀ 个⽂本⽂件中，此命令执⾏数据的顺序如下： 
+sed 会根据脚本命令来处理⽂本⽂件中的数据，这些命令要么从命令⾏中输⼊，要么存储在⼀个⽂本⽂件中，此命令执⾏数据的顺序如下： 
 
 ①每次仅读取⼀⾏内容； 
 
-②根据提供的规则命令匹配并修改数据。注意，sed 默认不会直接修改源⽂件数据，⽽是会将数据复制到缓冲区中，修改也仅限于缓冲区中的数据； 
+②根据提供的规则命令匹配并修改数据。
+
+注意，sed 默认不会直接修改源⽂件数据，⽽是会将数据复制到缓冲区中，修改也仅限于缓冲区中的数据； 
 
 ③将执⾏结果输出。
 
@@ -1504,9 +1506,9 @@ cp log.txt  ./Student
 
 我们 shell 变量不⽀持数据类型，他将任意赋值给变量的数据当作字符串识别。 
 
-我们定义变量的时候，不需要给钱（ $ ）。我们输出的时候需要给钱。 
+我们定义和给变量赋值的时候，不需要给钱（ $ ），我们输出的时候需要给钱。 
 
-给变量赋值的时候，等号两边不能有空格。
+我们定义和给变量赋值的时候，等号两边不能有空格。
 
 示例代码：
 
@@ -1647,27 +1649,27 @@ echo 'string' : "$string"
 
 ### 10.3.1 输入-read
 
-**格式：**
+格式：
 
 ```shell
 read  变量1  变量2  变量3
 ```
 
-**功能：**从键盘标准读⼊⼀⾏，并赋值给后⾯的变量。
+功能：从键盘标准读⼊⼀⾏，并赋值给后⾯的变量。
 
-**示例：**
+示例：
 
 ```shell
 read  var1  var2
 ```
 
-**特点：**shell 编程中若是利⽤ read 函数读取参数的时候，若是输⼊ > ⼤于当前参数，则当前参数前⾯依次对⻬，最后⼀个把所有输⼊之后的参数全部当做最后一个参数输入。
+特点：shell 编程中若是利⽤ read 函数读取参数的时候，若是输⼊ > ⼤于当前参数，则当前参数前⾯依次对⻬，最后⼀个把所有输⼊之后的参数全部当做最后一个参数输入。
 
 若是输⼊ = 当前参数，正常输⼊
 
 若是输⼊ < 当前参数，取输⼊的个数与当前参数对⻬，不⾜者补空格。
 
-**示例代码：**
+示例代码：
 
 test-01.sh
 
@@ -1820,8 +1822,6 @@ echo $?
 
 **检查文件或目录是否存在**：
 
-`-e FILE`：如果FILE存在，则为真。
-
 `-d FILE`：如果FILE存在且为目录，则为真。
 
 `-f FILE`：如果FILE存在且为普通文件，则为真。
@@ -1834,7 +1834,7 @@ echo $?
 
 `-x FILE`：如果FILE存在且可执行，则为真。
 
-```
+```shell
 echo -n "please input a filename : "
 read filename
 #test -f $filename
@@ -1852,3 +1852,440 @@ echo "/home/linux : $?"
 练习 2：写⼀个 shell 脚本，要求从键盘输⼊ 2 个数，输出这两个数的 +,-,*,/,%
 
 练习3：写⼀个 shell 脚本，要求⽤户从键盘输⼊⼀个数。若是该数在 [0~60) 之间输出 0， 否则输出 1.
+
+## 10.4 shell中的if语句
+
+### 10.4.1 单分支语句
+
+格式：
+
+```shell
+if [ 表达式 ]
+then
+	命令1
+	命令2
+fi
+```
+
+功能：表达式为真，执⾏命令 1 和命令 2 ，否则不执⾏。
+
+常⽤：
+
+```
+-a 且的关系连接多个表达式 
+-o 或的关系连接多个表达式
+```
+
+示例代码：输入一个文件夹名称，如果该文件夹存在则列出该文件夹中的所有文件
+
+```shell
+#!  /bin/bash
+echo -n "Please input a dirname : "
+read  dirname
+#if  test -d  $dirname
+if [ -d $dirname ]
+then
+	ls $dirname
+fi
+#exit 退出shell脚本的执⾏
+exit
+echo "123456"
+```
+
+### 10.4.2 单分支选择语句
+
+格式：
+
+```shell
+if [ 表达式 ]
+then 
+	命令1
+	...
+else
+	命令n
+	...
+fi
+```
+
+功能：表达式为真执⾏命令 1 ，否则执⾏命令 n
+
+示例代码：
+
+```shell
+echo -n "Input data : "
+read STR
+if [ -d "$STR" ]
+then
+	ls $STR
+	echo "This is a dir"
+else
+    if [ -f "$STR" ]
+    then
+        ls -l $STR
+        echo "This is a file"
+    else 
+        echo "Other type!"
+    fi
+fi
+```
+
+### 10.4.3 多分支选择语句
+
+格式：
+
+```shell
+if [ 表达式1 ]
+then 
+	命令1 
+    ... 
+elif [ 表达式2 ]
+then
+	命令2  
+    ... 
+elif [ 表达式n ]
+then
+	命令n
+    ...
+fi
+```
+
+功能：若是表达式 1 为真，执⾏对应的命令 1 ，否则判断表达式 2 ， 若是表达式 2 为真，执⾏对应的命令 2 ，否则判断表达式3，.... 若是表达式 n 为真，执⾏对应的命令 n。
+
+示例代码：
+
+```shell
+#! /bin/bash
+echo -n "please input two data : "
+read VAR1 VAR2
+SUM=`expr $VAR1 + $VAR2`
+if [ $SUM -ge 0 -a $SUM -le 100 ]  #[0,100]
+then
+	echo "$SUM is [0,100]" 
+elif [ $SUM -gt 0 -a $SUM -le 500 ] #(100,500]
+then
+	echo "$SUM is (100,500]" 
+elif [ $SUM -gt 500 ] #sum > 500
+then
+	echo "$SUM is greater 500" 
+fi
+```
+
+**练习1：写⼀个 shell 脚本实现下列功能：**
+
+①要求⽤户从键盘输⼊⼀个⽂件名 (例如 log). 
+
+②判断⽤户主⽬录 /home/linux 下，该⽂件是否存在。若是存在，则⽤ ls -l 显示⽂件的详细信息，然后结束 shell 脚本。
+
+③若是不存在利⽤输出重定向⽂件中输出 "Good Study" 
+
+```shell
+#! /bin/bash
+cd /home/linux 
+echo -n "please input a file name:"
+read file_name
+if [ -f $file_name ]
+then
+	echo "$file_name 存在！"
+	ls -l $file_name
+	exit
+else
+	echo "good good study" > log
+fi
+```
+
+**练习2：写⼀个 shell 脚本实现下列功能：**
+
+①要求⽤户从键盘输⼊⼀个分数。并且赋值给 score 
+
+②判断 score 的值，
+
+若是 0 <= score < 60, 输出 E 
+
+若是 60 <= score < 70, 输出 D 
+
+若是 70 <= score < 80, 输出 C
+
+若是 80 <= score < 90, 输出 B
+
+若是 90 <= score <=100, 输出 A
+
+```shell
+#! /bin/bash 
+echo -n "please a socre:"
+read score
+if [ $score -ge 0 -a $score -lt 60 ]
+then
+	echo "E"
+elif [ $score -ge 60 -a $score -lt 70 ]
+then
+	echo "D"
+elif [ $score -ge 70 -a $score -lt 80 ]
+then
+	echo "C"
+elif [ $score -ge 80 -a $score -lt 90 ]
+then
+	echo "B"
+elif [ $score -ge 90 -a $score -le 100 ]
+then
+	echo "A"
+fi
+```
+
+## 10.5 shell中的case语句
+
+格式：
+
+```shell
+case 字符串变量 in
+	模式1)
+		命令列表1
+        ;;
+    模式2)
+		命令列表2
+        ;;
+    模式3)
+		命令列表3
+        ;;
+    *)
+		命令列表n
+esac
+```
+
+功能：查看字符串变量和下列哪个模式匹配，找到对应的模式后，执⾏对应的命令列表。 若是所有模式都不匹配，则默认执⾏ * 下⾯的命令列表n。
+
+示例代码1：匹配常量
+
+```shell
+#! /bin/bash
+echo -n "Input String : "
+read STR
+case $STR in
+    "ABC")                    #单个常量
+       echo "ABC"    
+       ;;
+    "123")
+       echo "123"
+       ;;
+    "AC" | "BC" | "1")        #多个常量
+       echo "AC or BC or 1"
+       ;;
+    *)
+       echo "Other"
+esac
+```
+
+示例代码2：匹配变量
+
+```shell
+#! /bin/bash
+echo -m "Input String : "
+read STR
+VAR="hello"
+case $STR in
+    "ABC")
+       echo "ABC"
+       ;;
+    "$VAR")                #匹配变量
+       echo "$VAR"
+       ;;
+    *)
+       echo "Other"
+esac
+```
+
+示例代码3：匹配字符串列表
+
+```shell
+#! /bin/bash
+echo -m "Input String : "
+read STR
+VAR = "hello"
+#匹配字符串列表
+case $STR in
+    "ABC")
+       echo "ABC"
+       ;;
+    [1359abYW])               
+       echo "$STR"
+       ;;
+    [0-2]）
+       echo "$STR in [0-2]"
+       ;;
+    *)
+       echo "Other"
+esac
+```
+
+练习：
+
+从键盘输⼊⼀个⽬录，测试 /home/linux 下该⽬录是否存在，如果这个⽬录存在，则提示⽤户 是否删除，⽤户输⼊Y、y、yes、YES 可以删除。 若是⽬录不存在，则新建这个⽬录。
+
+```shell
+#! /bin/bash 
+echo -n "input a dir name:"
+read dir 
+if [ -d $dir ]
+then
+	echo "是否删除该目录？请选择[Y,y,yes,YES]"
+	read choose
+	case $choose in 
+		"Y" | "y" | "YES" | "yes")
+			rm -rf $dir
+			echo "删除成功！"
+			;;
+		*)
+			echo "请正确输入！"
+			;;
+	esac
+else
+	mkdir $dir
+fi
+```
+
+## 10.6 shell中的循环语句
+
+### 10.6.1 while循环
+
+格式：
+
+```shell
+while [ 判断条件 ]
+do
+	命令列表
+done
+```
+
+示例代码：
+
+```shell
+#!  /bin/bash
+sum=0
+i=1
+while [ $i -le 100 ]
+do
+    sum=`expr $sum + $i`
+    i=`expr $i + 1`
+done
+echo "sum = $sum i = $i"
+```
+
+### 10.6.2 for循环
+
+格式：
+
+```shell
+for 变量名 in 单词表
+do
+	命令
+done
+```
+
+⼯作原理： 
+
+```
+①循环的次数由单词的个数来决定；
+②每次从单词表中取⼀个单词给变量，然后执⾏命令，直到所有的单词全部被取出来。 
+```
+
+构造单词表的⽅法 : 
+
+```
+①直接在 in 后⾯逐个单词写出来；
+②通过变量来获得——命令置换。
+```
+
+示例代码1：
+
+```shell
+#!  /bin/bash
+i=1
+for var in "word1" "hello2" "shell3"
+do
+    echo $i : $var
+    i=`expr $i + 1`
+done
+```
+
+示例代码2：
+
+```shell
+#!  /bin/bash
+list=`ls /`
+i=1
+echo $list | wc -w
+for var in $list
+do
+    echo $i : $var
+    i=`expr $i + 1`
+done
+```
+
+示例代码3：
+
+```shell
+#!  /bin/bash
+i=1
+for var in $@
+do
+    echo $i : $var
+    i=`expr $i + 1`
+done
+```
+
+练习1：大家写一个bat.sh，要求实现批处理脚本的相关功能。
+
+要求⽤户从命令⾏运⾏该脚本，通过$#判断命令⾏传递的参数的个数【参数个数不包含运⾏脚本本身】。
+
+```
+①若是参数是2个，第⼀个参数表示⽂件名，第⼆个参数表示创建⽂件的个数。示例如下：
+./bat.sh log 3
+默认创建3个⽂件, log_1.txt log_2.txt log_3.txt
+
+②若是通过$#传递参数个数只有1个，则该参数表示⽂件名。创建默认个数5个⽂件。示例如下：
+./bat log
+默认创建5个⽂件 log_1.txt log_2.txt log_3.txt log_4.txt log_5.txt
+```
+
+```shell
+name=`echo $@ | cut -d " " -f 1`
+len=`echo $@ | cut -d " " -f 2`
+count=$#
+echo $name
+echo $len
+i=1
+if [ $count -ge 2 ]
+then
+	while [ $i -le $len ]
+	do
+		touch "${name}_$i.txt"
+		i=`expr $i + 1`
+	done
+else
+	while [ $i -le $len ]
+	do
+		touch "${name}_$i.txt"
+		i=`expr $i + 1`
+	done
+fi
+```
+
+练习2：要求⼤家写⼀个 dir.sh 实现下列功能。
+
+```
+①从命令⾏传递⼀个参数；
+②判断传递的参数是否为⽬录；
+③若是不为⽬录，则提示错误退出；
+④若是为⽬录，统计该⽬录下普通⽂件和⽬录⽂件的个数【不包含隐藏⽂件】。
+```
+
+```shell
+#! /bin/bash
+if [ -d $@ ]
+then
+	echo `ls | wc -w`
+else
+	echo "error!"
+	exit
+fi
+```
+
