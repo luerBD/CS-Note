@@ -2465,6 +2465,29 @@ done
 
 array=(7 5 6 3 2)。
 
-②定义下列数组，要求⽤ for 循环打印下⾯这句话中字⺟个数不⼤于 6 的单词。
+```shell
+#! /bin/bash 
+array=(7 5 6 3 2)
+for index in ${!array[@]}
+do
+	echo "$index --> ${array[$index]}"
+done
+```
+
+②定义下列数组，要求⽤for循环打印下⾯这句话中字⺟个数不⼤于6的单词。
 
 array=(I am westos teacher welcome to westos training class)。
+
+```shell
+array=(I am westos teacher welcome to westos training class)
+i=0
+for var in ${array[@]}
+do
+	if [ ${#array[$i]} -le 6 ]
+	then
+		echo "$var"
+	fi
+	i=`expr $i + 1`
+done
+```
+
