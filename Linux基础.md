@@ -2289,3 +2289,182 @@ else
 fi
 ```
 
+## 10.7 shell中的数组
+
+根据我们学习 C 语⾔的经验，数组就是⼀系列数据的集合，这个数据就是我们之前学习的存储单个元素的最⼩单元变量，也就是说将⼀些列的元素整合到⼀个集合内，这个集合的名称就叫数组。当然与其他语⾔⼀样，数组具备⼏个条件，在 Shell 中数组仅⽀持⼀维数组，数组元素的下标从 0 开始，数组元素没有最⼤限制等。
+
+在我们之前学习 C 语⾔的过程中，⼤家应该有所体会，当我们操作批量数据的时候，⼀个⼀个变量操作⾮常不便，此时我们可以使⽤⼀个数组集合，对整个数组集合进⾏遍历或其他操作，最终实现批量的效果，数组使得我们的脚本更具扩展性。
+
+### 10.7.1 shell中数组的定义
+
+数组的定义有两种⽅式，可分为直接定义和单元素定义。 
+
+**直接定义：**
+
+数组类似于变量定义，只不过将⾥⾯的值⽤⼩括号括起来，其中每个元素使⽤空格分隔。shell数组中元素的类型可以不⼀样，例如其中可以包含数字与字符串。
+
+示例：
+
+```shell
+SHELL_ARRAY=(1 2 3 "hello Shell")
+# 说明：SHELL_ARRAY为数组名
+# 1，2，3为保存的数字，"hello Shell" 为保存的字符串
+```
+
+**单元素定义：**
+
+Shell中数组下标从0开始，利⽤单个元素来定义数组。操作和C语⾔类似
+
+示例：
+
+```shell
+[linux@linux]# SHELL_ARRAY[0]=1
+[linux@linux]# SHELL_ARRAY[1]=2
+[linux@linux]# SHELL_ARRAY[2]=3
+[linux@linux]# SHELL_ARRAY[3]="hello Shell" 
+```
+
+### 10.7.2 shell中数组元素的获取
+
+**获取单个元素：**
+
+与变量的引⽤⼀样，数组可以获取单个位置的元素，利⽤  `${SHELL_ARRAY[num]} ` 。
+
+示例用法：
+
+```shell
+[linux@linux]# echo ${SHELL_ARRAY[0]}    //获取AEG1数组中第⼀个元素1
+[linux@linux]# echo ${SHELL_ARRAY[3]}    //获取AEG1数组中第四个元素hello Shell
+```
+
+**获取全部元素：**
+
+获取数组全部元素使⽤  `${SHELL_ARRAY[*]}` 或  `${SHELL_ARRAY[@]} ` 。
+
+示例用法：
+
+```shell
+[linux@linux]# echo ${SHELL_ARRAY[@]}
+1 2 3 hello Shell
+
+[linux@linux]# echo ${SHELL_ARRAY[*]}
+1 2 3 hello Shell
+```
+
+**获取整个数组长度：**
+
+数组⻓度即数组中元素的个数，可以利⽤ `${#SHELL_ARRAY[*]}` 或 `${#SHELL_ARRAY[@]}` 来获取，我们发现其实就是在获取数组全部元素前添加`#`来获取数组中元素的个数。
+
+示例用法：
+
+```shell
+[linux@linux]# echo ${#SHELL_ARRAY[*]}
+4
+
+[linux@linux]# echo ${#SHELL_ARRAY[@]}
+4
+```
+
+**获取单个元素的⻓度：**
+
+对于数组中的单个元素我们也可以进⾏⻓度的获取，可以利⽤`${#SHELL_ARRAY[num]} `。
+
+示例用法：
+
+```shell
+[linux@linux]# echo ${SHELL_ARRAY[@]} 
+100 2 3 hello Shell 
+
+[linux@linux]# echo ${SHELL_ARRAY[3]}   //获取第四个元素内容为：hello Shell
+hello Shell
+
+[linux@linux]# echo ${#SHELL_ARRAY[3]}  //获取第四个元素⻓度为11
+11
+```
+
+### 10.7.3 操作数组
+
+**增加：**
+
+对数组元素的增加，直接对单个位置元素增加即可，例如：
+
+```shell
+[linux@linux]# SHELL_ARRAY[4]=10
+[linux@linux]# echo ${SHELL_ARRAY[@]}
+100 2 3 hello Shell 10
+
+[linux@linux]# echo ${#SHELL_ARRAY[@]}
+5
+```
+
+**删除：**
+
+删除数组可以使⽤`unset`， `unset SHELL_ARRAY[num]`可以删除对应下标的数组元素，如果不带下标则删除数组的全部元素，例如：
+
+```shell
+[linux@linux]# echo ${SHELL_ARRAY[@]} 
+100 3 hello Shell 10
+
+[linux@linux]# unset SHELL_ARRAY[0]     //删除下标为0的元素
+[linux@linux]# echo ${SHELL_ARRAY[@]}
+3 hello Shell 10
+
+[linux@linux]# unset SHELL_ARRAY        //删除整个数组元素
+[linux@linux]# echo ${SHELL_ARRAY[@]}
+```
+
+### 10.7.4 shell中的关联数组
+
+上述教⼤家使⽤的都是我们的普通数组，shell 中还提供了⼀种关联性数组，在使⽤关联数组前，必须先使⽤ 
+`declare -A`声明它。
+
+示例代码1：
+
+```shell
+[linux@linux]# declare -A ARGFILE    //定义关联数组
+[linux@linux]# ARGFILE=([name1]=Shell [name2]=linux [name3]=arg) //关联数组元素赋值
+[linux@linux]# echo ${ARGFILE[@]}    //查看关联数组中所有元素
+arg linux Shell                      //输出顺序和定义的顺序⽆关
+
+[linux@linux]# echo ${#ARGFILE[@]} 
+3
+
+[linux@linux]# echo ${ARGFILE[name1]} //查看索引为name1的元素值
+Shell
+
+[linux@linux]# echo ${!ARGFILE[@]}    //查看所有的key值
+name3 name2 name1
+```
+
+示例演练：
+
+shell.sh
+
+```shell
+#! /bin/bash
+array=(1 2 3 4 5)
+i=0
+for var in ${array[@]} 
+do
+        echo "array[$i] = $var"
+        i=`expr $i + 1`
+done
+declare -A ARGLIST
+ARGLIST[key1]=1
+ARGLIST[key2]=2
+ARGLIST[key3]="shell"
+for item in ${!ARGLIST[@]}
+do
+        echo "${item} ---> ${ARGLIST[$item]}"
+done
+```
+
+练习：
+
+①要求⽤循环输出下列数组中元素的下标。 
+
+array=(7 5 6 3 2)。
+
+②定义下列数组，要求⽤ for 循环打印下⾯这句话中字⺟个数不⼤于 6 的单词。
+
+array=(I am westos teacher welcome to westos training class)。
