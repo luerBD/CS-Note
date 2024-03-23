@@ -2491,3 +2491,161 @@ do
 done
 ```
 
+## 10.8 shell中的函数
+
+我们常常把完成固定功能、且多次使⽤的⼀组命令（语句）封装在⼀个特定的结构中，这种结构，我们就叫做函数。
+
+### 10.8.1 函数的定义
+
+格式：
+
+```shell
+#方式1
+function 函数名()
+{
+	命令1
+	命令2
+	...
+}
+
+#方式1
+函数名()
+{
+	命令1
+	命令2
+	...
+}
+```
+
+示例用法：
+
+```shell
+#! /bin/bash
+fun_test1()
+{
+	cd /home/linux
+	mkdir new_dir
+}
+function fun_test2()
+{
+	cd /home/linux
+	mkdir new_dir
+}
+```
+
+### 10.8.2 函数的调用
+
+格式：
+
+```shell
+#方式1：通过$?获得函数的返回值，用于返回数值
+函数名 参数1 参数2
+$? 获得return返回值
+
+#⽅式2：通过echo来获得函数的结果，用于返回字符串
+变量=`函数名 参数1 参数2`
+#注意：此种⽅法是函数中的内容是通过echo输出，把echo输出的内容保存在变量中.
+```
+
+示例代码1：
+
+```shell
+#! /bin/bash
+fun_test1()
+{
+	echo "fun_test1 is call"
+	value = 20
+	return $value
+}
+fun_test2()
+{
+	echo "fun_test2 is call"
+	echo '$#' : $# 		# 获得函数参数的个数
+	echo '$1' : $1 		# 获得第⼀个参数
+	echo '$2' : $2 		# 获得第⼆个参数
+	echo '$0' : $0 		# $0获得脚本名
+	return `expr $1 + $2`
+}
+echo $0 start ....
+echo "========================================"
+#调⽤⽆参的函数
+fun_test1
+ret=$?
+echo $ret
+echo "========================================"
+#调⽤有参函数
+fun_test2 10 20
+ret=$?
+echo $ret
+echo "========================================"
+```
+
+示例代码2：
+
+```shell
+#! /bin/bash
+fun_test1()
+{
+	VAR="hello world"
+	echo $VAR
+}
+echo $0 start ....
+echo "==============================================="
+echo "first VAR : $VAR"
+#开始调⽤函数，不传参
+fun_test1
+echo "==============================================="
+#shell中变量默认为全局变量，当shell函数调⽤后⽣效
+echo "second VAR : $VAR"
+str=`fun_test1`
+echo $str
+```
+
+练习：
+
+设计⼀个加法函数 add()，给函数传参 10,20, 计算 10 + 20 的和；
+
+```shell
+add()
+{
+	return `expr $1 + $2`
+}
+add 10 20
+res=$?
+echo "res = $res"
+```
+
+设计⼀个函数 output_string()，返回 "hello word" 字符串；
+
+错误写法：
+
+```shell
+output_string()
+{
+	var="hello world"
+	return $var
+}
+output_string
+echo $?
+#错误信息line 4: return: hello: numeric argument required
+#2
+```
+
+在 Bash shell 脚本中，`return` 命令用于从函数中返回一个退出状态码给调用者。退出状态码通常是一个介于 0 到 255 之间的整数，其中 0 通常表示成功，而非零值表示错误或特定的退出条件。
+
+在您的脚本中，您尝试使用 `return $var` 语句，这里 `$var` 的值是一个字符串 "hello world"。Bash 解释器尝试将 "hello world" 当作一个数值来处理，这显然是错误的，因此它抛出了 "numeric argument required" 的错误。
+
+如果您想要从函数中输出一个字符串，您应该使用 `echo` 或 `printf` 命令，而不是 `return`。
+
+正确写法：
+
+```shell
+output_string()
+{
+	var="hello world"
+	echo $var
+}
+res=`output_string`
+echo $res
+```
+
