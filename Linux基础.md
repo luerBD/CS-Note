@@ -2649,3 +2649,184 @@ res=`output_string`
 echo $res
 ```
 
+# 11.Makefile工程管理
+
+Makefile 主要使⽤在没有集成开发环境时，对⼯程⽂件进⾏⾃动化编译的⼯具。
+
+Makefile 的本质是⼀个⽂件，需要配合 make 命令进⾏⾃动化编译。⽂件名常⾸字⺟⼤写。
+
+Makefile ⽂件的命名：makefile 或者 Makefile。(推荐⾸字⺟⼤写的⽤法）
+
+make 是⼀个命令⼯具，⽤来解释 makefile ⽂件中的代码，从⽽实现⾃动化编译。编译使⽤的编译器本质上还是 gcc。
+
+Makefile ⽂件中定义了⼀系列的规则来指定哪些⽂件需要先编译, 哪些⽂件需要后编译, 哪些⽂件需要重新编译, 甚⾄于进⾏更复杂的功能操作。
+
+## 11.1 Makefile安装命令
+
+```shell
+sudo apt-get install make
+```
+
+## 11.2 Makefile规则
+
+### 11.2.1 Makefile 规则三要素
+
+⽬标： 要⽣成的⽬标⽂件
+
+依赖：⽬标⽂件由哪些⽂件⽣成
+
+命令： 通过执⾏该命令由依赖⽂件⽣成⽬标
+
+### 11.2.2 基本规则
+
+```shell
+⽬标: 依赖
+<Tab> 命令 	#注意命令需要以tab键开始
+```
+
+示例代码：
+
+fun.h
+
+```c
+#ifndef __FUN_H__
+#define __FUN_H__
+#include <stdio.h>
+extern int global;
+extern void print_value();
+#endif
+```
+
+fun.c
+
+```c
+#include "fun.h"
+#include <stdio.h>
+int global = 20;
+void print_value()
+{
+	printf("global = %d\n",global);
+	return;
+}
+/*
+在 fun.c 文件中，你定义了 global 变量和 print_value 函数。为了让其他包含 fun.h 的源文件知道这些定义存在于 fun.c 中，你需要在 fun.c 中包含 fun.h。这样，当其他 .c 文件包含 fun.h 时，它们就能知道 global 变量和 print_value 函数的存在，尽管它们的实际定义在 fun.c 中。
+*/
+```
+
+main.c
+
+```c
+#include "fun.h"
+int main()
+{
+	print_value();
+	return 0;
+}
+```
+
+Makefile
+
+```shell
+main_exec : main.o fun.o
+gcc main.o fun.o -o main_exec
+
+fun.o : fun.c
+gcc -c fun.c -o fun.o
+
+main.o : main.c
+gcc -c main.c -o main.o
+ 
+clean:
+rm -rf *.o main_exec
+```
+
+执行命令：
+
+```shell
+make 			#执⾏默认的⽣成第⼀个⽬标的命令
+make main_exec 	#执⾏⽣成main_exec⽬标的命令
+make clean 		#执⾏clean⽬标的命令
+```
+
+**原理：**
+
+当依赖文件不存在：
+
+```
+如果有的依赖⽂件不存在，则向下搜索规则，看是否有⽣成该依赖⽂件的规则:
+如果有规则⽤来⽣成该依赖⽂件, 则执⾏规则中的命令⽣成依赖⽂件;
+如果没有规则⽤来⽣成该依赖⽂件, 则报错。
+```
+
+![image-20240325184701542](assets/image-20240325184701542.png)
+
+当依赖文件存在：
+
+```
+如果所有依赖都存在, 
+	检查规则中的⽬标是否需要更新, 
+		必须先检查这些目标的所有依赖, 
+			依赖中有任何⼀个被更新, 
+	则其⽬标必须更新。(检查的规则是哪个时间⼤哪个最新——时间戳)
+```
+
+![image-20240325184804421](assets/image-20240325184804421.png)
+
+## 11.3 Makefile中的变量
+
+Makefile 中使⽤变量有点类似于 C 语⾔中的宏定义, 使⽤该变量相当于内容替换, 使⽤变量可以使Makefile 易于维护, 修改起来变得简单。
+
+### 11.3.1 普通变量
+
+普通变量，⼀般是⽤户⾃⼰根据需求定义的变量。变量的定义要做到⻅名知意。
+
+示例：
+
+"="表示最终赋值，变量的值是整个Makefile中最后被指定的值。
+
+```shell
+OBJ_A = A
+OBJ_B = $(OBJ_A) B
+OBJ_A = AA
+all:
+	@echo "${OBJ_B}"
+# 经过上⾯的赋值后，最后OBJ_B的值是AA B，⽽不是A B，
+# 在make时，会把整个Makefile展开，来决定变量的值
+```
+
+```
+在 Makefile 中，命令前面的 @ 符号用于抑制该命令在执行时的输出。默认情况下，当 make 执行 Makefile 中的命令时，它会打印出正在执行的命令。这对于调试很有用，因为它显示了 make 正在执行的确切命令。
+但是，在某些情况下，你可能不希望 make 打印出命令，尤其是当这些命令是打印消息或其他不重要的操作时。在这些情况下，你可以在命令前加上 @ 来阻止 make 打印该命令。
+```
+
+“:=” 表示直接赋值，赋予当前位置的值。
+
+```shell
+OBJ_A := A
+OBJ_B := $(OBJ_A) B
+OBJ_A := AA
+all:
+	@echo "${OBJ_B}"
+# 最后BIR_B的值是A B，即根据当前位置进⾏赋值。因此相当于C语言中的"="
+# ":="才是真正意义上的直接赋值
+```
+
+“?=” 表示如果该变量没有被赋值，赋值予等号后⾯的值。
+
+```shell
+#@VAR := A
+VAR ?= A
+all:
+	@echo "${VAR}"
+```
+
+
+
+### 11.3.2 自动变量
+
+| 变量名 | 含义                                                         |
+| ------ | ------------------------------------------------------------ |
+| $@     | 规则中的⽬标集合，在模式规则中，如果有多个⽬标的话，<br />“$@”表示匹配模式中定义的⽬标集合。 |
+| $<     | 表示匹配模式中定义的⽬标集合。依赖⽂件集合中的第⼀个⽂件。   |
+| $^     | 所有依赖⽂件的集合，使⽤空格分开，如果在依赖⽂件中有多个重复的⽂件，<br />会去除重复的依赖⽂件，只保留⼀份。 |
+
