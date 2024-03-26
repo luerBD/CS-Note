@@ -2966,7 +2966,7 @@ int main()
 
 Makefile
 
-```
+```SHELL
 CC := gcc
 TARGET := main_exec
 OBJECT := main.o linklist.o
@@ -2978,4 +2978,125 @@ clean :
 	rm -rf *.o main_exec
 ```
 
-​                                                                                                                                                                                                                                            
+## 11.4 Makefile中的伪目标和函数库
+
+### 11.4.1 Makefile中的伪目标 .PHONY
+
+当 makefile ⽬录下有⼀个和⽬标相同的⽂件时，例如 clean ⽂件。我们在执⾏ make 命令的时候会出现错误。伪⽬标就是⽤于解决此种错误⽽产⽣。伪⽬标只是⼀个标签。
+
+示例代码：
+
+```shell
+# 当/home/linux/Class⽬录下有如下⽂件:
+Makefile   fun.c   fun.h   main.c   clean
+# 此时我们执⾏make clean命令不⽣效。修改Makefile的代码。
+```
+
+Makefile
+
+```shell
+.PHONY : clean
+CC := gcc
+TARGET : exec_main
+OBJECT : main.o fun.o 
+$(TARGET) : $(OBJECT)
+	$(CC) -O $@ $^
+ 
+%.o:%.c
+	$(CC) -O -C $@ $<
+ 
+clean:
+	rm -rf *.o exec_main
+```
+
+### 11.4.2 Makefile中的基础函数
+
+**通配符——wildcard**
+
+格式：
+
+```shell
+SRC = $(wildcard ./*.c)
+```
+
+功能：匹配⽬录下所有.c ⽂件，并将其赋值给SRC变量。
+
+**替换文件后缀——patsubst**
+
+格式：
+
+```shell
+$(patsubst 原模式, ⽬标模式, ⽂件列表)
+```
+
+示例：
+
+```shell
+OBJ = $(patsubst %.c, %.o, $(SRC))
+```
+
+功能：这个函数有三个参数，意思是取出SRC中的所有值，然后将.c 替换为.o 最后赋值给OBJ变量。
+
+**代码示例：**
+
+Makefile
+
+```shell
+.PHONY : clean
+CC = gcc
+SRC = $(wildcard *.c)
+OBJ = $(patsubst %.c,%.o,$(SRC))
+exec : $(OBJ)
+	$(CC) $(OBJ) -o exec
+%.o : %.c
+	$(CC) -c $< -o $@
+clean :
+	rm -rf *.o exec
+```
+
+### 11.4.3 Makefile中的库
+
+**指定头文件**
+
+linux 中⼀般通过 "-I" （⼤写 i) 来指定头⽂件, 形式如下：
+
+```shell
+-I /home/linux/include
+```
+
+Makefile 中常⽤写法：
+
+```shell
+CFLAGS = -I /home/linux/include
+myapp: *.c
+	gcc $(CFLAGS) -o myapp
+```
+
+**指定库⽂件路径**
+
+linux 中⼀般通过 "-L" （⼤写 l) 来指定库⽂件的路径, 形式如下：
+
+```shell
+-L /usr/lib
+```
+
+Makefile 中常⽤写法：
+
+```shell
+LDFLAGS = -L /usr/lib
+```
+
+**链接具体的库**
+
+linux 中⼀般⽤ “-l 库名 " 来指定链接对应的库，形式如下：
+
+```shell
+-lpthread -liconv
+```
+
+Makefile 中常⽤写法：
+
+```shell
+LIBS = -lpthread -liconv
+```
+
