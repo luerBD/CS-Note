@@ -2894,3 +2894,88 @@ clean :
 练习：
 
 ⼤家写⼀个链表的代码, 链表需要linklist.c linklist.h,main.c要求⽤Makefile⾃动变量来编写Makfile。
+
+linklist.h
+
+```c
+#ifndef __LINKLIST_H__
+#define __LINKLIST_H__
+#include<stdio.h>
+#include<stdlib.h>
+typedef struct LinkNode
+{
+	int data;
+	struct LinkNode *next;
+}*LinkList, LinkNode;
+extern void init_list(LinkList *L);
+extern void create_list(LinkList *L, int n);
+extern void output(LinkList L);
+#endif
+```
+
+linklist.c
+
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include"linklist.h"
+void init_list(LinkList *L)
+{
+	*L = (LinkNode *)malloc(sizeof(LinkNode));
+	(*L)->next = NULL;
+}
+void create_list(LinkList *L, int n)
+{
+	printf("input:");
+	while(n--)
+	{
+		int num;
+		LinkNode *s = (LinkNode *)malloc(sizeof(LinkNode));
+		scanf("%d", &num);
+		s->data = num;
+		s->next = (*L)->next;
+		(*L)->next = s;
+	}
+}
+void output(LinkList L)
+{
+	LinkNode *p = L->next;
+	printf("output:");
+	while(p)
+	{
+		printf("%d ", p->data);
+		p = p->next;
+	}
+	printf("\n");
+}
+```
+
+main.c
+
+```c
+#include"linklist.h"
+int main()
+{
+	LinkList L;
+	init_list(&L);
+	create_list(&L, 6);
+	output(L);
+	return 0;
+}
+```
+
+Makefile
+
+```
+CC := gcc
+TARGET := main_exec
+OBJECT := main.o linklist.o
+$(TARGET) : $(OBJECT)
+	$(CC) $^ -o $@
+%.o : $.c
+	$(CC) -c $< -o $@
+clean :
+	rm -rf *.o main_exec
+```
+
+​                                                                                                                                                                                                                                            
