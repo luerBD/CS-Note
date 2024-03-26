@@ -2826,7 +2826,71 @@ all:
 
 | 变量名 | 含义                                                         |
 | ------ | ------------------------------------------------------------ |
-| $@     | 规则中的⽬标集合，在模式规则中，如果有多个⽬标的话，<br />“$@”表示匹配模式中定义的⽬标集合。 |
+| $@     | 规则中的⽬标集合，在模式规则中，如果有多个⽬标的话，$@表示匹配模式中定义的⽬标集合。 |
 | $<     | 表示匹配模式中定义的⽬标集合。依赖⽂件集合中的第⼀个⽂件。   |
 | $^     | 所有依赖⽂件的集合，使⽤空格分开，如果在依赖⽂件中有多个重复的⽂件，<br />会去除重复的依赖⽂件，只保留⼀份。 |
 
+示例代码：
+
+fun.h
+
+```c
+#ifndef __FUN_H__
+#define __FUN_H__
+#include <stdio.h>
+extern int global;
+extern void print_value();
+#endif
+```
+
+fun.c
+
+```c
+#include "fun.h"
+int global = 20;
+void print_value()
+{
+	printf("global = %d\n",global);
+	return;
+}
+```
+
+main.c
+
+```c
+#include "fun.h"
+int main()
+{
+	print_value();
+	return 0;
+}
+```
+
+Makefile
+
+```shell
+CC := gcc
+#$@ : ⽬标的集合
+#$< : 第⼀个依赖条件
+#$^ : 所有的依赖条件
+TARGET := main_exec
+OBJECT := main.o fun.o
+#@ 这⾥的$^指所有的依赖条件。即$(OBJECT)中main.o fun.o
+#@ 这⾥$@ 指⽬标集合
+#@ 这⾥$^ 指的是第⼀个依赖条件
+$(TARGET) : $(OBJECT)
+	$(CC) $^ -o $@
+#@ 以下代码等价于
+#@ main.o : main.c
+#@ gcc -c main.c -o main.o
+#@fun.o : fun.c
+#@ gcc -c fun.c -o fun.o
+%.o : %.c
+	$(CC) -c $< -o $@
+clean :
+	rm -rf *.o main_exec
+```
+
+练习：
+
+⼤家写⼀个链表的代码, 链表需要linklist.c linklist.h,main.c要求⽤Makefile⾃动变量来编写Makfile。
