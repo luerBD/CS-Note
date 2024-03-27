@@ -3100,3 +3100,15 @@ Makefile 中常⽤写法：
 LIBS = -lpthread -liconv
 ```
 
+## 11.5 Makefile多文件管理——乞丐版
+
+
+
+
+
+### 11.5.1 Makefile多文件管理基础指令
+
+
+
+### 11.5.2 认识大型工程架构
+
