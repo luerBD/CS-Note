@@ -3102,13 +3102,59 @@ LIBS = -lpthread -liconv
 
 ## 11.5 Makefile多文件管理——乞丐版
 
+Makefile 主要是对⼤型多⽂件⼯程进⾏管理，前⼏个章节，我们跟⼤家简单的介绍了⼀下 Makefile 的基本语法。本章节我们来看看针对多⼯程中 Makfile 的使⽤⽅法。⼀般多⼯程的⽬录结构如下：
 
-
-
+![image-20240327193421987](assets/image-20240327193421987.png)
 
 ### 11.5.1 Makefile多文件管理基础指令
 
+- 安装tree命令包
 
+  - 格式
+
+    ```shell
+    sudo apt-get install tree
+    ```
+
+- 调用子Makefile的方法
+
+  - 格式
+
+    ```shell
+    #在主Makefile中写⼊内容，调⽤⼦Makefile
+    make -C ⼦Mafeile的路径
+    ```
+
+  - 示例用法
+
+    ```shell
+    ⽬录结构：
+    fun Makefile
+    |
+    |---- fun.c Makefile 
+     
+    make -C ./fun
+    ```
+
+- Makefile调用shell命令的方法
+
+  - 格式
+
+    ```shell
+    ${shell command}
+    ```
+
+  - 示例用法
+
+    ```shell
+    #执⾏当前的pwd命令
+    CUR_PATH=${shell pwd}
+    all :
+    	@echo $CUR_PATH
+    ```
 
 ### 11.5.2 认识大型工程架构
 
+- 大型工程架构
+
+  
