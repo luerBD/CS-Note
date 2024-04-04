@@ -1,3 +1,5 @@
+
+
 # 1.Linux系统简介
 
 ## 1.1 Unix系统简介
@@ -2680,7 +2682,7 @@ sudo apt-get install make
 ### 11.2.2 基本规则
 
 ```shell
-⽬标: 依赖
+⽬标 : 依赖
 <Tab> 命令 	#注意命令需要以tab键开始
 ```
 
@@ -2763,11 +2765,7 @@ make clean 		#执⾏clean⽬标的命令
 当依赖文件存在：
 
 ```
-如果所有依赖都存在, 
-	检查规则中的⽬标是否需要更新, 
-		必须先检查这些目标的所有依赖, 
-			依赖中有任何⼀个被更新, 
-	则其⽬标必须更新。(检查的规则是哪个时间⼤哪个最新——时间戳)
+如果所有依赖都存在, 检查规则中的⽬标是否需要更新, 必须先检查这些目标的所有依赖, 依赖中有任何⼀个被更新, 则其⽬标必须更新。(检查的规则是哪个时间⼤哪个最新——时间戳)
 ```
 
 ![image-20240325184804421](assets/image-20240325184804421.png)
@@ -2782,7 +2780,7 @@ Makefile 中使⽤变量有点类似于 C 语⾔中的宏定义, 使⽤该变量
 
 示例：
 
-"="表示最终赋值，变量的值是整个Makefile中最后被指定的值。
+"="表示最后赋值，变量的值是整个Makefile中最后被指定的值。
 
 ```shell
 OBJ_A = A
@@ -2824,11 +2822,28 @@ all:
 
 ### 11.3.2 自动变量
 
-| 变量名 | 含义                                                         |
-| ------ | ------------------------------------------------------------ |
-| $@     | 规则中的⽬标集合，在模式规则中，如果有多个⽬标的话，$@表示匹配模式中定义的⽬标集合。 |
-| $<     | 表示匹配模式中定义的⽬标集合。依赖⽂件集合中的第⼀个⽂件。   |
-| $^     | 所有依赖⽂件的集合，使⽤空格分开，如果在依赖⽂件中有多个重复的⽂件，<br />会去除重复的依赖⽂件，只保留⼀份。 |
+$@：
+
+``` 
+含义：表示目标文件。在规则中，它代表当前规则的目标文件名。
+例子：如果你有一个规则是编译main.c为main.o，那么$@就代表main.o。
+gcc -c main.c -o main.o <==> gcc -c $< -o $@
+```
+
+$<：
+
+```
+含义：表示第一个依赖文件。在规则中，它代表当前规则的第一个依赖文件名。
+例子：对于编译main.c为main的规则，$<就代表main.c。
+gcc -c main.c -o main.o <==> gcc -c $< -o $@
+```
+
+$^：
+
+```
+含义：表示所有的依赖文件。在规则中，它代表当前规则的所有依赖文件列表。
+例子：如果你有一个规则，它的依赖是file1.o和file2.o，那么$^就代表这两个文件。
+```
 
 示例代码：
 
@@ -2870,23 +2885,15 @@ Makefile
 
 ```shell
 CC := gcc
-#$@ : ⽬标的集合
-#$< : 第⼀个依赖条件
-#$^ : 所有的依赖条件
+
 TARGET := main_exec
 OBJECT := main.o fun.o
-#@ 这⾥的$^指所有的依赖条件。即$(OBJECT)中main.o fun.o
-#@ 这⾥$@ 指⽬标集合
-#@ 这⾥$^ 指的是第⼀个依赖条件
+
 $(TARGET) : $(OBJECT)
 	$(CC) $^ -o $@
-#@ 以下代码等价于
-#@ main.o : main.c
-#@ gcc -c main.c -o main.o
-#@fun.o : fun.c
-#@ gcc -c fun.c -o fun.o
-%.o : %.c
-	$(CC) -c $< -o $@
+
+%.o : %.c					# 等价于 main.o : main.c             	# fun.o : fun.c
+	$(CC) -c $< -o $@		# 等价于 gcc -c main.c -o main.o		# gcc -c fun.c -o fun.o
 clean :
 	rm -rf *.o main_exec
 ```
@@ -2966,13 +2973,13 @@ int main()
 
 Makefile
 
-```SHELL
+```shell
 CC := gcc
 TARGET := main_exec
 OBJECT := main.o linklist.o
 $(TARGET) : $(OBJECT)
 	$(CC) $^ -o $@
-%.o : $.c
+%.o : %.c
 	$(CC) -c $< -o $@
 clean :
 	rm -rf *.o main_exec
@@ -3121,7 +3128,7 @@ Makefile 主要是对⼤型多⽂件⼯程进⾏管理，前⼏个章节，我�
   - 格式
 
     ```shell
-    #在主Makefile中写⼊内容，调⽤⼦Makefile
+    #在主Makefile中写⼊以下内容，调⽤⼦Makefile
     make -C ⼦Mafeile的路径
     ```
 
@@ -3157,4 +3164,267 @@ Makefile 主要是对⼤型多⽂件⼯程进⾏管理，前⼏个章节，我�
 
 - 大型工程架构
 
-  
+  实际开发中我们不可能只有以上⼏个⽂件，我们会把⽂件分为各种各样的模块来进⾏管理。以下为⼀个视频流服务器的⼯程管理例⼦。
+
+  ![image-20240327200626193](assets/image-20240327200626193.png)
+
+  以下每个⽂件夹中⼤部分都包含了⼀个⼦ Makefile 来对⼯程代码进⾏管理。通过主 Makefile 来调⽤。
+
+  ![image-20240327200900561](assets/image-20240327200900561.png)
+
+- 乞丐版 Makefile ⼯程架构
+
+  - 写以下代码
+
+    - 代码示例
+
+      global.h
+
+      ```c
+      #ifndef __GLOBAL_H__
+      #define __GLOBAL_H__
+      #include <stdio.h>
+      extern int a;
+      #endif
+      ```
+
+      global.c
+
+      ```c
+      #include "global.h"
+      int a = 20;
+      ```
+
+      fun.h
+
+      ```c
+      #ifndef __FUN_H__
+      #define __FUN_H__
+      #include "fun.h"
+      #include <stdio.h>
+      #include "global.h"
+      extern int fun();
+      #endif
+      ```
+
+      fun.c
+
+      ```c
+      #include "fun.h"
+      #include <stdio.h>
+      #include "global.h"
+      int fun()
+      {
+      	printf("a = %d\n",a);
+      }
+      ```
+
+      main.c
+
+      ```c
+      #include "fun.h"
+      int main(int argc, const char *argv[])
+      {
+      	fun(); 
+      	return 0;
+      }
+      ```
+
+      运⾏结果
+
+      ```shell
+      gcc *.c -o my_exex
+      ./my_exec
+      ```
+
+  - ⾸先把⾃⼰的代码按照下列架构分别放到对应的⽂件夹下，并创建空的 Makefile ⽂件
+
+    ![image-20240327225559006](assets/image-20240327225559006.png)
+
+  - 各⽂件下 Makefile 的编写
+
+    - fun ⽂件夹下 Makefile 编写
+
+      ```shell
+      ../obj/fun.o : fun.c
+      gcc -c -I ../include/ $< -o $@
+      ```
+
+    - global ⽂件夹下 Makefile 编写
+
+      ```shell
+      ../obj/global.o : global.c
+      gcc -c -I ../include/ $< -o $@
+      ```
+
+    - main ⽂件夹下 Makefile 编写
+
+      ```shell
+      ../obj/main.o : main.c
+      gcc -c -I ../include/ $< -o $@
+      ```
+
+    - obj ⽂件夹下 Makefile 编写
+
+      ```shell
+      ../bin/my_exec : *.o
+      gcc -I ../include/ $^ -o $@
+      ```
+
+    - 主⼯程架构 Makefile 编写
+
+      ```shell
+      SUB_DIR := main fun global obj 
+      
+      #设置SUB_DIR变量导出为全局，其他文件也可以使用
+      export SUB_DIR
+      all : $(SUB_DIR)
+      $(SUB_DIR) : MK_BIN
+      	make -C $@
+      MK_BIN : 
+      	mkdir -p ./bin
+      clean :
+      	rm -rf ./bin ./obj/*.o
+      ```
+
+      ```
+      mkdir -p 的作用：
+      如果父目录不存在，-p 会自动创建它们：假设你想创建一个叫做 a/b/c 的目录，但是 a 和 a/b 这两个目录都还不存在。如果你只使用 mkdir a/b/c，命令会失败，因为 a 和 a/b 这两个目录不存在。但是，如果你使用 mkdir -p a/b/c，mkdir 会首先创建 a，然后在 a 下面创建 b，最后在 a/b 下面创建 c。
+      
+      如果已经存在目录，-p 不会报错：如果你尝试创建一个已经存在的目录，不使用 -p 的 mkdir 会报错。但是，使用 -p 的 mkdir 不会报错，它会默默地忽略这个请求。
+      ```
+    
+      
+    
+    - 执⾏脚本命令
+    
+      ```shell
+      make 			#⽣成可执⾏⽂件
+      ./bin/my_exec 	#执⾏⽂件，输出结果
+      make clean 		#清除可执⾏⽂件
+      ```
+    
+      
+
+## 11.6 Makefile多文件管理——工程版
+
+上⼀章节，我们通过 Makefile 对⼯程进⾏了管理，但是我们发现在实际代码⼯程中，并没有这样编写。我们编写的属于乞丐版的代码。在实际⼯程版本编写的过程中，会通过变量和函数来进⾏统⼀管理。
+
+### 11.6.1 Makefile静态模式
+
+Makefile 的静态模式指的是⼀种⾃动编译模式，在这种模式下，我们可以很容易的定义 " 多⽬标 "规则，让我们的规则变得更加有弹性和灵活。语法如下：
+
+```shell
+<targets ...> : <target-pattern> : <prereq-patterns...>
+	<command>
+```
+
+- 说明
+
+  ```
+  targets 定义了⼀系列⽬标，也就是多个⽬标。可以是通配符，也可以是多个⽬标的集合。
+  target-pattern 是 targets 的模式，也就是⽬标集模式。可以理解为 %.o
+  prereq-patterns 则是⽬标的 “依赖” 元素, 可以理解为 %.c, 意思就是对 target-pattern 中的⽬标进⾏⼆次定义。其操作⽅式为取 target-pattern 中去掉. o 后的⽂件名，并加上. c 形成新的集合。
+  ```
+
+- 示例如下
+
+  ```shell
+  $(OBJS) : %.o : %.c
+  	gcc -c $< -o $@
+  ```
+
+  - 说明
+
+    ```
+    $(OBJS）是多个. o ⽂件的集合。例如: fun.o glob.o main.o
+    %.o 是取⾥⾯某个. o , 例如 fun.o
+    %.c 是对应取的某个. c, 例如 fun.c
+    ```
+
+    
+
+### 11.6.2 Makefile模拟大型工程管理——工程版
+
+- 工程架构
+
+  ![image-20240329183314879](assets/image-20240329183314879.png)
+
+- 主Makefile工程文件
+
+  ```shell
+  CC := gcc
+  INCLUDE_DIR := -I ../include
+  OBJ_DIR := ${shell pwd}/obj
+  BIN_DIR := ${shell pwd}/bin
+  SUB_DIR := main fun global obj 
+  TARGET := my_exec
+  #导出为全局变量，给其他⽂件使⽤
+  export CC INCLUDE_DIR BIN_DIR OBJ_DIR SUB_DIR TARGET 
+  all:$(SUB_DIR)
+  $(SUB_DIR) : MK_BIN
+  	make -C $@
+  MK_BIN: 
+  	mkdir -p $(BIN_DIR)
+  clean:
+  	rm -rf ./bin ./obj/*.o
+  install:
+  	sudo cp $(BIN_DIR)/$(TARGET) /usr/bin
+  uninstall:
+  	sudo rm -rf /usr/bin/$(TARGET)
+  ```
+
+- 各⽂件下 Makefile 的编写
+
+  - fun ⽂件夹下 Makefile 编写
+
+    ```shell
+    #获取当前目录下所有的.c文件
+    SRC=$(wildcard *.c)
+    
+    #准备把当前目录下的.c转换为.o文件 ===>OBJ=fun.o
+    OBJ=$(patsubst %c,%o,$(SRC)) 
+    
+    all:$(OBJ)
+    
+    $(OBJ): %.o:%.c
+    	$(CC) $(INCLUDE_DIR) -c $^ -o $(OBJ_DIR)/$@
+    ```
+
+  - global ⽂件夹下 Makefile 编写
+
+    ```shell
+    #获取当前目录下所有的.c文件
+    SRC=$(wildcard *.c)
+    
+    #准备把当前目录下的.c转换为.o文件 ===>OBJ=global.o
+    OBJ=$(patsubst %c,%o,$(SRC)) 
+    
+    all:$(OBJ)
+    
+    $(OBJ): %.o:%.c
+    	$(CC) $(INCLUDE_DIR) -c $^ -o $(OBJ_DIR)/$@
+    ```
+
+  - main ⽂件夹下 Makefile 编写
+
+    ```shell
+    #获取当前目录下所有的.c文件
+    SRC=$(wildcard *.c)
+    
+    #准备把当前目录下的.c转换为.o文件 ===>OBJ=fun.o
+    OBJ=$(patsubst %c,%o,$(SRC)) 
+    
+    all:$(OBJ)
+    
+    $(OBJ): %.o:%.c
+    	$(CC) $(INCLUDE_DIR) -c $^ -o $(OBJ_DIR)/$@
+    ```
+
+  - obj ⽂件夹下 Makefile 编写
+
+    ```shell
+    $(BIN_DIR)/$(TARGET) : *.o
+    	$(CC) $(INCLUDE_DIR) $^ -o $@
+    ```
+
