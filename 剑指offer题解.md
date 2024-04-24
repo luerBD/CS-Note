@@ -142,3 +142,51 @@ int main()
 }
 ```
 
+## 3.替换空格
+
+```cpp
+#include <iostream>
+using namespace std;
+
+void ReplaceBlank(char str[], int length)
+{
+	if (str == nullptr || length <= 0) 
+	{
+		return;
+	}
+	int originalLength = 0;
+	int blankNumber = 0;
+	int i = 0;
+	while (str[i] != '\0')
+	{
+		if (str[i] == ' ')
+		{
+			blankNumber++;
+		}
+		originalLength++;
+		i++;
+	}
+	int newLength = originalLength + blankNumber * 2;
+	if (newLength > length) 
+	{
+		return;
+	}
+	int originalIndex = originalLength;
+	int newIndex = newLength;
+	while (originalIndex >= 0 && newIndex > originalIndex)
+	{
+		if (str[originalIndex] == ' ')
+		{
+			str[newIndex--] = '0';
+			str[newIndex--] = '2';
+			str[newIndex--] = '%';
+		}
+		else 
+		{
+			str[newIndex--] = str[originalIndex];
+		}
+		originalIndex--;
+	}
+}
+```
+
