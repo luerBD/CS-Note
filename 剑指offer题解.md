@@ -1,4 +1,6 @@
-## 1.数组中重复的数字
+# 1.数据结构
+
+## 面试题3.数组中重复的数字
 
 - 解法1：修改数组
 
@@ -94,7 +96,7 @@
   ```
 
 
-## 2.二维数组中的查找
+## 面试题4.二维数组中的查找
 
 ```cpp
 #include <iostream>
@@ -142,7 +144,7 @@ int main()
 }
 ```
 
-## 3.替换空格
+## 面试题5.替换空格
 
 ```cpp
 #include <iostream>
@@ -187,6 +189,33 @@ void ReplaceBlank(char str[], int length)
 		}
 		originalIndex--;
 	}
+}
+```
+
+## 面试题6.从尾到头打印链表
+
+```cpp
+struct ListNode 
+{
+	int data;
+	ListNode* next;
+};
+
+void PrintList(ListNode* L) 
+{
+	stack<ListNode*> nodes;
+	ListNode* p = L;
+	while (p != nullptr) 
+	{
+		nodes.push(p);
+		p = p->next;
+	}
+	while (!nodes.empty()) 
+	{
+		cout << nodes.top()->data << " ";
+		nodes.pop();
+	}
+	cout << endl;
 }
 ```
 
