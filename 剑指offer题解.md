@@ -219,3 +219,60 @@ void PrintList(ListNode* L)
 }
 ```
 
+## 面试题7.重建二叉树
+
+```c
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+ struct TreeNode* deduceTreeCore(int* startPreorder, int* endPreorder, int* startInorder, int* endInorder)
+{
+    // 在先序遍历序列中找到根节点的值
+    int rootValue = startPreorder[0];
+    struct TreeNode* root = (struct TreeNode *)malloc(sizeof(struct TreeNode));
+    root->val = rootValue;
+    root->left = root->right = NULL;
+
+    // 在中序遍历序列中找到根节点的值
+    int* rootInorder = startInorder;
+    while(rootInorder <= endInorder && *rootInorder != rootValue)
+    {
+        rootInorder++;
+    }
+
+    int leftLength = rootInorder - startInorder;        // 获取中序序列中左子树节点个数
+    int* leftPreorderEnd = startPreorder + leftLength;  // 指向先序序列中左子树的末尾结点
+
+    // 如果中序序列中左子树节点个数>0的话，就可以创建左子树了
+    if(leftLength > 0)
+    {
+        root->left = deduceTreeCore(startPreorder + 1, leftPreorderEnd, startInorder, rootInorder - 1);
+    } 
+
+    // 如果中序序列中左子树节点个数 == 除根节点以外的节点个数的话，说明该树是一棵左单支树，没有右子树，此时就不用创建右子树了
+    // 否则就可以创建右子树
+    if(leftLength < endPreorder - startPreorder)
+    {
+        root->right = deduceTreeCore(leftPreorderEnd + 1, endPreorder, rootInorder + 1, endInorder);
+    }
+    return root;
+
+
+}
+struct TreeNode* deduceTree(int* preorder, int preorderSize, int* inorder, int inorderSize) 
+{
+    if(preorder == NULL || inorder == NULL || preorderSize == 0 || inorderSize == 0)
+    {
+        return NULL;
+    }
+    return deduceTreeCore(preorder, preorder + preorderSize - 1, inorder, inorder + inorderSize - 1);
+}
+
+```
+
