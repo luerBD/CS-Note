@@ -2818,6 +2818,257 @@ arraycopy(Object src,  int srcPos, Object dest, int destPos, int length);
 所以数组长度不够的时候，需要扩容，扩容的机制是：新建一个大数组，将小数组中的数据拷贝到大数组，然后小数组对象被垃圾回收。
 ```
 
+- 注意：对数组中存储引用数据类型的情况，要会画它的内存结构图。
 
+# 17.常用类
 
-## 6、对数组中存储引用数据类型的情况，要会画它的内存结构图。
+## 17.1 String类
+
+### 17.1.1 对String在内存存储方面的理解
+
+- 第一：字符串一旦创建不可变。
+- 第二：双引号括起来的字符串存储在字符串常量池中。
+- 第三：字符串的比较必须使用equals方法。
+- 第四：String已经重写了toString()和equals()方法。
+
+### 17.1.2 String的构造方法
+
+```
+String s = "abc";
+String s = new String("abc");
+String s = new String(byte数组);
+String s = new String(byte数组, 起始下标, 长度);
+String s = new String(char数组);
+String s = new String(char数组, 起始下标, 长度);
+```
+
+### 17.1.3 String类常用的21个方法
+
+- 实例方法
+
+  ```
+  char charAt(int index)
+  获取字符串中某个下标位置的字符。
+  
+  int compareTo(String anotherString)
+  比较两个字符串的大小。
+  
+  boolean contains(CharSequence s)
+  判断当前字符串中是否包含某个子字符串s。
+  
+  boolean endsWith(String suffix)
+  判断当前字符串是否以某个子字符串结尾。
+  
+  boolean equals(Object anObject)
+  判断两个字符串是否相等。
+  
+  boolean equalsIgnoreCase(String anotherString)
+  判断两个字符串是否相等，并且同时忽略大小写。
+  
+  byte[] getBytes()
+  将字符串对象转换成字节数组。
+  
+  int indexOf(String str)
+  判断某个子字符串在当前字符串中第一次出现处的索引（下标）
+  
+  boolean isEmpty()
+  判断某个字符串是否为“空字符串”
+  
+  int length()
+  面试题：判断数组长度和判断字符串长度不一样
+  判断数组长度是length属性，判断字符串长度是length()方法。
+  
+  int lastIndexOf(String str)
+  判断某个子字符串在当前字符串中最后一次出现的索引（下标）。
+  
+  String replace(CharSequence target, CharSequence replacement)
+  替换掉指定的字串。
+  
+  String[] split(String regex)
+  拆分字符串。
+  
+  boolean startsWith(String prefix)
+  判断某个字符串是否以某个子字符串开始。
+  
+  String substring(int beginIndex)
+  截取字符串，参数是起始下标。
+  
+  String substring(int beginIndex, int endIndex);
+  	beginIndex起始位置（包括）
+  	endIndex结束位置（不包括）
+  
+  char[] toCharArray()
+  将字符串转换成char数组。
+  
+  String toLowerCase()
+  转换为小写。
+  
+  String toUpperCase()
+  转换为大写。
+  
+  String trim()
+  去除字符串前后空白。
+  ```
+
+- 静态方法
+
+  ```
+  String中只有一个方法是静态的，不需要new对象这个方法叫做valueOf
+  作用：将“非字符串”转换成“字符串”
+  ```
+
+## 17.2 StringBuffer和StringBuilder
+
+- StringBuffer/StringBuilder可以看做可变长度字符串;
+- StringBuffer/StringBuilder初始化容量16;
+- StringBuffer/StringBuilder是完成字符串拼接操作的，方法名：append();
+- 频繁进行字符串拼接不建议使用“+”，因为会创建很多字符串对象，浪费空间;
+- StringBuffer是线程安全的，StringBuilder是非线程安全的。
+
+- 如何优化StringBuffer的性能？
+  - 在创建StringBuffer的时候，预估计一下尽可能给定一个初始化容量，减少底层数组的扩容次数，以提高程序的执行效率。
+
+## 17.3 八种基本数据类型对应的包装类
+
+### 17.3.1 包装类存在有什么用？
+
+- 方便编程。
+
+### 17.3.2 八种包装类的类名是什么？
+
+```
+Byte
+Short
+Integer
+Long
+Float
+Double
+Boolean
+Character
+
+所有数字的父类为Number
+```
+
+### 17.3.3 什么是自动装箱和自动拆箱，代码怎么写？
+
+- 自动装箱：基本数据类型自动转换成引用数据类型。
+
+- 自动拆箱：引用数据类型自动转换成基本数据类型。
+
+  ```
+  Integer x = 100; // x里面并不是保存100，保存的是100这个对象的内存地址。
+  Integer y = 100;
+  System.out.println(x == y); // true
+  
+  Integer x = 128;
+  Integer y = 128;
+  System.out.println(x == y); // false
+  ```
+
+## 17.3.4 Integer类常用方法
+
+```
+Integer.valueOf()
+Integer.parseInt("123")
+Integer.parseInt("中文") : NumberFormatException
+```
+
+## 17.3.5 Integer String int三种类型互相转换
+
+![image-20240604100718620](assets/image-20240604100718620.png)
+
+## 17.4 日期类
+
+### 17.4.1 获取系统当前时间
+
+```
+Date d = new Date();
+```
+
+### 17.4.2 日期格式化：Date → String
+
+```
+yyyy-MM-dd HH:mm:ss SSS
+
+SimpleDateFormat sdf = new SimpleDate("yyyy-MM-dd HH:mm:ss SSS");
+
+String s = sdf.format(new Date());
+```
+
+### 17.4.3 日期格式化：String → Date
+
+```
+SimpleDateFormat sdf = new SimpleDate("yyyy-MM-dd HH:mm:ss");
+
+Date d = sdf.parse("2008-08-08 08:08:08");
+```
+
+### 17.4.4 获取毫秒数：System.currentTimeMillis()
+
+```
+表示从北京时间1970-01-01 08:00:00到当前时间的毫秒数。
+
+Date的另一个构造方法，利用毫秒数创建对象：new Date(毫秒数)
+
+long begin = System.currentTimeMillis();
+
+Date d = new Date(begin - 1000 * 60 * 60 * 24); // 获取昨天这个时候的时间
+```
+
+## 17.5 数字类
+
+### 17.5.1 DecimalFormat数字格式化
+
+```
+###,###.## 表示加入千分位，保留两个小数。
+###,###.0000 表示加入千分位，保留4个小数，不够补0
+```
+
+### 17.5.2 BigDecimal
+
+- 财务软件中通常使用BigDecimal
+
+## 17.6 随机数类
+
+### 17.6.1 怎么产生int类型随机数。
+
+```
+Random r = new Random();
+int i = r.nextInt();
+```
+
+### 17.6.2 怎么产生某个范围之内的int类型随机数。
+
+```
+Random r = new Random();
+int i = r.nextInt(101); // 产生[0-100]的随机数。
+```
+
+## 17.7 枚举类
+
+- 枚举是一种引用数据类型。
+
+- 枚举编译之后也是class文件。
+
+- 枚举类型怎么定义？
+
+  ```
+  enum 枚举类型名{
+  	枚举值,枚举值2,枚举值3
+  }
+  ```
+
+- 当一个方法执行结果超过两种情况，并且是一枚一枚可以列举出来的时候，建议返回值类型设计为枚举类型。例如：颜色、四季、星期等都可以使用枚举类型。
+
+```java
+public class EnumTest01 {
+    public static void main(String[] args) {
+        Season res = Season.SPRING;
+        System.out.println(res);
+    }
+}
+enum Season{
+    SPRING, SUMMER, AUTUMN, WINTER;
+}
+```
+
