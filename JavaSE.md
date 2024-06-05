@@ -3072,3 +3072,686 @@ enum Season{
 }
 ```
 
+# 18.异常处理
+
+## 18.1 异常处理机制
+
+- java中异常的作用是：增强程序健壮性。
+- java中异常以类和对象的形式存在。
+
+## 18.2 异常的继承结构
+
+异常在java中以类和对象的形式存在。那么异常的继承结构是怎样的？我们可以使用UML图来描述一下继承结构。画UML图有很多工具，例如：Rational Rose（收费的）、starUML等....   
+
+<img src="assets/image-20240605091020585.png" alt="image-20240605091020585" style="zoom:33%;" />
+
+- Object下有Throwable（可抛出的），下面有两个分支；
+
+  - Error（不可处理，直接退出JVM）；
+
+  - Exception（可处理的），下面有两个分支；
+
+    - Exception的直接子类：编译时异常（要求程序员在编写程序阶段必须预先对这些异常进行处理，如果不处理编译器报错，因此得名编译时异常。）。
+
+    - RuntimeException：运行时异常。（在编写程序阶段程序员可以预先处理，也可以不管，都行。）
+
+- 编译时异常和运行时异常，都是发生在运行阶段，编译阶段异常是不会发生的。编译时异常因为什么而得名？
+
+  - 因为编译时异常必须在编译(编写)阶段预先处理，如果不处理编译器报错，因此得名。所有异常都是在运行阶段发生的。因为只有程序运行阶段才可以new对象，因为异常的发生就是new异常对象。
+
+- 编译时异常和运行时异常的区别？
+
+  - 编译时异常一般发生的概率比较高。
+
+    - 举个例子：你看到外面下雨了，倾盆大雨的。你出门之前会预料到：如果不打伞，我可能会生病（生病是一种异常）。而且这个异常发生的概率很高，所以我们出门之前要拿一把伞。“拿一把伞”就是对“生病异常”发生之前的一种处理方式。
+
+    - 对于一些发生概率较高的异常，需要在运行之前对其进行预处理。
+
+  - 运行时异常一般发生的概率比较低。
+    - 举个例子：小明走在大街上，可能会被天上的飞机轮子砸到。被飞机轮子砸到也算一种异常。但是这种异常发生概率较低。在出门之前你没必要提前对这种发生概率较低的异常进行预处理。如果你预处理这种异常，你将活的很累。假设你在出门之前，你把能够发生的异常都预先处理，你这个人会更加的安全，但是你这个人活的很累。
+  - 假设java中没有对异常进行划分，没有分为：编译时异常和运行时异常，所有的异常都需要在编写程序阶段对其进行预处理，将是怎样的效果呢？
+    - 首先，如果这样的话，程序肯定是绝对的安全的。但是程序员编写程序太累，代码到处都是处理异常的代码。
+
+  - 编译时异常还有其他名字：
+
+    - 受检异常：CheckedException
+
+    - 受控异常
+
+  - 运行时异常还有其它名字：
+    - 未受检异常：UnCheckedException
+    - 非受控异常
+
+  - 再次强调：所有异常都是发生在运行阶段的。
+
+## 18.3 异常的处理方式
+
+```java
+/*
+以下代码报错的原因是什么？
+    因为doSome()方法声明位置上使用了：throws ClassNotFoundException
+    而ClassNotFoundException是编译时异常。必须编写代码时处理，没有处理
+    编译器报错。
+ */
+public class ExceptionTest04 {
+    public static void main(String[] args) {
+        // main方法中调用doSome()方法
+        // 因为doSome()方法声明位置上有：throws ClassNotFoundException
+        // 我们在调用doSome()方法的时候必须对这种异常进行预先的处理。
+        // 如果不处理，编译器就报错。
+        //编译器报错信息： Unhandled exception: java.lang.ClassNotFoundException
+        //doSome();  //此处导致报错
+    }
+
+    /**
+     * doSome方法在方法声明的位置上使用了：throws ClassNotFoundException
+     * 这个代码表示doSome()方法在执行过程中，有可能会出现ClassNotFoundException异常。
+     * 叫做类没找到异常。这个异常直接父类是：Exception，所以ClassNotFoundException属于编译时异常。
+     * @throws ClassNotFoundException
+     */
+    public static void doSome() throws ClassNotFoundException{
+        System.out.println("doSome!!!!");
+    }
+
+}
+```
+
+- 第一种方式：在方法声明的位置上，使用throws关键字，抛给上一级。谁调用我，我就抛给谁。抛给上一级。
+
+- 第二种方式：使用try..catch语句进行异常的捕捉。这件事发生了，谁也不知道，因为我给抓住了。
+
+  ```java
+  public class ExceptionTest05 {
+      // 第一种处理方式：在方法声明的位置上继续使用：throws，来完成异常的继续上抛。抛给调用者。
+      // 上抛类似于推卸责任。（继续把异常传递给调用者。）
+      /*
+      public static void main(String[] args) throws ClassNotFoundException {
+          doSome();
+      }
+       */
+  
+      // 第二种处理方式：try..catch进行捕捉。
+      // 捕捉等于把异常拦下了，异常真正的解决了。（调用者是不知道的。）
+      public static void main(String[] args) {
+          try {
+              doSome();
+          } catch (ClassNotFoundException e) {
+              e.printStackTrace();
+          }
+      }
+  
+      public static void doSome() throws ClassNotFoundException{
+          System.out.println("doSome!!!!");
+      }
+  
+  }
+  
+  ```
+
+  - 举个例子：我是某集团的一个销售员，因为我的失误，导致公司损失了1000元，“损失1000元”这可以看做是一个异常发生了。我有两种处理方式，
+
+    - 第一种方式：我把这件事告诉我的领导【异常上抛 张三 --> 李四 ---> 王五 --> CEO】
+    - 第二种方式：我自己掏腰包把这个钱补上【异常的捕捉】
+
+  - 思考：异常发生之后，如果我选择了上抛，抛给了我的调用者，调用者需要对这个异常继续处理，那么调用者处理这个异常同样有两种处理方式。
+
+  - 注意：Java中异常发生之后如果一直上抛，最终抛给了main方法，main方法继续向上抛，抛给了调用者JVM，JVM知道这个异常发生，只有一个结果。终止java程序的执行。
+
+  - 注意：
+
+    - 只要异常没有捕捉，采用上报的方式，此方法的后续代码不会执行。
+
+    - 另外需要注意，try语句块中的某一行出现异常，该行后面的代码不会执行。
+
+    - try..catch捕捉异常之后，后续代码可以执行。
+
+      ```java
+      public class ExceptionTest03 {
+          public static void main(String[] args) {
+              System.out.println("main begin:");
+              try {
+                  m1();
+                  System.out.println("after m1 ");//不会执行
+              } catch (FileNotFoundException e) {
+                  // 获取异常的简单描述信息
+                  String msg = e.getMessage();
+                  System.out.println(msg); //C:\jetns-agent.jar (系统找不到指定的文件。)
+      
+              }
+      
+              // 这里程序不耽误执行，很健壮。《服务器不会因为遇到异常而宕机。》
+              System.out.println("main end!");
+          }
+      
+          private static void m1() throws FileNotFoundException {
+              System.out.println("m1 begin:");
+              m2();
+              System.out.println("m1 end");//不会执行
+          }
+      
+          private static void m2() throws FileNotFoundException {
+              System.out.println("m2 begin:");
+              m3();
+              System.out.println("m2 end");//不会执行
+          }
+      
+          private static void m3() throws FileNotFoundException {
+              System.out.println("m3 begin:");
+              new FileInputStream("C:\\jetns-agent.jar");
+              System.out.println("m3 end");//不会执行
+          }
+      }
+      ```
+
+      
+
+  - 在以后的开发中，处理编译时异常，应该上报还是捕捉呢，怎么选？
+
+    - 如果希望调用者来处理，选择throws上报。其它情况使用捕捉的方式。
+
+## 18.4 异常对象有两个非常重要的方法
+
+```
+获取异常简单的描述信息：
+String msg = exception.getMessage();
+
+打印异常追踪的堆栈信息：
+exception.printStackTrace(); // 最常使用的是这个
+```
+
+```java
+public class ExceptionTest08 {
+    public static void main(String[] args) {
+        // 这里只是为了测试getMessage()方法和printStackTrace()方法。
+        // 这里只是new了异常对象，但是没有将异常对象抛出。JVM会认为这是一个普通的java对象。
+        NullPointerException e = new NullPointerException("空指针异常fdsafdsafdsafds");
+
+        // 获取异常简单描述信息：这个信息实际上就是构造方法上面String参数。
+        String msg = e.getMessage(); //空指针异常fdsafdsafdsafds
+        System.out.println(msg);
+
+        // 打印异常堆栈信息
+        // java后台打印异常堆栈追踪信息的时候，采用了异步线程的方式打印的。
+        e.printStackTrace();
+
+        for(int i = 0; i < 1000; i++){
+            System.out.println("i = " + i);
+        }
+
+        System.out.println("Hello World!");
+    }
+}
+```
+
+- 我们以后查看异常的追踪信息，我们应该怎么看，可以快速的调试程序呢？
+
+  - 异常信息追踪信息，从上往下一行一行看。
+
+  - 但是需要注意的是：SUN写的代码就不用看了(看包名就知道是自己的还是SUN的。)。
+
+  - 主要的问题是出现在自己编写的代码上。
+
+    ```java
+    public class ExceptionTest09 {
+        public static void main(String[] args) {
+            try {
+                m1();
+            } catch (FileNotFoundException e) {
+                // 获取异常的简单描述信息
+                String msg = e.getMessage();
+                System.out.println(msg); //C:\jetns-agent.jar (系统找不到指定的文件。)
+    
+                //打印异常堆栈追踪信息！！！
+                //在实际的开发中，建议使用这个。养成好习惯！
+                // 这行代码要写上，不然出问题你也不知道！
+                //e.printStackTrace();
+                /*
+                java.io.FileNotFoundException: C:\jetns-agent.jar (系统找不到指定的文件。)
+                    at java.base/java.io.FileInputStream.open0(Native Method)
+                    at java.base/java.io.FileInputStream.open(FileInputStream.java:213)
+                    at java.base/java.io.FileInputStream.<init>(FileInputStream.java:155)
+                    at java.base/java.io.FileInputStream.<init>(FileInputStream.java:110)
+                    at com.bjpowernode.javase.exception.ExceptionTest09.m3(ExceptionTest09.java:31)
+                    at com.bjpowernode.javase.exception.ExceptionTest09.m2(ExceptionTest09.java:27)
+                    at com.bjpowernode.javase.exception.ExceptionTest09.m1(ExceptionTest09.java:23)
+                    at com.bjpowernode.javase.exception.ExceptionTest09.main(ExceptionTest09.java:14)
+                    因为31行出问题导致了27行
+                    27行出问题导致23行
+                    23行出问题导致14行。
+                    应该先查看31行的代码。31行是代码错误的根源。
+                 */
+            }
+    
+            // 这里程序不耽误执行，很健壮。《服务器不会因为遇到异常而宕机。》
+            System.out.println("Hello World!");
+        }
+    
+        private static void m1() throws FileNotFoundException {
+            m2();
+        }
+    
+        private static void m2() throws FileNotFoundException {
+            m3();
+        }
+    
+        private static void m3() throws FileNotFoundException {
+            new FileInputStream("C:\\jetns-agent.jar");
+        }
+    }
+    
+    ```
+
+## 18.5 关于try..catch中的finally子句
+
+- 在finally子句中的代码是最后执行的，并且是一定会执行的，即使try语句块中的代码出现了异常。
+
+- finally子句必须和try一起出现，不能单独编写。
+
+- finally语句通常使用在哪些情况下呢？
+
+  - 通常在finally语句块中完成资源的释放/关闭。
+
+  - 因为finally中的代码比较有保障。
+
+  - 即使try语句块中的代码出现异常，finally中代码也会正常执行。
+
+    ```java
+    public class ExceptionTest10 {
+        public static void main(String[] args) {
+            FileInputStream fis = null; // 声明位置放到try外面。这样在finally中才能用。
+            try {
+                // 创建输入流对象
+                fis = new FileInputStream("D:\\course\\02-JavaSE\\document\\JavaSE进阶讲义\\JavaSE进阶-01-面向对象.pdf");
+                // 开始读文件....
+    
+                String s = null;
+                // 这里一定会出现空指针异常！
+                s.toString();
+                System.out.println("hello world!");
+    
+                // 流使用完需要关闭，因为流是占用资源的。
+                // 即使以上程序出现异常，流也必须要关闭！
+                // 放在这里有可能流关不了。
+                //fis.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch(IOException e){
+                e.printStackTrace();
+            } catch(NullPointerException e) {
+                e.printStackTrace();
+            } finally {
+                System.out.println("hello 浩克！");
+                // 流的关闭放在这里比较保险。
+                // finally中的代码是一定会执行的。
+                // 即使try中出现了异常！
+                if (fis != null) { // 避免空指针异常！
+                    try {
+                        // close()方法有异常，采用捕捉的方式。
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+    
+            System.out.println("hello kitty!");
+    
+        }
+    }
+    
+    ```
+
+- 阅读程序：说出以下程序的执行顺序？
+
+  ```java
+  /*
+  finally语句：
+      放在finally语句块中的代码是一定会执行的【再次强调！！！】
+   */
+  public class ExceptionTest11 {
+      public static void main(String[] args) {
+          /*
+          try和finally，没有catch可以吗？可以。
+              try不能单独使用。
+              try finally可以联合使用。
+          以下代码的执行顺序：
+              先输出try...
+              再输出finally...
+              最后执行 return （return语句只要执行方法必然结束。）
+           */
+          try {
+              System.out.println("try...");
+              return;
+          } finally {
+              // finally中的语句会执行。能执行到。
+              System.out.println("finally...");
+          }
+  
+          // 这里不能写语句，因为编译器检测到在这个代码执行之前return会先执行，故该代码是无法执行到的。
+          //System.out.println("Hello World!");
+      }
+  }
+  ```
+
+- System.exit(0)表示退出JVM，退出JVM之后，finally语句中的代码就不执行了！
+
+  ```java
+  public class ExceptionTest12 {
+      public static void main(String[] args) {
+          try {
+              System.out.println("try...");
+              // 退出JVM
+              System.exit(0); // 退出JVM之后，finally语句中的代码就不执行了！
+          } finally {
+              System.out.println("finally...");
+          }
+      }
+  }
+  ```
+
+- finally面试题
+
+  ```
+  /*
+  finally面试题
+   */
+  public class ExceptionTest13 {
+      public static void main(String[] args) {
+          int result = m();
+          System.out.println(result); //100
+      }
+  
+      /*
+      java语法规则（有一些规则是不能破坏的，一旦这么说了，就必须这么做！）：
+          java中有一条这样的规则：
+              方法体中的代码必须遵循自上而下顺序依次逐行执行（亘古不变的语法！）
+          java中有一条语法规则：
+              return语句一旦执行，整个方法必须结束（亘古不变的语法！）
+       */
+      public static int m(){
+          int i = 100;
+          try {
+              // 这行代码出现在int i = 100;的下面，所以最终结果必须是返回100
+              // return语句还必须保证是最后执行的。一旦执行，整个方法结束。
+              return i;
+          } finally {
+              i++;
+          }
+      }
+  }
+  
+  /*
+  反编译之后的效果
+  public static int m(){
+      int i = 100;
+      int j = i;
+      i++;
+      return j;
+  }
+   */
+  ```
+
+## 18.6 final、finally、finalize有什么区别？
+
+- final 关键字
+
+  - final修饰的类无法继承
+
+  - final修饰的方法无法覆盖
+
+  - final修饰的变量不能重新赋值。
+
+- finally 关键字  
+
+  - 和try一起联合使用。
+
+  - finally语句块中的代码是必须执行的。
+
+- finalize 标识符
+
+  - 是一个Object类中的方法名。
+
+  - 这个方法是由垃圾回收器GC负责调用的。
+
+## 18.7 自定义异常（重点）
+
+SUN提供的JDK内置的异常肯定是不够的用的。在实际的开发中，有很多业务，这些业务出现异常之后，JDK中都是没有的。和业务挂钩的。那么异常类我们程序员可以自己定义吗？可以。
+
+### 18.7.1 在Java中如何自定义异常？
+
+- 第一步：编写一个类继承Exception或者RuntimeException.
+
+- 第二步：提供两个构造方法，一个无参数的，一个带有String参数的。
+
+  ```java
+  public class MyException extends Exception{ // 编译时异常
+      public MyException(){
+          super();
+      }
+      public MyException(String s){
+          super(s);
+      }
+  }
+  
+  // 死记硬背。
+  ```
+
+### 18.7.2 异常在实际开发中的作用(例子必须掌握)
+
+- 自定义栈操作异常类
+
+  ```java
+  /**
+   * 栈操作异常：自定义异常！
+   */
+  public class MyStackOperationException extends Exception{ // 编译时异常！
+  
+      public MyStackOperationException(){
+  
+      }
+  
+      public MyStackOperationException(String s){
+          super(s);
+      }
+  }
+  ```
+
+- 栈
+
+  ```java
+  /*
+  	编写程序，使用一维数组，模拟栈数据结构。
+  	要求：
+  		1、这个栈可以存储java中的任何引用类型的数据。
+  		2、在栈中提供push方法模拟压栈。（栈满了，要有提示信息。）
+  		3、在栈中提供pop方法模拟弹栈。（栈空了，也有有提示信息。）
+  		4、编写测试程序，new栈对象，调用push pop方法来模拟压栈弹栈的动作。
+  		5、假设栈的默认初始化容量是10.（请注意无参数构造方法的编写方式。）
+   */
+  public class MyStack {
+      // 向栈当中存储元素，我们这里使用一维数组模拟。存到栈中，就表示存储到数组中。
+      // 因为数组是我们学习java的第一个容器。
+      // 为什么选择Object类型数组？因为这个栈可以存储java中的任何引用类型的数据
+      // new Animal()对象可以放进去，new Person()对象也可以放进去。因为Animal和Person的超级父类就是Object。
+      // 包括String也可以存储进去。因为String父类也是Object。
+      private Object[] elements;
+  
+      // 栈帧，永远指向栈顶部元素
+      // 那么这个默认初始值应该是多少。注意：最初的栈是空的，一个元素都没有。
+      //private int index = 0; // 如果index采用0，表示栈帧指向了顶部元素的上方。
+      //private int index = -1; // 如果index采用-1，表示栈帧指向了顶部元素。
+      private int index;
+  
+      /**
+       * 无参数构造方法。默认初始化栈容量10.
+       */
+      public MyStack() {
+          // 一维数组动态初始化
+          // 默认初始化容量是10.
+          this.elements = new Object[10];
+          // 给index初始化
+          this.index = -1;
+      }
+  
+      /**
+       * 压栈的方法
+       * @param obj 被压入的元素
+       */
+      public void push(Object obj) throws MyStackOperationException {
+          if(index >= elements.length - 1){
+              // 改良之前
+              //System.out.println("压栈失败，栈已满！");
+              //return;
+  
+              // 创建异常对象
+              //MyStackOperationException e = new MyStackOperationException("压栈失败，栈已满！");
+              // 手动将异常抛出去！
+              //throw e; //这里捕捉没有意义，自己new一个异常，自己捉，没有意义。栈已满这个信息你需要传递出去。
+  
+              // 合并（手动抛出异常！）
+              throw new MyStackOperationException("压栈失败，栈已满！");
+          }
+          // 程序能够走到这里，说明栈没满
+          // 向栈中加1个元素，栈帧向上移动一个位置。
+          index++;
+          elements[index] = obj;
+          // 在声明一次：所有的System.out.println()方法执行时，如果输出引用的话，自动调用引用的toString()方法。
+          System.out.println("压栈" + obj + "元素成功，栈帧指向" + index);
+      }
+  
+      /**
+       * 弹栈的方法，从数组中往外取元素。每取出一个元素，栈帧向下移动一位。
+       * @return
+       */
+      public void pop() throws MyStackOperationException {
+          if(index < 0){
+              //System.out.println("弹栈失败，栈已空！");
+              //return;
+              throw new MyStackOperationException("弹栈失败，栈已空！");
+          }
+          // 程序能够执行到此处说明栈没有空。
+          System.out.print("弹栈" + elements[index] + "元素成功，");
+          // 栈帧向下移动一位。
+          index--;
+          System.out.println("栈帧指向" + index);
+      }
+  
+      // set和get也许用不上，但是你必须写上，这是规矩。你使用IDEA生成就行了。
+      // 封装：第一步：属性私有化，第二步：对外提供set和get方法。
+      public Object[] getElements() {
+          return elements;
+      }
+  
+      public void setElements(Object[] elements) {
+          this.elements = elements;
+      }
+  
+      public int getIndex() {
+          return index;
+      }
+  
+      public void setIndex(int index) {
+          this.index = index;
+      }
+  }
+  
+  ```
+
+- 测试
+
+  ```java
+  // 测试改良之后的MyStack
+  // 注意：最后这个例子，是异常最终要的案例。必须掌握。自定义异常在实际开发中的应用。
+  public class ExceptionTest16 {
+  
+      public static void main(String[] args) {
+  
+          // 创建栈对象
+          MyStack stack = new MyStack();
+  
+          // 压栈
+          try {
+              stack.push(new Object());
+              stack.push(new Object());
+              stack.push(new Object());
+              stack.push(new Object());
+              stack.push(new Object());
+              stack.push(new Object());
+              stack.push(new Object());
+              stack.push(new Object());
+              stack.push(new Object());
+              stack.push(new Object());
+              // 这里栈满了
+              stack.push(new Object());
+          } catch (MyStackOperationException e) {
+              // 输出异常的简单信息。
+              System.out.println(e.getMessage());
+          }
+  
+          // 弹栈
+          try {
+              stack.pop();
+              stack.pop();
+              stack.pop();
+              stack.pop();
+              stack.pop();
+              stack.pop();
+              stack.pop();
+              stack.pop();
+              stack.pop();
+              stack.pop();
+              // 弹栈失败
+              stack.pop();
+          } catch (MyStackOperationException e) {
+              System.out.println(e.getMessage());
+          }
+      }
+  }
+  
+  ```
+
+### 18.7.3 之前在讲解方法覆盖的时候，当时遗留了一个问题？
+
+- 重写之后的方法不能比重写之前的方法抛出更多（更宽泛）的编译时异常，可以更少。
+
+  ```
+  class Animal {
+      public void doSome(){
+  
+      }
+  
+      public void doOther() throws Exception{
+  
+      }
+  }
+  
+  class Cat extends Animal {
+  
+      // 编译正常。
+      public void doSome() throws RuntimeException{
+  
+      }
+  
+      // 编译报错。
+      /*public void doSome() throws Exception{
+  
+      }*/
+  
+      // 编译正常。
+      /*public void doOther() {
+  
+      }*/
+  
+      // 编译正常。
+      /*public void doOther() throws Exception{
+  
+      }*/
+  
+      // 编译正常。
+      public void doOther() throws NullPointerException{
+  
+      }
+  }
+  ```
+
+  
