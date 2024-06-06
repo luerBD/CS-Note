@@ -3714,7 +3714,9 @@ SUN提供的JDK内置的异常肯定是不够的用的。在实际的开发中�
 
 - 重写之后的方法不能比重写之前的方法抛出更多（更宽泛）的编译时异常，可以更少。
 
-  ```
+- 重写之后的方法可以比重写之前的方法抛出更多（更宽泛）的运行时异常。
+
+  ```java
   class Animal {
       public void doSome(){
   
@@ -3754,4 +3756,194 @@ SUN提供的JDK内置的异常肯定是不够的用的。在实际的开发中�
   }
   ```
 
-  
+
+# 19.集合
+
+## 19.1 集合概述
+
+- 什么是集合？有什么用？
+  - 数组其实就是一个集合。集合实际上就是一个容器，可以来容纳其它类型的数据。
+
+- 集合为什么说在开发中使用较多？
+  - 集合是一个容器，是一个载体，可以一次容纳多个对象。
+  - 在实际开发中，假设连接数据库，数据库当中有10条记录，那么假设把这10条记录查询出来，在java程序中会将10条数据封装成10个java对象，然后将10个java对象放到某一个集合当中，将集合传到前端，然后遍历集合，将一个数据一个数据展现出来。
+
+- 集合不能直接存储基本数据类型，另外集合也不能直接存储java对象，集合当中存储的都是java对象的内存地址。（或者说集合中存储的是引用。）
+
+  ```
+  list.add(100); //自动装箱Integer
+  注意：集合在java中本身是一个容器，是一个对象。集合中任何时候存储的都是“引用”。
+  ```
+
+  <img src="assets/image-20240606094453370.png" alt="image-20240606094453370" style="zoom:33%;" />
+
+- 在java中每一个不同的集合，底层会对应不同的数据结构。往不同的集合中存储元素，等于将数据放到了不同的数据结构当中。
+
+  - 什么是数据结构？数据存储的结构就是数据结构。不同的数据结构，数据存储方式不同。例如：
+
+    - 数组、二叉树、链表、哈希表...这些都是常见的数据结构。
+
+          你往集合c1中放数据，可能是放到数组上了。
+          你往集合c2中放数据，可能是放到二叉树上了。
+          .....
+          你使用不同的集合等同于使用了不同的数据结构。
+
+  - 你在java集合这一章节，你需要掌握的不是精通数据结构。java中已经将数据结构实现了，已经写好了这些常用的集合类，你只需要掌握怎么用？在什么情况下选择哪一种合适的集合去使用即可。
+
+    ```
+    new ArrayList(); 创建一个集合，底层是数组。
+    new LinkedList(); 创建一个集合对象，底层是链表。
+    new TreeSet(); 创建一个集合对象，底层是二叉树。
+    .....
+    ```
+
+- 集合在java JDK中哪个包下？
+
+  ```
+  java.util.*;
+  所有的集合类和集合接口都在java.util包下。
+  ```
+
+- 为了掌握集合这块的内容，最好能将集合的继承结构图背会！
+  - 集合整个这个体系是怎样的一个结构，你需要有印象。并且初始化容量和扩容倍数也背会，面试会问。
+
+![54626ea2251f4b27b2721a6eb6d0c3be](assets/54626ea2251f4b27b2721a6eb6d0c3be.png)
+
+![3cde4d53a67641d49728b185ec052793](assets/3cde4d53a67641d49728b185ec052793.png)
+
+- 在java中集合分为两大类
+
+  - 一类是单个方式存储元素：
+    - 单个方式存储元素，这一类集合中超级父接口：java.util.Collection;
+
+  - 一类是以键值对儿的方式存储元素：
+    - 以键值对的方式存储元素，这一类集合中超级父接口：java.util.Map;
+
+## 19.2 Collection接口
+
+### 19.2.1 Collection接口中能存放什么元素？
+
+- 没有使用“泛型”之前，Collection中可以存储Object的所有子类型。使用了“泛型”之后，Collection中只能存储某个具体的类型。
+
+- Collection中什么都能存，只要是Object的子类型就行。（集合中不能直接存储基本数据类型，也不能存java对象，只是存储java对象的内存地址。）
+
+### 19.2.2 Collection接口中的常用方法
+
+- 这些方法一定要动手亲自去测，才能更好掌握
+
+  ```
+  boolean add(Object e) 向集合中添加元素
+  int size()  获取集合中元素的个数
+  void clear() 清空集合
+  boolean contains(Object o) 判断当前集合中是否包含元素o，包含返回true，不包含返回false
+  boolean remove(Object o) 删除集合中的某个元素。
+  boolean isEmpty()  判断该集合中元素的个数是否为0
+  Object[] toArray()  调用这个方法可以把集合转换成数组。【作为了解，使用不多。】
+  ```
+
+### 19.2.3 迭代器
+
+- 迭代器的原理
+
+  ![image-20240606103124144](assets/image-20240606103124144.png)
+
+- 操作迭代器
+
+  - 第一步：获取集合对象的迭代器对象Iterator
+
+    ```
+    Iterator it = c.iterator();
+    ```
+
+  - 第二步：通过以上获取的迭代器对象开始迭代/遍历集合。
+
+    - 以下两个方法是迭代器对象Iterator中的方法：
+
+      ```
+      boolean hasNext()如果仍有元素可以迭代，则返回 true。
+      Object next() 返回迭代的下一个元素。
+      ```
+
+    - 例1
+
+      ```java
+      public static void main(String[] args) {
+          Collection c = new ArrayList();
+          c.add(18);
+          c.add(3.14);
+          c.add(new Object());
+          c.add(true);
+          c.add("hello");
+          c.add("hello");
+          Iterator it = c.iterator();
+          while(it.hasNext()){
+              System.out.println(it.next());
+          }
+          /*
+              输出：18     3.14     java.lang.Object@65b54208     true    hello    hello
+              进一步验证了ArrayList集合类是有序可重复
+          */
+      ```
+
+    - 例2：使用泛型时需要注意代码的写法
+
+      ```java
+      public static void main(String[] args) {
+          Collection<Integer> list = new ArrayList<>();
+          list.add(10);
+          list.add(20);
+          list.add(30);
+          list.add(40);
+          list.add(50);
+          Iterator<Integer> it = list.iterator();
+          while(it.hasNext()){
+              Object o = it.next();
+              if(o instanceof Integer){
+                  Integer i = (Integer)o;
+                  System.out.println(i);
+              }
+          }
+      }
+      ```
+
+    - 例3
+
+      ```JAVA
+      public static void main(String[] args) {
+              Collection c2 = new HashSet();
+              c2.add(10);
+              c2.add(20);
+              c2.add(30);
+              c2.add(40);
+              c2.add(50);
+              c2.add(60);
+              Iterator it = c2.iterator();
+              while(it.hasNext()){
+                  System.out.println(it.next());
+              }
+              /*
+                  输出：50  20  40  10  60  30
+                  进一步验证了HashSet集合类无序不可重复。
+               */
+      }
+      ```
+
+- 迭代器的注意事项
+
+  - 当集合的结构发生改变时，迭代器必须重新获取，如果还是用以前老的迭代器，会出现异常
+
+    ```
+    “java.util.ConcurrentModificationException”
+    ```
+
+  - 在迭代集合元素的过程中，不能调用集合对象的remove方法删除元素，因为删完后集合结构发生了改变，而迭代器并没有更新，必然会出现
+
+    ```
+    “java.util.ConcurrentModificationException”
+    ```
+
+  - 在迭代元素的过程当中，一定要使用迭代器Iterator的remove方法，删除元素，不要使用集合自带的remove方法删除元素。迭代器的remove方法会删除迭代器当前所指向的元素，并且自动更新迭代器。
+
+
+
+
