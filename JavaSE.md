@@ -3944,6 +3944,695 @@ SUN提供的JDK内置的异常肯定是不够的用的。在实际的开发中�
 
   - 在迭代元素的过程当中，一定要使用迭代器Iterator的remove方法，删除元素，不要使用集合自带的remove方法删除元素。迭代器的remove方法会删除迭代器当前所指向的元素，并且自动更新迭代器。
 
+### 19.2.4 Collection接口中的remove方法和contains方法底层都会调用equals
+
+- 存放在一个集合中的类型，一定要重写equals方法。
+- 一定要写测试程序测，并且看源码中到底是否调用了equals。
+
+## 19.3 List接口
+
+### 19.3.1 List接口中特有且常用的方法
+
+```
+void add(int index, Object element)
+根据下标插入元素
+
+Object remove(int index);
+删除指定下标的元素
+
+Object set(int index, Object element)
+修改指定下标的元素
+
+Object get(int index);
+获取指定下标的元素
+
+int indexOf(Object o);
+获取元素o第一次出现时的下标
+
+int lastIndexOf(Object o);
+获取元素o最后一次出现时的下标
+```
+
+### 19.3.2 ArrayList类
+
+- 默认初始化容量10（底层先创建了一个长度为0的数组，当添加第一个元素的时候，初始化容量10。）
+
+  - 底层是一个Object[]数组。
+
+- 构造方法：
+
+  ```
+  new ArrayList();
+  new ArrayList(20);
+  ```
+
+- ArrayList集合的扩容：增长到原容量的1.5倍。
+
+  - ArrayList集合底层是数组，怎么优化？
+    - 尽可能少的扩容，因为数组扩容效率比较低，建议在使用ArrayList集合的时候预估计元素的个数，给定一个初始化容量。
+  - 数组优点
+    - 检索效率比较高。每个元素占用空间大小相同，内存地址是连续的，知道首元素内存地址，然后知道下标，通过数学表达式计算出元素的内存地址，所以检索效率最高。
+  - 数组缺点
+    - 随机增删元素效率比较低。另外数组无法存储大数据量，因为很难找到一块非常巨大的连续的内存空间。
+
+- 向数组末尾添加元素，效率很高，不受影响。
+
+  - 面试官经常问的一个问题：这么多的集合中，你用哪个集合最多？
+    - 答：ArrayList集合。因为往数组末尾添加元素，效率不受影响。另外，我们检索/查找某个元素的操作比较多。
+
+- ArrayList集合是非线程安全的。
+
+### 19.3.3 LinkedList类
+
+- 链表的优点
+  - 由于链表上的元素在空间存储上内存地址不连续，所以随机增删元素的时候不会有大量元素位移，因此随机增删效率较高。
+  - 在以后的开发中，如果遇到随机增删集合中元素的业务比较多时，建议使用LinkedList。
+
+- 链表的缺点：
+
+  - 不能通过数学表达式计算被查找元素的内存地址，每一次查找都是从头节点开始遍历，直到找到为止。所以LinkedList集合检索/查找的效率较低。
+
+- ArrayList：把检索发挥到极致。（末尾添加元素效率还是很高的。）
+- LinkedList：把随机增删发挥到极致。
+- 现在一般加元素都是往末尾添加，所以ArrayList用的比LinkedList多。
+
+### 19.3.4 Vector类
+
+- Vector初始化容量是10.
+
+  - 底层是数组。
+
+- 扩容为原容量的2倍。
+
+- Vector底层是线程安全的。
+
+- 怎么得到一个线程安全的List：使用java.util.Collections工具类；
+
+  ```
+  Collections.synchronizedList(list);
+  ```
+
+## 19.4 JDK新特性
+
+### 19.4.1 JDK5.0新特性：泛型
+
+- 集合使用泛型来减少向下转型的操作。
 
 
+- 怎么使用泛型？
+
+  ```
+  List<Animal> myList = new ArrayList<Animal>();
+  ```
+
+- 怎么自定义泛型？
+
+  - 自定义泛型的时候，<> 尖括号中的是一个标识符，随便写。
+
+  - java源代码中经常出现的是：
+
+    ```
+    <E>和<T>
+    E是Element单词首字母。
+    T是Type单词首字母。
+    ```
+
+  - 自定义泛型举例
+
+    ```java
+    public class MyList<T>{
+            public T func(T elem){
+                    return null;
+            }
+            public static void main(String[] args){
+                   // 传入String时的情况，MyList中凡是有T的地方统统替换成String
+                    MyList<String> mylist = new MyList<>();
+                    String str = mylist.func("hello");
+                    String str2 = mylist.func(99); // 编译报错，因为mylist.func()只接受String
+                    
+                    // 什么都不传时的情况，MyList中凡是有T的地方统统替换成Object
+                    MyList mylist1 = new MyList();
+            }
+    }
+    ```
+
+### 19.4.2 JDK5.0新特性：foreach
+
+- 对数组怎么遍历？
+
+  ```
+  for(int i : arr){
+  	System.out.println(i);
+  }
+  ```
+
+- 对集合怎么遍历？
+
+  ```
+  for(String s : list){
+  	System.out.println(s);
+  }
+  ```
+
+### 19.4.3 JDK8新特性：钻石表达式
+
+```
+List<String> list = new ArrayList<>();
+类型自动推断！
+```
+
+## 19.5 Map接口
+
+### 19.5.1 Map接口中的常用方法
+
+```
+V put(K key, V value) ；
+向Map集合中添加键值对
+
+V get(Object key)；
+通过key获取value
+
+void clear()；
+清空Map集合
+
+boolean containsKey(Object key)；
+判断Map中是否包含某个key
+
+boolean containsValue(Object value)；
+判断Map中是否包含某个value
+
+boolean isEmpty()；
+判断Map集合中元素个数是否为0
+
+V remove(Object key)；
+通过key删除键值对
+
+int size()；
+获取Map集合中键值对的个数。
+
+Collection<V> values()；
+获取Map集合中所有的value，返回一个Collection
+
+Set<K> keySet()；
+获取Map集合所有的key（所有的键是一个set集合）
+
+Set<Map.Entry<K,V>> entrySet()；
+将Map集合转换成Set集合
+```
+
+![image-20240607105630549](assets/image-20240607105630549.png)
+
+### 19.5.2 遍历Map集合的两种方式（精通）
+
+- 获取所有key得到一个Set集合，遍历Set集合中每个key，通过key获取value
+
+  ```java
+  Map<Integer, String> m = new HashMap<Integer, String>();
+  m.put(0, "张三");
+  m.put(1, "李四");
+  m.put(2, "王五");
+  m.put(3, "赵六");
+  Set<Integer> set = m.keySet();
+  for(Integer key : set){
+      System.out.println(m.get(key));
+  }
+  ```
+
+- 获取Set<Map.Entry>即可，遍历Set集合中的Entry，调用entry.getKey()和entry.getValue()
+
+  ```java
+  Map<Integer, String> m = new HashMap<Integer, String>();
+  m.put(0, "张三");
+  m.put(1, "李四");
+  m.put(2, "王五");
+  m.put(3, "赵六");
+  Set<Map.Entry<Integer, String>> set = m.entrySet();
+  for(Map.Entry<Integer, String> entry : set){
+      System.out.println(entry.getKey() + "----" + entry.getValue());
+  }
+  ```
+
+### 19.5.3 HashMap类
+
+- HashMap集合底层是哈希表的数据结构
+
+  - 哈希表是一个数组和单向链表的结合体，数组在查询方面效率很高，随机增删方面效率很低。单向链表在随机增删方面效率较高，在查询方面效率很低。哈希表将以上的两种数据结构融合在一起，充分发挥它们各自的优点。
+  - 哈希表的随机增删，以及查询效率都很高是因为增删是在链表上完成，查询也不需要都扫描，只需要部分扫描。
+
+- HashMap集合底层的源代码
+
+  ```java
+  public class HashMap{
+      // HashMap底层实际上就是一个数组。（一维数组）
+      Node<K,V>[] table;
+     
+      // 静态的内部类HashMap.Node
+      static class Node<K,V> {
+          final int hash; // 哈希值（哈希值是key的hashCode()方法的执行结果。hash值通过哈希函数/算法，可以转换存储成数组的下标。）
+          final K key; // 存储到Map集合中的那个key
+          V value; // 存储到Map集合中的那个value
+          Node<K,V> next; // 下一个节点的内存地址。
+      }
+  }
+  ```
+
+  - 哈希表是个一维数组，这个数组中每一个元素是一个单向链表。（数组和链表的结合体。）
+
+- map.put(k,v)、v = map.get(k) 这两个方法的实现原理，是必须掌握的
+
+  ![image-20240608092902787](assets/image-20240608092902787.png)
+
+  - map.put(k,v)实现原理：
+    - 先将k,v封装到Node对象当中作为一个新结点；
+    - 底层会调用k的hashCode()方法得出hash值；
+    - 通过哈希算法将hash值转换成数组的下标，下标位置上如果没有任何元素（单向链表），就把Node对象添加到这个位置上。如果下标对应位置上有元素（单向链表），此时会拿着k和单向链表上每一个节点中的k进行equals，如果所有的equals方法返回的都是false，那么这个新结点将会被添加到链表的末尾。如果其中有一个equals返回了true，那么这个节点的value将会被覆盖。
+  - v=map.get(k)实现原理：
+    - 底层会调用k的hashCode()方法得出hash值；
+    - 通过哈希算法将hash值转换成数组下标，下标位置上如果没有任何元素（单向链表），返回null。如果下标对应位置上有元素（单向链表），此时会拿着k和单向链表上每一个节点中的k进行equals，如果所有的equals方法返回的都是false，那么get方法返回null。如果其中有一个equals返回了true，那么此时这个结点的value就是我们要找的value，get方法最终返回这个要找的value。
+
+- 通过讲解可以得出HashMap集合的key，会先后调用两个方法，一个方法是hashCode()，一个方法是equal(), 那么这两个方法都需要进行重写。
+  - 注意：同一个单向链表上所有结点的hash相同，因为他们的数组下标是一样的，但同一个链表上k和k的equals方法肯定返回的是false，都不相等。
+- HashMap集合的key部分特点
+  - 无序，不可重复。无序是因为不一定挂到哪个单向链表上，不可重复是因为equals方法来保证HashMap集合的key不可重复，如果key重复了，value会覆盖。
+  - 重点：放在HashMap集合key部分的元素其实就是放到HashSet集合中了，所以放在HashMap集合key部分的元素，以及放在HashSet集合中的元素，需要同时重写hashCode和equals方法。
+- 哈希表HashMap使用不当时无法发挥性能！
+  - 假设将所有的hashCode()方法返回值固定为某个值，那么会导致底层哈希表变成了纯单向链表。这种情况我们成为：散列分布不均匀。
+  - 什么是散列分布均匀？
+    - 假设有100个元素，10个单向链表，那么每个单向链表上有10个节点，这是最好的，是散列分布均匀的。
+  - 假设将所有的hashCode()方法返回值都设定为不一样的值，可以吗，有什么问题？
+    - 不行，因为这样的话导致底层哈希表就成为一维数组了，没有链表的概念了。也是散列分布不均匀。
+    - 散列分布均匀需要你重写hashCode()方法时有一定的技巧。
+- HashMap集合的默认初始化容量是16，默认加载因子是0.75
+  - 这个默认加载因子是当HashMap集合底层数组的容量达到75%的时候，数组开始扩容。
+  - 重点，记住：HashMap集合初始化容量必须是2的倍数，这也是官方推荐的，这是因为达到散列均匀，为了提高HashMap集合的存取效率，所必须的。
+- 向Map集合中存，以及从Map集合中取，都是先调用key的hashCode方法，然后再调用equals方法！equals方法有可能调用，也有可能不调用。
+  - 拿put(k,v)举例，什么时候equals不会调用？
+    - k.hashCode()方法返回哈希值，哈希值经过哈希算法转换成数组下标。数组下标位置上如果是null，equals不需要执行。
+  - 拿get(k)举例，什么时候equals不会调用？
+    - k.hashCode()方法返回哈希值，哈希值经过哈希算法转换成数组下标。数组下标位置上如果是null，equals不需要执行。
+
+- 如果一个类的equals方法重写了，那么hashCode()方法必须重写
+  - 并且equals方法返回如果是true，hashCode()方法返回的值必须一样。equals方法返回true表示两个对象相同，在同一个单向链表上比较。那么对于同一个单向链表上的节点来说，他们的哈希值都是相同的。所以hashCode()方法的返回值也应该相同。
+  - hashCode()方法和equals()方法不用研究了，直接使用IDEA工具生成，但是这两个方法需要同时生成。
+  - 记住：放在HashMap集合key部分的，以及放在HashSet集合中的元素，需要同时重写hashCode方法和equals方法。
+- HashMap集合key部分允许null吗？
+  - 允许，但是要注意HashMap集合的key null值只能有一个。有可能面试的时候遇到这样的问题。
+
+### 19.5.4 HashTable类
+
+| **HashMap**           | **Hashtable**           |
+| --------------------- | ----------------------- |
+| 初始化容量16，扩容2倍 | 初始化容量11，扩容2倍+1 |
+| 非线程安全            | 线程安全                |
+| key和value可以为null  | key和value都不能是null  |
+
+### 19.5.5 Properties类
+
+- Properties是一个Map集合，继承Hashtable，Properties的key和value都是String类型。以下是它常用的两个方法：
+
+  ```
+  setProperty(String key, String value);
+  存放键值对。
+  
+  getProperty(String key);
+  通过键来取值。
+  ```
+
+### 19.5.6 TreeMap类
+
+- TreeMap和TreeSet是可排序的集合类，当TreeMap的key或者TreeSet集合中它们存入自定义数据类型元素的时候，如果该自定义数据类型没有实现Comparable接口，自定义数据类型就无法排序，会报告异常。
+
+  ```java
+  public class TreeSetTest02 {
+      public static void main(String[] args) {
+          TreeSet<Student> ts = new TreeSet<>();
+          Student s1 = new Student(8);
+          Student s2 = new Student(4);
+          Student s3 = new Student(9);
+          Student s4 = new Student(5);
+          ts.add(s1);
+          ts.add(s1);
+          ts.add(s2);
+          ts.add(s3);
+      }
+  }
+  class Student{
+      public int age;
+  
+      public Student(){}
+      public Student(int age) {
+          this.age = age;
+      }
+  
+      @Override
+      public String toString() {
+          return "Student{" +
+                  "age=" + age +
+                  '}';
+      }
+  }
+  
+  /*
+  java.lang.ClassCastException: class com.lzk.test12.Student cannot be cast to class java.lang.Comparable (com.lzk.test12.Student is in unnamed module of loader 'app'; java.lang.Comparable is in module java.base of loader 'bootstrap')
+  */
+  ```
+
+- 当我们实现Comparable接口并重写接口中的compareTo方法后，代码及运行结果如下：
+
+  ```java
+  public class TreeSetTest02 {
+      public static void main(String[] args) {
+          TreeSet<Student> ts = new TreeSet<>();
+          Student s1 = new Student(8);
+          Student s2 = new Student(4);
+          Student s3 = new Student(9);
+          Student s4 = new Student(5);
+          ts.add(s1);
+          ts.add(s1);
+          ts.add(s2);
+          ts.add(s3);
+  
+          for(Student s : ts){
+              System.out.println(s);
+          }
+  
+      }
+  }
+  class Student implements Comparable<Student>{
+      public int age;
+  
+      public Student(){}
+      public Student(int age) {
+          this.age = age;
+      }
+  
+      @Override
+      public String toString() {
+          return "Student{" +
+                  "age=" + age +
+                  '}';
+      }
+  
+      @Override
+      public int compareTo(Student o) {
+          return this.age - o.age;
+      }
+  }
+  
+  /*
+  Student{age=4}
+  Student{age=8}
+  Student{age=9}
+  */
+  ```
+
+- 排序规则的写法，例如想要让学生按年龄升序排序，年龄相同再按照姓名升序排序：
+
+  ```java
+  public class TreeSetTest02 {
+      public static void main(String[] args) {
+          TreeSet<Student> ts = new TreeSet<>();
+          Student s1 = new Student("zhangsan", 8);
+          Student s2 = new Student("lisi", 4);
+          Student s3 = new Student("wangwu", 9);
+          Student s4 = new Student("zhaoliu", 5);
+          Student s5 = new Student("zhangwei", 8);
+          ts.add(s1);
+          ts.add(s2);
+          ts.add(s3);
+          ts.add(s4);
+          ts.add(s5);
+  
+          for(Student s : ts){
+              System.out.println(s);
+          }
+  
+      }
+  }
+  class Student implements Comparable<Student>{
+      public String name;
+      public int age;
+  
+      public Student(){}
+  
+      public Student(String name, int age) {
+          this.name = name;
+          this.age = age;
+      }
+  
+      @Override
+      public String toString() {
+          return "name:"+this.name+" , age:" + this.age;
+      }
+  
+      @Override
+      public int compareTo(Student o) {
+          if(this.age == o.age){
+              return this.name.compareTo(o.name);
+          }else{
+              return this.age - o.age;
+          }
+      }
+  }
+  
+  /*
+  name:lisi , age:4
+  name:zhaoliu , age:5
+  name:zhangsan , age:8
+  name:zhangwei , age:8
+  name:wangwu , age:9
+  */
+  ```
+
+- TreeMap的底层是一棵平衡二叉树（平衡二叉树也是二叉排序树）
+
+- TreeMap的key或者TreeSet集合中的自定义数据类型元素要想排序，有两种实现方式：
+
+  - 第一种：实现java.lang.Comparable接口
+
+    - 当比较规则不会发生改变的时候，或者说当比较规则只有1个的时候，建议实现Comparable接口。
+
+
+    - 写法：用我的自定义类继承Comparable接口，实现接口中的compareTo方法。
+
+
+  - 第二种：单独编写一个比较器Comparator接口
+
+    - 如果比较规则有多个，并且需要多个比较规则之间频繁切换，建议使用Comparator接口。
+
+      - 写法1：先写一个自定义类，再写一个比较器类，new TreeSet时候构造方法中传入比较器对象
+
+        ```java
+        public class TreeSetTest03 {
+            public static void main(String[] args) {
+                TreeSet<Person> ts = new TreeSet<>(new PersonCompare());
+                ts.add(new Person(20));
+                ts.add(new Person(10));
+                ts.add(new Person(28));
+                ts.add(new Person(5));
+                for(Person s : ts){
+                    System.out.println(s);
+                }
+            }
+        }
+        class Person{
+            public int age;
+            public Person(){}
+            public Person(int age) {
+                this.age = age;
+            }
+            @Override
+            public String toString() {
+                return "Person{" + "age=" + age + '}';
+            }
+        }
+        class PersonCompare implements Comparator<Person> {
+            @Override
+            public int compare(Person o1, Person o2) {
+                return o1.age - o2.age;
+            }
+        }
+        
+        ```
+
+      - 写法2：匿名内部类方式
+
+        ```java
+        public class TreeSetTest03 {
+            public static void main(String[] args) {
+                TreeSet<Person> ts = new TreeSet<>(new Comparator<Person>() {
+                    @Override
+                    public int compare(Person o1, Person o2) {
+                        return o1.age - o2.age;
+                    }
+                });
+                ts.add(new Person(20));
+                ts.add(new Person(10));
+                ts.add(new Person(28));
+                ts.add(new Person(5));
+                for(Person s : ts){
+                    System.out.println(s);
+                }
+            }
+        }
+        class Person{
+            public int age;
+            public Person(){}
+            public Person(int age) {
+                this.age = age;
+            }
+            @Override
+            public String toString() {
+                return "Person{" + "age=" + age + '}';
+            }
+        }
+        ```
+
+## 19.6 集合工具类Collections
+
+- Collections中的常用方法
+
+  ```
+  Collections.synchronizedList(List list)方法;
+  得到一个线程安全的list。
+  
+  Collections.sort(List list)方法
+  Collections.sort(List list, Comparetor comparetor)方法
+  用于对List集合进行排序；
+  要求集合中元素实现Comparable接口或写一个继承Comparetor的比较器类或匿名内部类。
+  ```
+
+  - 例1
+
+    ```java
+    public class CollectionsTest01 {
+        public static void main(String[] args) {
+            List<String> list1 = new ArrayList<>();
+            list1.add("zhangsan");
+            list1.add("lisi");
+            list1.add("wangwu");
+            list1.add("zhaoliu");
+            list1.add("zhangwei");
+            for(String s : list1){
+                System.out.println(s);
+            }
+            System.out.println("=============排序后==============");
+            Collections.sort(list1);
+            for(String s : list1){
+                System.out.println(s);
+            }
+        }
+    }
+    ```
+
+  - 例2
+
+    ```java
+    public class CollectionsTest02 {
+        public static void main(String[] args) {
+            List<Student> list = new ArrayList<>();
+            list.add(new Student(18));
+            list.add(new Student(16));
+            list.add(new Student(20));
+            list.add(new Student(11));
+    
+            for(Student s : list){
+                System.out.println(s);
+            }
+    
+            System.out.println("=============排序后==============");
+            Collections.sort(list, new StudentComparator());
+    
+            for(Student s : list){
+                System.out.println(s);
+            }
+        }
+    }
+    class Student{
+        public int age;
+        public Student(){}
+        public Student(int age) {
+            this.age = age;
+        }
+    
+        @Override
+        public String toString() {
+            return "Student{" +
+                    "age=" + age +
+                    '}';
+        }
+    }
+    
+    class StudentComparator implements Comparator<Student> {
+        @Override
+        public int compare(Student o1, Student o2) {
+            return o1.age - o2.age;
+        }
+    }
+    ```
+
+## 19.7 集合这块最主要掌握的内容（动手测试）
+
+- ArrayList
+
+  - 每个集合对象的创建（new）
+
+  - 向集合中添加元素
+
+  - 从集合中取出某个元素
+
+  - 遍历集合
+
+- LinkedList
+
+  - 同上
+
+
+- HashSet
+
+  - 每个集合对象的创建（new）
+
+  - 向集合中添加元素
+
+  - 从集合中取出某个元素
+
+  - 遍历集合
+
+  - 测试HashSet集合的特点：无序不可重复。
+
+- TreeSet
+
+  - 每个集合对象的创建（new）
+
+
+  - 向集合中添加元素
+
+  - 从集合中取出某个元素
+
+  - 遍历集合
+
+  - 测试TreeSet集合中的元素是可排序的。
+
+  - 测试TreeSet集合中存储的类型是自定义的。
+
+  - 测试实现Comparable接口的方式
+
+  - 测试实现Comparator接口的方式（最好测试以下匿名内部类的方式）
+
+- HashMap
+
+  - 每个集合对象的创建（new）
+
+
+  - 向集合中添加元素
+
+  - 从集合中取出某个元素
+
+  - 遍历集合
+
+- Properties
+  - 测试HashTable不用测，直接测试这个。
+
+- TreeMap
+  - 测试TreeSet时候测一下TreeMap。
 
