@@ -4636,3 +4636,448 @@ Set<Map.Entry<K,V>> entrySet()；
 - TreeMap
   - 测试TreeSet时候测一下TreeMap。
 
+# 20.IO流
+
+## 20.1 什么是IO流，什么是IO？
+
+![image-20240609095051993](assets/image-20240609095051993.png)
+
+- I：Input，将文件从硬盘**输入**或**读入**内存。
+- O：Output，将文件从内存**输出**或**写入**硬盘。
+- 通过IO可以完成硬盘文件的读和写。
+
+## 20.2 IO流的分类
+
+- 按照流的方向进行分类（以内存作为参照物）
+  - 输入流：往内存中去，叫做输入(Input)。或者叫做读(Read)。
+  - 输出流：从内存中出来，叫做输出(Output)。或者叫做写(Write)。
+
+- 按照读取数据方式不同进行分类：
+
+  - 字节流
+
+    - 有的流是按照字节的方式读取数据，一次读取1个字节byte，等同于一次读取8个二进制位。这种流是万能的，什么类型的文件都可以读取。包括：文本文件，图片，声音文件，视频文件等....
+
+    - 例：假设文件file1.txt，内容为“a中国bc张三fe”，采用字节流的话是这样读的：
+
+      ```
+      第一次读：一个字节，正好读到'a'
+      第二次读：一个字节，正好读到'中'字符的一半。
+      第三次读：一个字节，正好读到'中'字符的另外一半。
+      ```
+
+  - 字符流
+
+    - 有的流是按照字符的方式读取数据的，一次读取一个字符，这种流是为了方便读取普通文本文件而存在的，这种流不能读取：图片、声音、视频等文件。只能读取纯文本文件，连word文件都无法读取。
+
+    - 例：假设文件file1.txt，内容为“a中国bc张三fe”，采用字符流的话是这样读的：
+
+      ```
+      第一次读：'a'字符（'a'字符在windows系统中占用1个字节。）
+      第二次读：'中'字符（'中'字符在windows系统中占用2个字节。）
+      ```
+
+## 20.3 IO流的学习方式
+
+- Java中的IO流都已经写好了，我们程序员不需要关心,我们最主要还是掌握在java中已经提供了哪些流，每个流的特点是什么，每个流对象上的常用方法有哪些。
+
+- java中所有的流都是在：java.io.*;下。
+
+
+- java中主要还是研究：怎么new流对象。调用流对象的哪个方法是读，哪个方法是写。
+
+## 20.4 Java IO流这块有四大家族
+
+- 四大家族的首领
+
+  | java.io.InputStream      | **字节输入流** |
+  | ------------------------ | -------------- |
+  | **java.io.OutputStream** | **字节输出流** |
+  | **java.io.Reader**       | **字符输入流** |
+  | **java.io.Writer**       | **字符输出流** |
+
+  - 四大家族的首领都是抽象类。(abstract class)
+  - 所有的流都实现了java.io.Closeable接口，都是可关闭的，都有close()方法。
+    - 流毕竟是一个管道，这个是内存和硬盘之间的通道，用完之后一定要关闭，不然会耗费(占用)很多资源。养成好习惯，用完流一定要关闭。
+  - 所有的输出流都实现了java.io.Flushable接口，都是可刷新的，都有flush()方法。
+    - 养成一个好习惯，输出流在最终输出之后，一定要记得flush()刷新一下。这个刷新表示将通道/管道当中剩余未输出的数据强行输出完（清空管道！）刷新的作用就是清空管道。
+    - 注意：如果没有flush()可能会导致丢失数据。
+  - 注意：在java中只要“类名”以Stream结尾的都是字节流。以“Reader/Writer”结尾的都是字符流。
+
+## 20.5 Java.io包下需要掌握的流有16个
+
+### 20.5.1 文件专属
+
+```
+java.io.FileInputStream（掌握）
+java.io.FileOutputStream（掌握）
+java.io.FileReader
+java.io.FileWriter
+```
+
+- java.io.FileInputStream
+
+  - 构造方法
+
+    ```
+    FileInputStream(String name);
+    通过打开一个到实际文件的连接来创建一个 FileInputStream，该文件通过文件系统中的路径名 name 指定。
+    注：文件不存在会自动创建名为name的文件。
+    ```
+
+  - 常用方法
+
+    ```
+    void close() ：关闭此文件输入流并释放与此流有关的所有系统资源。  
+    int read()：一次读取一个字节，返回当前读取到的字符的ascii码，当读到文件流末尾返回-1；
+    
+    int read(byte[] b) ：从此输入流中将最多 b.length 个字节的数据读入一个 byte 数组中
+    返回读入缓冲区的总字节数，如果因为已到达文件末尾而没有更多数据，则为 -1。
+    
+    int available()：返回流当中剩余的没有读到的字节数量。
+    long skip(long n)：跳过几个字节不读。
+    ```
+
+  - 固定写法
+
+    ```java
+    FileInputStream fis = null;
+    try {
+        fis = new FileInputStream("文件路径");
+        ...
+    }catch () {
+        e.printStackTrace();
+    }finally {
+        if (fis != null) {
+            try {
+                fis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    ```
+
+    - 例1：基本的读取文件的例子
+
+      ```java
+      public class FileInputStreamTest01 {
+          public static void main(String[] args) {
+              FileInputStream fis = null;
+              try {
+                  fis = new FileInputStream("tempFile.txt");
+                  // 注意：文件中如果有换行，该换行符表示回车+换行 等价于\r\n
+                  // '\r'是回车，'\n'是换行，前者使光标到行首，后者使光标下移一格。通常用的Enter是两个加起来。
+                  int readCount = 0;
+                  byte[] bytes = new byte[4];
+                  while((readCount = fis.read(bytes)) != -1){
+                      System.out.print(new String(bytes, 0, readCount));
+                  }
+              } catch (FileNotFoundException e) {
+                  e.printStackTrace();
+              } catch (IOException e) {
+                  e.printStackTrace();
+              } finally {
+                  if (fis != null) {
+                      try {
+                          fis.close();
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                      }
+                  }
+              }
+          }
+      }
+      ```
+    
+    - 例2：测试available方法初始化byte[]数组，读一次就搞定。
+    
+      ```java
+      public class FileInputStreamTest02 {
+          public static void main(String[] args) {
+              FileInputStream fis = null;
+              try {
+                  fis = new FileInputStream("tempFile.txt");
+      //            System.out.println("剩余未读取的字节数：" + fis.available());
+      //            System.out.println("当前读到的1个字节的字符的ascii码：" + fis.read());
+      //            System.out.println("剩余未读取的字节数：" + fis.available());
+                  int len = fis.available();
+                  byte[] bytes = new byte[len];
+                  fis.read(bytes);
+                  System.out.println(new String(bytes));
+              } catch (FileNotFoundException e) {
+                  e.printStackTrace();
+              } catch (IOException e) {
+                  e.printStackTrace();
+              } finally{
+                  if (fis != null) {
+                      try {
+                          fis.close();
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                      }
+                  }
+              }
+          }
+      }
+      ```
+    
+    - 例3：在例2的基础上，测试skip方法跳过3个字节不读。
+    
+      ```java
+      public class FileInputStreamTest02 {
+          public static void main(String[] args) {
+              FileInputStream fis = null;
+              try {
+                  fis = new FileInputStream("tempFile.txt");
+      //            System.out.println("剩余未读取的字节数：" + fis.available());
+      //            System.out.println("当前读到的1个字节的字符的ascii码：" + fis.read());
+      //            System.out.println("剩余未读取的字节数：" + fis.available());
+                  int len = fis.available();
+                  byte[] bytes = new byte[len];
+                  fis.skip(3);
+                  fis.read(bytes);
+                  System.out.println(new String(bytes));
+              } catch (FileNotFoundException e) {
+                  e.printStackTrace();
+              } catch (IOException e) {
+                  e.printStackTrace();
+              } finally{
+                  if (fis != null) {
+                      try {
+                          fis.close();
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                      }
+                  }
+              }
+          }
+      }
+      
+      ```
+
+- java.io.FileOutputStream
+
+  - 构造方法
+
+    ```
+    FileOutputStream(String name) ；
+    执行write()方法时，将文件内容先清空后写入数据。
+    
+    FileOutputStream(String name, boolean append) ；
+    执行write()方法时，apend为true时，在文件内容末尾追加写入数据。
+    ```
+
+  - 常用方法
+
+    ```
+    void write(byte[] b) ；
+    将 b.length 个字节从指定 byte 数组写入此文件输出流中。 
+    
+    void write(byte[] b, int off, int len)
+    从偏移量 off 开始的指定字节数组中将 len 字节写入此文件输出流。
+    
+    void close() ；
+    关闭此文件输出流并释放与此流有关的所有系统资源。 
+    ```
+
+  - 固定写法
+
+    ```java
+    FileOutputStream fos = null;
+    try{
+        fos = new FileOutputStream(文件路径); //文件路径中的文件不存在时会自动创建
+        
+        fos.flush(); //写完后一定记得刷新
+    }catch(){
+    
+    }finally{
+        if(fos != null){
+            fos.close();
+        }
+    
+    }
+    ```
+
+    - 例1：拷贝文件（字节流可拷贝任何类型的文件）
+
+      ```java
+      FileInputStream fis = null;
+      FileOutputStream fos = null;
+      try {
+          fis = new FileInputStream("E:\\CloudMusic\\广东雨神-广东爱情故事.wav");
+          fos = new FileOutputStream("G:\\学习\\Java Project\\广东雨神-广东爱情故事.wav");
+      
+          // 最核心的：一边读，一边写
+          byte[] bytes = new byte[1024 * 1024]; // 1MB（一次最多拷贝1MB。）
+          int readCount = 0;
+          while((readCount = fis.read(bytes)) != -1) {
+              fos.write(bytes, 0, readCount);
+          }
+      
+          // 刷新，输出流最后要刷新
+          fos.flush();        
+      } catch () {
+                 
+      } finally {
+          // 分开try，不要一起try。
+          // 一起try的时候，其中一个出现异常，可能会影响到另一个流的关闭。
+          if (fos != null) {
+                  fos.close();
+          }
+      
+          if (fis != null) {
+              fis.close();                
+          }
+      }
+      ```
+
+- java.io.FileReader
+
+  - 构造方法
+
+    ```
+    FileReader(String fileName) 
+    在给定从中读取数据的文件名的情况下创建一个新 FileReader。
+    ```
+
+  - 常用方法
+
+    ```
+    int read() ：从此输入流中读取一个数据字符。 
+    int read(char[] c) ：从此输入流中将最多 c.length 个字符的数据读入一个 char 数组中。 
+    ```
+
+    - 例1：照葫芦画瓢，根据FileInputStream的写法实例，写FileReader的。
+
+      ```java
+      public class FileReaderTest01 {
+          public static void main(String[] args) {
+              FileReader fr = null;
+              try {
+                  fr = new FileReader("outFile.txt");
+                  char[] chars = new char[4];
+                  int readCount = 0;
+                  while((readCount = fr.read(chars)) != -1){
+                      System.out.print(new String(chars, 0, readCount));
+                  }
+      
+              } catch (FileNotFoundException e) {
+                  e.printStackTrace();
+              } catch (IOException e) {
+                  e.printStackTrace();
+              } finally{
+                  if (fr != null) {
+                      try {
+                          fr.close();
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                      }
+                  }
+              }
+          }
+      }
+      
+      ```
+
+- java.io.FileWriter
+
+  - 构造方法
+
+    ```
+    FileWriter(String fileName)
+    文件不存在则创建，若文件存在则调用writer()时会先清空原有数据，再写入数据。 
+    
+    FileWriter(String fileName, boolean append)
+    文件不存在则创建，若文件存在并且append为true时，会在文件末尾追加数据。
+    ```
+
+  - 常用方法
+
+    ```
+    void write(int c);
+    将ascii码c所代表的的一个字符写入文件。
+    
+    void write(char[] cbuf);
+    将字符数组cbuf中的所有字符写入文件。
+    
+    void write(String str);
+    将字符串str写入文件。
+    ```
+
+    - 例1：照葫芦画瓢，根据FileOutputStream的写法实例，写FileWriter的。
+
+      ```java
+      public class FileWriterTest01 {
+          public static void main(String[] args) {
+              FileWriter fw = null;
+              try {
+                  fw = new FileWriter("outFile2.txt");
+      
+                  char[] chars = {'我','是','中','国','人'};
+                  fw.write(chars);
+                  fw.write(chars, 2, 3);
+                  
+                  String str = "我爱中国";
+                  fw.write(str);
+                  fw.write(str, 0, 2);
+      
+                  fw.flush();
+              } catch (IOException e) {
+                  e.printStackTrace();
+              } finally{
+                  if (fw != null) {
+                      try {
+                          fw.close();
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                      }
+                  }
+              }
+      
+          }
+      }
+      ```
+
+    - 例2：拷贝文件（字符流只能拷贝文本文件）
+
+      ```
+      FileReader fr = null;
+      FileWriter fw = null;
+      try {
+          fr = new FileReader("E:\\ThreeBody.txt");
+          fw = new FileWriter("G:\\学习\\Java Project\\ThreeBoday.txt");
+      
+          char[] chars = new char[1024 * 512]; 
+          // 在java中1个char类型字符占用两个字节，1024 * 512 * 2就占用1MB
+      
+          int num = 0;
+          while((num = fr.read(chars)) != -1){
+              fw.write(chars, 0, num);
+          }
+          fw.flush();
+      } catch () {
+      
+      } finally{
+          if(fr != null){
+              fr.close();
+          }
+          
+          if(){
+              fw.close();
+          }
+          
+      }
+      ```
+
+      
+
+### 20.5.2 缓冲流专属
+
+### 20.5.3 转换流（将字节流转换成为字符流）
+
+### 20.5.4 数据流专属
+
+### 20.5.5 标准输出流
+
+### 20.5.6 对象专属流
