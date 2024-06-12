@@ -5074,10 +5074,356 @@ java.io.FileWriter
 
 ### 20.5.2 缓冲流专属
 
+```
+java.io.BufferedReader
+java.io.BufferedWriter
+java.io.BufferedInputStream
+java.io.BufferedOutputStream
+```
+
+当一个流的构造方法中需要一个流的时候，这个被传进来的流叫做：节点流。
+
+外部负责包装的这个流，叫做：包装流，还有一个名字叫做：处理流。
+
+- java.io.BufferedReader
+
+  - 构造方法
+
+    ```
+    BufferedReader(Reader in) 
+    创建一个使用默认大小输入缓冲区的缓冲字符输入流，参数为Reader的子类对象。
+    ```
+
+  - 常用方法
+
+    ```
+    String readLine() 
+    读取一个文本行，当读到没有文本行时，返回null。
+    ```
+
+  - 例1：使用BufferedReader读取文本文件
+
+    ```java
+    public class BufferedReaderTest01 {
+        public static void main(String[] args) {
+            FileReader fr = null;
+            BufferedReader br = null;
+            try {
+                fr = new FileReader("tempFile.txt");
+                br = new BufferedReader(fr);
+    
+                String str = null;
+                while((str = br.readLine()) != null){ //readLine()方法每次读取文本文件中的一行，读到文件尾部返回null
+                    System.out.println(str);
+                }
+    
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally{
+                if (br != null) {
+                    try {
+                        br.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+  - 例2：将一个字节流转换成字符流，使用BufferedReader读取文本文件
+
+    ```java
+    public class BufferedReaderTest02 {
+        public static void main(String[] args) {
+            // 字节流如何转换成字符流
+            // InputStreamReader
+            FileInputStream fis = null;
+            InputStreamReader isr = null;
+            BufferedReader br = null;
+            try {
+                fis = new FileInputStream("test02/src/com/lzk/io/test01/CopyTest01.java");
+                isr = new InputStreamReader(fis);
+                br = new BufferedReader(isr);
+                String str = null;
+                while((str = br.readLine()) != null){
+                    System.out.println(str);
+                }
+    
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally{
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    ```
+
+  - 例3：将例2中的三句new对象代码合成一句；
+
+    ```java
+    public class BufferedReaderTest03 {
+        public static void main(String[] args) {
+            BufferedReader br = null;
+            try {
+                br = new BufferedReader(new InputStreamReader(new FileInputStream("Test02/src/com/lzk/io/test01/CopyTest01.java")));
+                String str = null;
+                while((str = br.readLine()) != null){
+                    System.out.println(str);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (br != null) {
+                    try {
+                        br.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+- java.io.BufferedWriter
+
+  - 构造方法
+
+    ```
+    BufferedWriter(Writer out) 
+    创建一个使用默认大小输出缓冲区的缓冲字符输出流，参数为Writer的子类对象。
+    ```
+
+  - 常用方法
+
+    ```
+    void write(String s) 
+    写入一个字符串。 
+    ```
+
+  - 例1：使用BufferedWriter将若干字符串写入文本文件中.
+
+    ```java
+    public class BufferedWriterTest01 {
+        public static void main(String[] args) {
+            BufferedWriter bw = null;
+            try {
+                bw = new BufferedWriter(new FileWriter("xxx"));
+                bw.write("hello world");
+                bw.write("I will be back!");
+                bw.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (bw != null) {
+                    try {
+                        bw.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+  - 例2：使用OutputStreamWriter将字节流转换成字符流.
+
+    ```java
+    public class BufferedWriterTest02 {
+        public static void main(String[] args) {
+            BufferedWriter bw = null;
+            try {
+                bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("xxx", true)));
+                bw.write("my name is Joker!");
+                bw.flush();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally{
+                if (bw != null) {
+                    try {
+                        bw.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    ```
+
 ### 20.5.3 转换流（将字节流转换成为字符流）
+
+```
+java.io.InputStreamReader
+java.io.OutputStreamWriter
+```
 
 ### 20.5.4 数据流专属
 
+```
+java.io.DataInputStream
+java.io.DataOutputStream
+
+注意：
+DataOutputStream可以将数据连同数据的类型一并写入文件。这个文件不是普通文本文档。（这个文件使用记事本打不开。）
+DataOutputStream写的文件，只能使用DataInputStream去读。并且读的时候你需要提前知道写入的顺序。
+读的顺序需要和写的顺序一致。才可以正常取出数据。
+```
+
+- java.io.DataOutputStream
+
+  - 构造方法
+
+    ```
+    DataOutputStream(OutputStream out) 
+    创建一个新的数据输出流，将数据写入指定基础输出流，参数为OutputStream的子类对象。
+    ```
+
+  - 例：利用DataOutputStream把八种数据类型的数据写入文本文件中
+
+    ```java
+    public class DataOutputStreamTest01 {
+        public static void main(String[] args) {
+            DataOutputStream dos = null;
+            try {
+                dos = new DataOutputStream(new FileOutputStream("yyy"));
+                byte b = 1;
+                short s = 2;
+                int i = 3;
+                long l = 4;
+                float f = 3.14f;
+                double d = 2.45;
+                boolean bool = true;
+                char c = 'a';
+                dos.writeByte(b);
+                dos.writeShort(s);
+                dos.writeInt(i);
+                dos.writeLong(l);
+                dos.writeFloat(f);
+                dos.writeDouble(d);
+                dos.writeBoolean(bool);
+                dos.writeChar(c);
+                dos.flush();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (dos != null) {
+                    try {
+                        dos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+- java.io.DataInputStream
+
+  - 构造方法
+
+    ```
+    DataInputStream(InputStream in) 
+    使用指定的底层 InputStream 创建一个 DataInputStream。
+    ```
+
+  - 例：利用DataInputStream把写入文本文件中的八种数据类型的数据读取出来
+
+    ```java
+    public class DateInputStreamTest01 {
+        public static void main(String[] args) {
+            DataInputStream dis = null;
+            try {
+                dis = new DataInputStream(new FileInputStream("YYY"));
+                byte b = dis.readByte();
+                short s = dis.readShort();
+                int i = dis.readInt();
+                long l = dis.readLong();
+                float f = dis.readFloat();
+                double d = dis.readDouble();
+                boolean bool = dis.readBoolean();
+                char c = dis.readChar();
+                System.out.println(b);
+                System.out.println(s);
+                System.out.println(i);
+                System.out.println(l);
+                System.out.println(f);
+                System.out.println(d);
+                System.out.println(b);
+                System.out.println(c);
+    
+    
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (dis != null) {
+                    try {
+                        dis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    ```
+
 ### 20.5.5 标准输出流
+
+```
+java.io.PrintWriter
+java.io.PrintStream（掌握）
+```
+
+- java.io.PrintStream（掌握）
+
+  - 标准的字节输出流，默认输出到控制台，可以改变输出方向（如输出到某个文件），不需要手动close()关闭。
+
+  - 构造方法
+
+    ```
+    PrintStream(OutputStream out) 
+    创建新的打印流，参数为OutputStream的子类对象。
+    ```
+
+  - 固定写法
+
+    ```
+    // 默认输出到控制台
+    System.out.println("I will be back");
+    System.out.println("I am T-800!");
+    
+    // 改变输出方向，将其输出到文件mm.txt
+    System.setOut(new PrintStream(new FileOutputStream("mm.txt")));
+    
+    // 改变后就输出到文件mm.txt了
+    System.out.println("I will be back!");
+    System.out.println("I am T-800!");
+    ```
+
+    
+
+
 
 ### 20.5.6 对象专属流
