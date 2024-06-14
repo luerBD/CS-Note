@@ -5422,8 +5422,737 @@ java.io.PrintStream（掌握）
     System.out.println("I am T-800!");
     ```
 
-    
-
-
 
 ### 20.5.6 对象专属流
+
+```
+java.io.ObjectInputStream（掌握）
+java.io.ObjectOutputStream（掌握）
+```
+
+- 序列化和反序列化的理解![image-20240613085108635](assets/image-20240613085108635.png)
+
+- 参与序列化的类型必须实现java.io.Serializable接口
+
+  - 否则会报告异常信息：java.io.NotSerializableException，即Student对象不支持序列化！！！！
+
+  - 注意：通过源代码发现，Serializable接口只是一个标志接口：
+
+    ```java
+    public interface Serializable {
+    
+    }
+    ```
+
+    - 这个接口当中什么代码都没有。但是它起到标识的作用，标志的作用，java虚拟机看到这个类实现了这个接口，可能会对这个类进行特殊待遇。
+    - Serializable这个标志接口是给java虚拟机参考的，java虚拟机看到这个接口之后，会为该类自动生成一个序列化版本号。
+
+  - 例1：序列化一个Java对象
+
+    ```java
+    public class SerializableTest01{
+        public static void main(String[] args) {
+            Student stu = new Student("joker", 18);
+            ObjectOutputStream oos = null;
+            try {
+                oos = new ObjectOutputStream(new FileOutputStream("stu"));
+    
+                oos.writeObject(stu);
+    
+                oos.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (oos != null) {
+                    try {
+                        oos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    
+    class Student  implements Serializable{
+        private String name;
+        private int age;
+    
+        public Student() {
+        }
+    
+        public Student(String name, int age) {
+            this.name = name;
+            this.age = age;
+        }
+    
+        public String getName() {
+            return name;
+        }
+    
+        public void setName(String name) {
+            this.name = name;
+        }
+    
+        public int getAge() {
+            return age;
+        }
+    
+        public void setAge(int age) {
+            this.age = age;
+        }
+    
+        @Override
+        public String toString() {
+            return "Student{" +
+                    "name='" + name + '\'' +
+                    ", age=" + age +
+                    '}';
+        }
+    }
+    ```
+
+  - 例2：把刚才序列化的对象反序列化输出。
+
+    ```java
+    public class SerializableTest02 {
+        public static void main(String[] args) {
+            ObjectInputStream ois = null;
+            try {
+                ois = new ObjectInputStream(new FileInputStream("stu"));
+                Object o = ois.readObject();
+                System.out.println(o);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                if (ois != null) {
+                    try {
+                        ois.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    
+    ```
+
+- 可以一次序列化多个对象吗？
+
+  - 可以，可以将对象放到集合当中，序列化集合。
+
+  - 提示：参与序列化的ArrayList集合以及集合中的元素User都需要实现 java.io.Serializable接口。
+
+  - 例1：序列化多个对象，再反序列化输出。
+
+    ```java
+    public class SerializableTest03 {
+        public static void main(String[] args) {
+            List<User> list = new ArrayList<>();
+            list.add(new User("joker", 18));
+            list.add(new User("danny", 19));
+            list.add(new User("tony", 11));
+            list.add(new User("superman", 25));
+            ObjectOutputStream oos = null;
+            try {
+                oos = new ObjectOutputStream(new FileOutputStream("users"));
+                oos.writeObject(list);
+    
+                oos.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (oos != null) {
+                    try {
+                        oos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    class User implements Serializable {
+        private String name;
+        private int age;
+    
+        public User() {
+        }
+    
+        public User(String name, int age) {
+            this.name = name;
+            this.age = age;
+        }
+    
+        public String getName() {
+            return name;
+        }
+    
+        public void setName(String name) {
+            this.name = name;
+        }
+    
+        public int getAge() {
+            return age;
+        }
+    
+        public void setAge(int age) {
+            this.age = age;
+        }
+    
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            User user = (User) o;
+            return age == user.age &&
+                    Objects.equals(name, user.name);
+        }
+    
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, age);
+        }
+    
+        @Override
+        public String toString() {
+            return "User{" +
+                    "name='" + name + '\'' +
+                    ", age=" + age +
+                    '}';
+        }
+    }
+    ```
+
+    ```java
+    public class SerializableTest04 {
+        public static void main(String[] args) {
+            ObjectInputStream ois = null;
+            try {
+                ois = new ObjectInputStream(new FileInputStream("users"));
+                Object o = ois.readObject();
+                if(o instanceof List){
+                    List<User> list = (List<User>)o;
+                    for(User user : list){
+                        System.out.println(user);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } finally{
+                if (ois != null) {
+                    try {
+                        ois.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+    
+        }
+    }
+    ```
+
+- 可以不让某个属性参与序列化吗？
+
+  - 可以，如果不希望类中某个属性参与序列化，则在该属性前加关键字transient。
+
+  - 例：让一个类的某个属性不参与序列化，对该类的对象进行序列化后反序列化输出。
+
+    ```java
+    public class SerializableTest03 {
+        public static void main(String[] args) {
+            List<User> list = new ArrayList<>();
+            list.add(new User("joker", 18));
+            list.add(new User("danny", 19));
+            list.add(new User("tony", 11));
+            list.add(new User("superman", 25));
+            ObjectOutputStream oos = null;
+            try {
+                oos = new ObjectOutputStream(new FileOutputStream("users"));
+                oos.writeObject(list);
+    
+                oos.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (oos != null) {
+                    try {
+                        oos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    class User implements Serializable {
+        transient String name;
+        private int age;
+    
+        public User() {
+        }
+    
+        public User(String name, int age) {
+            this.name = name;
+            this.age = age;
+        }
+    
+        public String getName() {
+            return name;
+        }
+    
+        public void setName(String name) {
+            this.name = name;
+        }
+    
+        public int getAge() {
+            return age;
+        }
+    
+        public void setAge(int age) {
+            this.age = age;
+        }
+    
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            User user = (User) o;
+            return age == user.age &&
+                    Objects.equals(name, user.name);
+        }
+    
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, age);
+        }
+    
+        @Override
+        public String toString() {
+            return "User{" +
+                    "name='" + name + '\'' +
+                    ", age=" + age +
+                    '}';
+        }
+    }
+    ```
+
+    ```java
+    public class SerializableTest04 {
+        public static void main(String[] args) {
+            ObjectInputStream ois = null;
+            try {
+                ois = new ObjectInputStream(new FileInputStream("users"));
+                Object o = ois.readObject();
+                if(o instanceof List){
+                    List<User> list = (List<User>)o;
+                    for(User user : list){
+                        System.out.println(user);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } finally{
+                if (ois != null) {
+                    try {
+                        ois.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+    
+        }
+    }
+    
+    ```
+
+- 序列化版本号有什么用呢？
+
+  - 自动生成的序列化版本号
+
+    - 十年前编写了一个学生类，编译后生成了字节码，运行时自动生成了一个序列化版本号，硬盘上的学生对象数据是对应该序列化版本号。十年后我们要重新修改这个学生类中的一些属性，编译后生成了新的字节码，运行时自动生成了一个新的序列化版本号，这时反序列化时候就会失败，因为新生成的序列化版本号与老的序列化版本号不对应，旧版本的序列化后的数据无法反序列化为新版本的对象，会报告以下错误：
+
+      ```
+      java.io.InvalidClassException:
+              com.bjpowernode.java.bean.Student;
+              local class incompatible:
+                  stream classdesc serialVersionUID = -684255398724514298（十年后）,
+                  local class serialVersionUID = -3463447116624555755（十年前）
+      ```
+
+  - java语言中是采用什么机制来区分类的？
+
+    - 第一：首先通过类名进行比对，如果类名不一样，肯定不是同一个类。
+    - 第二：如果类名一样，再怎么进行类的区别？靠序列化版本号进行区分。
+      - A编写了一个类：com.bjpowernode.java.bean.Student implements Serializable
+      - B编写了一个类：com.bjpowernode.java.bean.Student implements Serializable
+      - 不同的人编写了同一个类，但“这两个类确实不是同一个类”。这个时候序列化版本就起上作用了。
+      - 对于java虚拟机来说，java虚拟机是可以区分开这两个类的，因为这两个类都实现了Serializable接口，都有默认的序列化版本号，他们的序列化版本号不一样。所以区分开了。（这是自动生成序列化版本号的好处）
+
+  - 自动生成序列化版本号有什么缺陷？
+    - 一旦代码确定之后，不能进行后续的修改，因为只要修改，必然会重新编译，此时会生成全新的序列化版本号，这个时候java虚拟机会认为这是一个全新的类。（这样就不好了！）
+
+  - 最终结论：
+
+    - 凡是一个类实现了Serializable接口，建议给该类提供一个固定不变的序列化版本号。并且建议将序列化版本号手动的写出来：
+
+      ```
+      private static final long serialVersionUID = 1L;
+      ```
+
+      - 这样，以后这个类即使代码修改了，但是版本号不变，java虚拟机会认为是同一个类。
+
+      ```java
+      class User implements Serializable {
+          private static final long serialVersionUID = 1L;
+          private String name;
+          private int age;
+          private int heigh;
+      //    private boolean gender;
+          public User() {
+          }
+          public User(String name, int age) {
+              this.name = name;
+              this.age = age;
+          }
+          public String getName() {
+              return name;
+          }
+          public void setName(String name) {
+              this.name = name;
+          }
+          public int getAge() {
+              return age;
+          }
+          public void setAge(int age) {
+              this.age = age;
+          }
+          @Override
+          public boolean equals(Object o) {
+              if (this == o) return true;
+              if (o == null || getClass() != o.getClass()) return false;
+              User user = (User) o;
+              return age == user.age &&
+                      Objects.equals(name, user.name);
+          }
+      
+          @Override
+          public int hashCode() {
+              return Objects.hash(name, age);
+          }
+      
+          @Override
+          public String toString() {
+              return "User{" +
+                      "name='" + name + '\'' +
+                      ", age=" + age +
+                      '}';
+          }
+      }
+      ```
+
+## 20.6 java.io.File类
+
+- File类的理解
+
+  - File类和四大家族没有关系，所以File类不能完成文件的读和写。
+
+  - File对象代表什么？
+
+    - 文件和目录路径名的抽象表示形式。
+
+      ```
+      E:\FileTest  这是一个File对象
+      E:\FileTest\file1.txt   也是一个File对象。
+      ```
+
+    - 一个File对象有可能对应的是目录，也可能是文件。
+
+- 构造方法
+
+  ```
+  File(String pathname)
+  通过将给定的路径名字符串转换为抽象路径名来创建一个新的 File 实例。
+  ```
+
+- 常用方法
+
+  ```
+  boolean exists()
+  测试此抽象路径名表示的文件或目录是否存在。
+  
+  boolean createNewFile()
+  当且仅当具有此名称的文件尚不存在时，以原子方式创建一个以此抽象路径名命名的新空文件。
+  
+  boolean mkdir() 
+  创建以此抽象路径名命名的目录。
+  
+  boolean mkdirs()
+  创建以此抽象路径名命名的目录，包括任何必需但不存在的父目录。
+  
+  String getParent()
+  返回此抽象路径名的父目录的路径名字符串，如果此路径名未指定父目录，则返回 null。
+  
+  File getParentFile()
+  返回此抽象路径名的父目录的路径File，如果此路径名未指定父目录，则返回 null。
+  
+  File getAbsoluteFile()
+  返回此抽象路径名的绝对形式。
+  
+  
+  String getName()
+  返回此抽象路径名表示的文件或目录的名称。
+  
+  boolean isDirectory()
+  测试此抽象路径名表示的文件是否为目录。
+  
+  boolean isFile()
+  测试此抽象路径名表示的文件是否为普通文件。
+  
+  long lastModified()
+  返回上次修改此抽象路径名表示的文件的时间。
+  
+  File[] listFiles() 
+  返回一个抽象路径名数组，表示此抽象路径名表示的目录中的文件。
+  ```
+
+## 20.7 IO+Properties的联合应用
+
+- 非常好的一个设计理念：以后经常改变的数据，可以单独写到一个文件中，使用程序动态读取。将来只需要修改这个文件的内容，java代码不需要改动，不需要重新编译，服务器也不需要重启。就可以拿到动态的信息。
+
+- 类似于以上机制的这种文件被称为配置文件。并且当配置文件中的内容格式是：
+
+  ```
+  key1=value
+  key2=value
+  ```
+
+  - 我们把这种配置文件叫做属性配置文件。
+
+- java规范中有要求：属性配置文件建议以.properties结尾，但这不是必须的。这种以.properties结尾的文件在java中被称为：属性配置文件。其中Properties是专门存放属性配置文件内容的一个类。
+
+  ```java
+  FileInputStream fis = null;
+  try {
+      fis = new FileInputStream("userInfo.properties");
+      Properties p = new Properties();
+      p.load(fis); // load()中的参数除了InputStream的子类对象还可以是Reader的子类对象
+      System.out.println(p.getProperty("username"));
+      System.out.println(p.getProperty("no"));
+      System.out.println(p.getProperty("age"));
+  } catch (FileNotFoundException e) {
+  	e.printStackTrace();	
+  } catch (IOException e) {
+  	e.printStackTrace();
+  } finally{
+  	if(fis != null){
+          try {
+              fis.close();
+          } catch (IOException e) {
+              e.printStackTrace();
+          }
+  	}
+  }
+  ```
+
+  ![image-20240613112024763](assets/image-20240613112024763.png)
+
+# 21.多线程
+
+## 21.1 线程简介
+
+### 21.1.1 进程和线程
+
+- 说起进程，就不得不说一下程序。程序是指令和数据的有序集合，其本身没有任何运行的含义，是一个静态的概念。
+- 而进程则是执行程序的一次执行过程，它是一个动态的概念。是系统资源分配的单位。
+  - 进程就像是一个独立的厨房，每个厨房有自己的一套设备、食材和厨师。每个进程在计算机中是一个独立运行的程序，拥有自己的内存空间和系统资源。进程之间是彼此独立的，就像不同的厨房，互相之间不会直接干扰。
+- 通常在一个进程中可以包含若干个线程，当然一个进程中至少有一个线程，不然没有存在的意义。线程是CPU调度和执行的单位。
+  - 线程可以看作是一个厨房里的不同厨师。虽然他们在同一个厨房里工作，但每个厨师（线程）可以独立处理不同的任务。例如，一个厨师在切菜，另一个在炒菜，还有一个在煮汤。线程共享同一个厨房的资源，比如锅碗瓢盆（内存、文件等）。
+- 注意：很多“多线程”是模拟出来的，真正的多线程是指有多个CPU，即多核，如服务器。如果是模拟出来的多线程，即在一个CPU的情况下，在同一个时间点，CPU只能执行一个代码，因为切换的很快，所以有同时执行的错觉。
+  - 多线程是指在同一个进程（厨房）中有多个线程（厨师）同时工作。这样可以更快地完成任务，因为多个线程可以并行处理不同的任务。
+  - 例如：
+    - 在一个文本编辑器中，一个线程负责响应用户输入，另一个线程负责自动保存文件，还有一个线程负责拼写检查。
+    - 在一个网页浏览器中，一个线程负责加载网页，另一个线程负责渲染图像，还有一个线程负责处理用户的点击操作。
+
+- 普通方法调用和多线程
+
+  <img src="assets/image-20240614101105451.png" alt="image-20240614101105451" style="zoom:50%;" />
+
+- 本章核心概念
+
+  - 线程就是独立的执行路径；
+  - 在程序运行时，积食没有自己创建线程，后台也会有多个线程，如主线程main和gc线程。
+  - main()称之为主线程，为系统的入口，用于执行整个程序。
+  - 在一个进程中，如果开辟了多个线程，线程的运行由调度器安排调度，调度器是与操作系统紧密相关的，先后顺序是不能人为干预的。
+  - 对同一份资源操作时，会存在资源抢夺的问题，需要加入并发控制。
+  - 线程为带来额外的开销，如CPU调度时间，并发控制开销。
+  - 每个线程在自己的工作内存交互，内存控制不当会造成数据不一致。
+
+
+
+## 21.2 线程实现（重点）
+
+### 21.2.1 三种创建方式
+
+- 继承Thread类（重点）
+
+  - 自定义线程类继承Thread类
+
+  - 重写run()方法，编写线程执行体
+
+  - 创建线程对象，调用stat()方法启动线程
+
+  - 注意：线程开启不一定立即执行，由CPU调度执行
+
+    ```java
+    public class MyThread01 extends Thread{
+        @Override
+        public void run() {
+            for(int i = 0; i < 100; i++){
+                System.out.println("分支线程--->" + i);
+            }
+        }
+        public static void main(String[] args) {
+            MyThread01 t = new MyThread01();
+            t.start();
+            for(int i = 0; i < 100; i++){
+                System.out.println("主线程--->" + i);
+            }
+        }
+    }
+    ```
+
+    
+
+- 实现Runnable接口（重点）
+
+  - 定义MyRunnable类实现Runnable接口
+
+  - 实现run()方法，编写线程执行体
+
+  - 创建线程对象，调用start()方法启动线程
+
+  - 注意：推荐使用Runnable对象，因为Java单继承的局限性
+
+    ```java
+    public class MyThread02 implements Runnable{
+        @Override
+        public void run() {
+            for(int i = 0; i < 100; i++){
+                System.out.println("分支线程--->" + i);
+            }
+        }
+    
+        public static void main(String[] args) {
+    
+            MyThread02 t = new MyThread02();
+            new Thread(t).start();
+    
+            for(int i = 0; i < 100; i++){
+                System.out.println("主线程-->" + i);
+            }
+        }
+    }
+    ```
+
+  - 发现问题：多个线程操作同一个资源的情况下，线程不安全，数据紊乱。
+
+    ```java
+    // 多个线程同时操作同一个对象
+    // 买火车票的例子
+    public class MyThread03 implements Runnable{
+        private int ticketNumber = 10;
+        @Override
+        public void run() {
+            while(true){
+                if(ticketNumber <= 0){
+                    break;
+                }
+                System.out.println(Thread.currentThread().getName() + "抢到了第" + this.ticketNumber-- + "票");
+            }
+        }
+        public static void main(String[] args) {
+            MyThread03 t1 = new MyThread03();
+            MyThread03 t2 = new MyThread03();
+            MyThread03 t3 = new MyThread03();
+            MyThread03 t4 = new MyThread03();
+            new Thread(t1, "joker").start();
+            new Thread(t2, "batman").start();
+            new Thread(t3, "superman").start();
+            new Thread(t4, "ironman").start();
+    
+        }
+    }
+    /*
+    ironman抢到了第10票
+    ironman抢到了第9票
+    ironman抢到了第8票
+    ironman抢到了第7票
+    batman抢到了第10票
+    superman抢到了第10票
+    joker抢到了第10票
+    joker抢到了第9票
+    joker抢到了第8票
+    superman抢到了第9票
+    superman抢到了第8票
+    superman抢到了第7票
+    superman抢到了第6票
+    superman抢到了第5票
+    batman抢到了第9票
+    ironman抢到了第6票
+    ironman抢到了第5票
+    ironman抢到了第4票
+    ironman抢到了第3票
+    batman抢到了第8票
+    batman抢到了第7票
+    batman抢到了第6票
+    batman抢到了第5票
+    superman抢到了第4票
+    joker抢到了第7票
+    superman抢到了第3票
+    batman抢到了第4票
+    ironman抢到了第2票
+    batman抢到了第3票
+    superman抢到了第2票
+    joker抢到了第6票
+    superman抢到了第1票
+    batman抢到了第2票
+    ironman抢到了第1票
+    batman抢到了第1票
+    joker抢到了第5票
+    joker抢到了第4票
+    joker抢到了第3票
+    joker抢到了第2票
+    joker抢到了第1票
+    
+    */
+    ```
+
+    
+
+- 实现Callable接口（了解）
+
+  
+
+## 21.3 线程状态
+
+
+
+## 21.4 线程同步（重点）
+
+
+
+## 21.5 线程通信问题
+
+
+
+## 21.6 高级主题
