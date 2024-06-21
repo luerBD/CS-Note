@@ -1,4 +1,4 @@
-# 1.Java开发环境的搭建
+1.Java开发环境的搭建
 
 ## 1.1 常用的dos命令
 
@@ -6064,7 +6064,7 @@ java.io.ObjectOutputStream（掌握）
     }
     ```
 
-  - 发现问题：多个线程操作同一个资源的情况下，线程不安全，数据紊乱。
+  - 例：发现问题：多个线程操作同一个资源的情况下，线程不安全，数据紊乱
 
     ```java
     // 多个线程同时操作同一个对象
@@ -6081,14 +6081,11 @@ java.io.ObjectOutputStream（掌握）
             }
         }
         public static void main(String[] args) {
-            MyThread03 t1 = new MyThread03();
-            MyThread03 t2 = new MyThread03();
-            MyThread03 t3 = new MyThread03();
-            MyThread03 t4 = new MyThread03();
-            new Thread(t1, "joker").start();
-            new Thread(t2, "batman").start();
-            new Thread(t3, "superman").start();
-            new Thread(t4, "ironman").start();
+            MyThread03 ticket = new MyThread03(); // 几个线程共享的东西
+            new Thread(ticket, "joker").start();
+            new Thread(ticket, "batman").start();
+            new Thread(ticket, "superman").start();
+            new Thread(ticket, "ironman").start();
     
         }
     }
@@ -6137,15 +6134,158 @@ java.io.ObjectOutputStream（掌握）
     */
     ```
 
+  - 例2：龟兔赛跑
+
+    - 首先来个赛道距离，然后要离终点越来越近
+    - 判断比赛是否结束
+    - 打印出胜利者
+    - 龟兔赛跑开始
+    - 故事中乌龟是赢的，兔子需要睡觉，所以我们来模拟兔子睡觉
+    - 终于，乌龟赢得比赛。
+
+    ```
+    package com.lzk.test18;
+    
+    public class MyThread04 implements Runnable{
+    
+        private String winner = null;
+    
+        @Override
+        public void run() {
+             boolean flag = false;
+            for(int i = 0; i <= 100; i++){
+                System.out.println(Thread.currentThread().getName() + "跑了" + i + "步！");
+                if(Thread.currentThread().getName().equals("兔子") && i % 30 == 0){
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                flag = gameOver(i);
+                if(flag){
+                    break;
+                }
+            }
+        }
+    
+        private boolean gameOver(int step){
+            if(winner != null){
+                return true;
+            }else{
+                if(step >= 100){
+                    winner = Thread.currentThread().getName();
+                    System.out.println("winner is " + winner);
+                    return true;
+                }
+            }
+            return false;
+        }
+    
+        public static void main(String[] args) {
+            MyThread04 runway = new MyThread04();
+            new Thread(runway, "兔子").start();
+            new Thread(runway, "乌龟").start();
+        }
+    }
+    
+    ```
+
     
 
 - 实现Callable接口（了解）
 
-  
+
+### 21.2.2 Lamda表达式
+
+- 为什么要使用Lamda表达式？
+
+  - 避免匿名内部类定义过多；
+  - 可以让你的代码看起来更简洁；
+  - 去掉了一堆没有意义的代码，只留下核心的逻辑。
+
+- 理解Functional Interface（函数式接口）是学习Java8 Lambda表达式的关键所在。
+
+  - 函数式接口的定义：
+
+    - 任何接口，如果只包含唯一一个抽象方法，那么它就是一个函数式接口。
+
+      ```java
+      public Interface Runnable{
+      	public abstract void run();
+      }
+      ```
+
+    - 对于函数式接口，我们可以通过lambda表达式来创建该接口的对象。
+
+  - 注意：
+
+    - lambda表达式只能有一行代码的情况下才能简化成为一行，如果有多行，那么就用代码块包裹；
+    - 前提是接口为函数式接口
+    - 多个参数也可以去掉参数类型，要去掉就都去掉，但必须加上括号。
+
+### 21.2.3 静态代理模式
+
+- 真实对象和代理对象都要实现同一个接口；
+- 代理对象要代理真实角色；
+- 好处
+  - 代理对象可以做很多真是对象做不了的事情
+  - 真实对象专注做自己的事情；
 
 ## 21.3 线程状态
 
+### 21.3.1 线程的五种状态
 
+![image-20240619112543462](assets/image-20240619112543462.png)
+
+### 21.3.2 线程方法
+
+```
+更改线程的优先级
+setPriority(int newPriority)
+
+在指定的毫秒数内让当前正在执行的线程休眠
+static void sleep(long millis)
+
+等待线程终止
+void join()
+
+暂停当前正在执行的线程对象，并执行其他线程
+static void yield()
+
+中断线程(不建议使用这种方式)
+void interrupt()
+
+测试线程是否处于活动状态
+boolean isAlive()
+```
+
+### 21.3.3 停止线程
+
+- 不推荐使用JDK提供的stop()、destroy()方法，已废弃。
+
+- 推荐线程自己停下来。
+
+- 建议使用一个标志位进行终止变量，当flag=false，则终止线程运行。
+
+  ```java
+  public class TestStop implements Runnable{
+  	//1.线程中定义线程体使用的标识
+  	private boolean flag = true;
+  	public void run(){
+  		//2.线程体使用该标识
+  		while(flag){
+  			System.out.println("run.. Thread");
+  		}
+  	}
+  	//3.对外提供方法改变标识
+  	public void stop(){
+  		this.flag = false;
+  	}
+  }
+  ```
+
+  
 
 ## 21.4 线程同步（重点）
 
