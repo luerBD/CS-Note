@@ -6260,32 +6260,168 @@ void interrupt()
 boolean isAlive()
 ```
 
-### 21.3.3 停止线程
+- 停止线程
 
-- 不推荐使用JDK提供的stop()、destroy()方法，已废弃。
+  - 不推荐使用JDK提供的stop()、destroy()方法，已废弃。
 
-- 推荐线程自己停下来。
 
-- 建议使用一个标志位进行终止变量，当flag=false，则终止线程运行。
+  - 推荐线程自己停下来。
 
-  ```java
-  public class TestStop implements Runnable{
-  	//1.线程中定义线程体使用的标识
-  	private boolean flag = true;
-  	public void run(){
-  		//2.线程体使用该标识
-  		while(flag){
-  			System.out.println("run.. Thread");
-  		}
-  	}
-  	//3.对外提供方法改变标识
-  	public void stop(){
-  		this.flag = false;
-  	}
-  }
-  ```
 
-  
+  - 建议使用一个标志位进行终止变量，当flag=false，则终止线程运行。
+
+    ```java
+    public class TestStop implements Runnable{
+    	//1.线程中定义线程体使用的标识
+    	private boolean flag = true;
+    	public void run(){
+    		//2.线程体使用该标识
+    		while(flag){
+    			System.out.println("run.. Thread");
+    		}
+    	}
+    	//3.对外提供方法改变标识
+    	public void stop(){
+    		this.flag = false;
+    	}
+    }
+    ```
+
+
+- 线程休眠
+
+  - 线程休眠
+
+    - sleep(时间)指定当前线程阻塞的毫秒数；
+
+    - sleep存在异常InterruptedException；
+
+    - sleep时间到达后线程进入就绪状态；
+
+    - sleep可以模拟网络延时，倒计时等。
+
+    - 每一个对象都有一个锁，sleep不会释放锁。
+
+  - 例1：模拟倒计时
+
+    ```
+    public class ThreadStopTest02 implements Runnable{
+        @Override
+        public void run() {
+            int num = 10;
+            while(true){
+                System.out.println(num--);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if(num <= 0){
+                    break;
+                }
+            }
+        }
+        public static void main(String[] args) {
+            ThreadStopTest02 t = new ThreadStopTest02();
+            new Thread(t).start();
+        }
+    }
+    ```
+
+  - 例2：模拟时间走
+
+    ```
+    public class ThreadSleepTest01 implements Runnable{
+        @Override
+        public void run() {
+            Date d = new Date();
+            while(true){
+    
+                System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(d));
+                d = new Date(); //更新当前时间
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    
+        public static void main(String[] args) {
+            ThreadSleepTest01 t = new ThreadSleepTest01();
+            new Thread(t).start();
+        }
+    }
+    ```
+
+- 线程礼让
+
+  - 让当前正在执行的线程从运行状态转为就绪状态
+
+  - 让CPU重新调度，礼让不一定成功！看CPU心情。
+
+    ```java
+    public class ThreadYieldTest01 implements Runnable {
+        @Override
+        public void run() {
+            System.out.println(Thread.currentThread().getName() + "开始执行！");
+            Thread.yield();
+            System.out.println(Thread.currentThread().getName() + "结束执行！");
+        }
+    
+        public static void main(String[] args) {
+            ThreadYieldTest01 t = new ThreadYieldTest01();
+            new Thread(t, "joker").start();
+            new Thread(t, "batman").start();
+        }
+    }
+    
+    ```
+
+- 线程强制执行
+
+  - join合并线程，待此线程执行完成后，再执行其他线程，其他线程阻塞。
+
+  - 可以想象成插队。
+
+    ```
+    public class ThreadJoinTest01 implements Runnable{
+    
+        @Override
+        public void run() {
+            for(int i = 0; i < 1000; i++){
+                System.out.println("分支线程--->" + i);
+            }
+        }
+    
+        public static void main(String[] args) {
+            ThreadJoinTest01 t = new ThreadJoinTest01();
+            Thread thread = new Thread(t);
+            thread.start();
+            for(int i = 0; i < 500; i++){
+                System.out.println("主线程--->" + i);
+                if(i == 450){
+                    try {
+                        thread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+- 线程状态观测
+
+  - Thread.State查看线程状态，线程可以处于以下状态之一：
+    - NEW：尚未启动的线程处于此状态。
+    - RUNNABLE：再Java虚拟机中执行的线程处于此状态。
+    - BLOCKED：被阻塞等待监视器锁定的线程处于此状态。
+    - WAITING：正在等待另一个线程执行特定动作的线程处于此状态。
+    - TIMED_WAITING：正在等待另一个线程执行动作达到指定等待时间的线程处于此状态。
+    - TERMINATED：已退出的线程处于此状态。
+    - 一个线程可以再给定时间点处于一个状态，这些状态是不反应任何操作系统线程状态的虚拟机状态。
 
 ## 21.4 线程同步（重点）
 
