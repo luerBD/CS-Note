@@ -2820,6 +2820,10 @@ arraycopy(Object src,  int srcPos, Object dest, int destPos, int length);
 
 - 注意：对数组中存储引用数据类型的情况，要会画它的内存结构图。
 
+### 16.1.6 数组的排序：Arrays.sort()方法
+
+底层是快速排序。
+
 # 17.常用类
 
 ## 17.1 String类
@@ -6416,12 +6420,120 @@ boolean isAlive()
 
   - Thread.State查看线程状态，线程可以处于以下状态之一：
     - NEW：尚未启动的线程处于此状态。
+
     - RUNNABLE：再Java虚拟机中执行的线程处于此状态。
+
     - BLOCKED：被阻塞等待监视器锁定的线程处于此状态。
+
     - WAITING：正在等待另一个线程执行特定动作的线程处于此状态。
+
     - TIMED_WAITING：正在等待另一个线程执行动作达到指定等待时间的线程处于此状态。
+
     - TERMINATED：已退出的线程处于此状态。
+
     - 一个线程可以再给定时间点处于一个状态，这些状态是不反应任何操作系统线程状态的虚拟机状态。
+
+      ```java
+      public class StateTest01 implements Runnable{
+      
+      
+          @Override
+          public void run() {
+              for (int i = 0; i < 5; i++) {
+                  try {
+                      Thread.sleep(1000);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+              }
+          }
+      
+          public static void main(String[] args) {
+              // 新生状态
+              StateTest01 t = new StateTest01();
+              Thread thread =  new Thread(t);
+              Thread.State state = thread.getState();
+              System.out.println(state);
+      
+              // 运行状态
+              thread.start();
+              state = thread.getState();
+              System.out.println(state);
+      
+              // 等待或终止状态
+              while(state != Thread.State.TERMINATED){
+                  try {
+                      Thread.sleep(100);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+                  state = thread.getState();
+                  System.out.println(state);
+              }
+          }
+      }
+      
+      ```
+
+- 线程优先级
+
+
+  - Java提供一个线程调度器来监控程序中启动后进入就绪状态的所有线程，线程调度器按照优先级决定应该调度哪个线程来执行。
+
+  - 线程的优先级用数字表示，范围从1~10.
+
+    ```
+    Thread.MIN_PRIORITY = 1;
+    Thread.MAX_PRIORITY = 10;
+    Thread.NORM_PRIORITY = 5;
+    ```
+
+    - 注：优先级低只是意味着获得调度的概率低，并不是优先级低就不会被调用了，这都是看CPU的调度。
+    - 注：优先级高只是意味着获得调度的概率高，但是这并不能保证高优先级的线程会在低优先级的线程前执行。
+    - 注：优先级的设定建议在start()调度前。
+
+  - 使用以下方式获取优先级或改变优先级
+
+    ```
+    .getPriority()
+    .setPriority(int xxx)
+    ```
+
+    ```
+    public class PriorityTest01 {
+        public static void main(String[] args) {
+            MyThread t = new MyThread();
+            Thread thread1 = new Thread(t, "T-A");
+            Thread thread2 = new Thread(t, "T-B");
+            Thread thread3 = new Thread(t, "T-C");
+            Thread thread4 = new Thread(t, "T-D");
+            Thread thread5 = new Thread(t, "T-E");
+    
+            thread1.setPriority(1);
+            thread2.setPriority(3);
+            thread3.setPriority(5);
+            thread4.setPriority(7);
+            thread5.setPriority(Thread.MAX_PRIORITY);
+            thread1.start();
+            thread2.start();
+            thread3.start();
+            thread4.start();
+            thread5.start();
+    
+        }
+    }
+    
+    class MyThread implements Runnable{
+    
+        @Override
+        public void run() {
+            System.out.println(Thread.currentThread().getName() + "--->" + Thread.currentThread().getPriority());
+        }
+    }
+    ```
+
+    
+
 
 ## 21.4 线程同步（重点）
 
