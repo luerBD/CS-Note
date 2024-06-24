@@ -166,147 +166,102 @@
 
   
 
-- 解法1：修改数组
-
-  ```c
-  #include<stdio.h>
-  int duplicate(int numbers[], int length, int* duplication)
-  {
-  	int i;
-  	if (numbers == NULL || length <= 0)
-  	{
-  		return 0;
-  	}
-  	for (i = 0; i < length; ++i)
-  	{
-  		if (numbers[i] < 0 || numbers[i] > length - 1)
-  		{
-  			return 0;
-  		}
-  	}
-  	for (i = 0; i < length; ++i)
-  	{
-  		while (numbers[i] != i)
-  		{
-  			if (numbers[i] != numbers[numbers[i]])
-  			{
-  				*duplication = numbers[i];
-  				return 1;
-  			}
-  			int temp = numbers[i];
-  			numbers[i] = numbers[numbers[i]];
-  			numbers[numbers[i]] = temp;
-  		}
-  	}
-  	return 0;
-  }
-  ```
-
-- 解法2：不修改数组
-
-  ```c++
-  #include <iostream>
-  using namespace std;
-  int countRange(const int* numbers, int length, int start, int end)
-  {
-  	int count = 0;
-  	if (numbers == NULL || length <= 0)
-  	{
-  		return 0;
-  	}
-  	for (int i = 0; i < length; i++)
-  	{
-  		if (numbers[i] >= start && numbers[i] <= end)
-  		{
-  			count++;
-  		}
-  	}
-  	return count;
-  }
-  int getDuplication(const int* numbers, int length) 
-  {
-  	if (numbers == NULL || length <= 0) 
-  	{
-  		return -1;
-  	}
-  	int start = 1, end = length - 1;
-  	while (start <= end) 
-  	{
-  		int middle = ((end - start) >> 1) + start;
-  		int count = countRange(numbers, length, start, middle);
-  		if (start == end) 
-  		{
-  			if (count > 1) 
-  			{
-  				return start;
-  			}
-  			else 
-  			{
-  				break;
-  			}
-  		}
-  		if (count > middle - start + 1)
-  		{
-  			end = middle;
-  		}
-  		else 
-  		{
-  			start = middle + 1;
-  		}
-  	}
-  	return -1;
-  }
-  
-  ```
-
 
 ### 1.1.2 二维数组中的查找
 
-```cpp
-#include <iostream>
-using namespace std;
-bool Find(int matrix[][4], int rows, int columns, int number)
-{
-	bool found = false;
-	if (matrix != nullptr && rows > 0 && columns > 0) 
-	{
-		int row = 0;
-		int column = columns - 1;
-		while (row < rows && column >= 0) 
-		{
-			if (matrix[row][column] == number)
-			{
-				found = true;
-				break;
-			}
-			else if (matrix[row][column] > number)
-			{
-				--column;
-			}
-			else 
-			{
-				++row;
-			}
-		}
-	}
-	return found;
-}
+- 题目描述
 
-int main() 
-{
-	int matrix[][4] = 
-	{
-		{1, 2, 8, 9},
-		{2, 4, 9, 12},
-		{4, 7, 10, 13},
-		{6, 8, 11, 15}
-	};
-	int rows = sizeof(matrix) / sizeof(matrix[0]);
-	int column = sizeof(matrix[0]) / sizeof(matrix[0][0]);
-	cout << Find(matrix, rows, column, 7) << endl;
-	return 0;
-}
-```
+  ```
+  在一个 n * m 的二维数组中，每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。
+  请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。
+  ```
+
+- 测试用例
+
+  - 一般是考虑功能用例，特殊（边缘）用例或者是反例，无效测试用例这三种情况。甚至可以从测试用例寻找一些规律解决问题，同时也可以让我们的程序更加完整鲁棒。
+    - 功能用例：待查找数字在二维数组中（包括最大值最小值）
+    - 反例：待查找数字不在二维数组中（在最大最小之间，不在最大最小之间）
+    - 无效用例：数组是null，或者没有元素
+
+- 分析
+
+  - 下面是几种解法思路以及时间空间复杂度比较。
+
+    - 法1：暴力查找
+
+      ```
+      该方法不考虑题目的排序条件，直接遍历二维数组，找到返回true，否则返回false。
+      时间空间复杂度O(m*n),O(1) 
+      ```
+
+    - 法2：线性查找
+
+      ```
+      该方法和二分查找有点类似（通过排除一部分元素达到快速找到的目的）。
+      
+      二分查找是取中间元素进行比较，然后判断目标值在左边还是右边。
+      
+      该题目虽然不能直接利用二分思想对二维数组进行处理，但是思想是一样的，可以逐行逐列进行排除。
+      
+      如：利用二维数组排序特点，选取右上角的元素作比较，（1）如果相等直接返回，（2）如果目标值小与该值，则可以排除最右边一列，（3）否则排除最上面一行。通过这种方法可以不断缩小查找区域，最终解决问题。选取左下角元素比较同理。
+      
+      具体过程：
+      若数组为空，返回 false
+      初始化行下标为 0，列下标为二维数组的列数减 1
+      重复下列步骤，直到行下标或列下标超出边界
+      获得当前下标位置的元素 num
+      如果 num 和 target 相等，返回 true
+      如果 num 大于 target，列下标减 1
+      如果 num 小于 target，行下标加 1
+      循环体执行完毕仍未找到元素等于 target ，说明不存在这样的元素，返回 false。
+      
+      时间空间复杂度O (m + n),O(1)
+      ```
+
+- 代码
+
+  ```java
+  public class FindNumberIn2DArray {
+  	// 解法1：暴力查找（比较简单不再赘述）
+  
+  	// 解法2：线性查找
+      public static boolean findNumberIn2DArray(int[][] matrix, int target) {
+          // 无效输入
+          if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+              return false;
+          }
+          // 特殊情况处理（小与最小值、大于最大值，直接返回）
+          if (matrix[0][0] > target || matrix[matrix.length - 1][matrix[0].length - 1] < target) {
+              return false;
+          }
+          int row = 0;
+          int column = matrix[0].length - 1;
+          while (row < matrix.length && column >= 0) {
+              if (matrix[row][column] == target) {
+                  return true;
+              } else if (matrix[row][column] > target) {
+                  column--;
+              } else {
+                  row++;
+              }
+          }
+          return false;
+      }
+  
+      public static void main(String[] args) {
+          int[][] m = {{1, 4, 7, 11, 15},
+                  {2, 5, 8, 12, 19},
+                  {3, 6, 9, 16, 22},
+                  {10, 13, 14, 17, 24},
+                  {18, 21, 23, 26, 30}
+          };
+          System.out.println(findNumberIn2DArray(m, 5));
+          System.out.println(findNumberIn2DArray(m, 50));
+      }
+  }
+  ```
+
+  
 
 ## 1.2 字符串
 
