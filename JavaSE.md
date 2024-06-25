@@ -6267,29 +6267,30 @@ boolean isAlive()
 - 停止线程
 
   - 不推荐使用JDK提供的stop()、destroy()方法，已废弃。
-
-
-  - 推荐线程自己停下来。
-
-
-  - 建议使用一个标志位进行终止变量，当flag=false，则终止线程运行。
-
-    ```java
-    public class TestStop implements Runnable{
-    	//1.线程中定义线程体使用的标识
-    	private boolean flag = true;
-    	public void run(){
-    		//2.线程体使用该标识
-    		while(flag){
-    			System.out.println("run.. Thread");
-    		}
-    	}
-    	//3.对外提供方法改变标识
-    	public void stop(){
-    		this.flag = false;
-    	}
-    }
-    ```
+  
+  
+    - 推荐线程自己停下来。
+  
+  
+    - 建议使用一个标志位进行终止变量，当flag=false，则终止线程运行。
+  
+      ```java
+      public class TestStop implements Runnable{
+      	//1.线程中定义线程体使用的标识
+      	private boolean flag = true;
+      	public void run(){
+      		//2.线程体使用该标识
+      		while(flag){
+      			System.out.println("run.. Thread");
+      		}
+      	}
+      	//3.对外提供方法改变标识
+      	public void stop(){
+      		this.flag = false;
+      	}
+      }
+      ```
+  
 
 
 - 线程休眠
@@ -6384,7 +6385,7 @@ boolean isAlive()
 
 - 线程强制执行
 
-  - join合并线程，待此线程执行完成后，再执行其他线程，其他线程阻塞。
+  - join合并线程，其他线程处于阻塞状态，待此线程执行完成后，再执行其他线程。
 
   - 可以想象成插队。
 
@@ -6478,56 +6479,117 @@ boolean isAlive()
 - 线程优先级
 
 
-  - Java提供一个线程调度器来监控程序中启动后进入就绪状态的所有线程，线程调度器按照优先级决定应该调度哪个线程来执行。
+    - Java提供一个线程调度器来监控程序中启动后进入就绪状态的所有线程，线程调度器按照优先级决定应该调度哪个线程来执行。
 
-  - 线程的优先级用数字表示，范围从1~10.
 
-    ```
-    Thread.MIN_PRIORITY = 1;
-    Thread.MAX_PRIORITY = 10;
-    Thread.NORM_PRIORITY = 5;
-    ```
 
-    - 注：优先级低只是意味着获得调度的概率低，并不是优先级低就不会被调用了，这都是看CPU的调度。
-    - 注：优先级高只是意味着获得调度的概率高，但是这并不能保证高优先级的线程会在低优先级的线程前执行。
-    - 注：优先级的设定建议在start()调度前。
+    - 线程的优先级用数字表示，范围从1~10.
+
+      ```
+      Thread.MIN_PRIORITY = 1;
+      Thread.MAX_PRIORITY = 10;
+      Thread.NORM_PRIORITY = 5;
+      ```
+
+      - 注：优先级低只是意味着获得调度的概率低，并不是优先级低就不会被调用了，这都是看CPU的调度。
+      - 注：优先级高只是意味着获得调度的概率高，但是这并不能保证高优先级的线程会在低优先级的线程前执行。
+      - 注：优先级的设定建议在start()调度前。
+
+
 
   - 使用以下方式获取优先级或改变优先级
 
+      ```
+      .getPriority()
+      .setPriority(int xxx)
+      ```
+
+      ```
+      public class PriorityTest01 {
+          public static void main(String[] args) {
+              MyThread t = new MyThread();
+              Thread thread1 = new Thread(t, "T-A");
+              Thread thread2 = new Thread(t, "T-B");
+              Thread thread3 = new Thread(t, "T-C");
+              Thread thread4 = new Thread(t, "T-D");
+              Thread thread5 = new Thread(t, "T-E");
+      
+              thread1.setPriority(1);
+              thread2.setPriority(3);
+              thread3.setPriority(5);
+              thread4.setPriority(7);
+              thread5.setPriority(Thread.MAX_PRIORITY);
+              thread1.start();
+              thread2.start();
+              thread3.start();
+              thread4.start();
+              thread5.start();
+      
+          }
+      }
+      
+      class MyThread implements Runnable{
+      
+          @Override
+          public void run() {
+              System.out.println(Thread.currentThread().getName() + "--->" + Thread.currentThread().getPriority());
+          }
+      }
+      ```
+
+- 守护线程
+
+
+  - java语言中线程分为两大类：用户线程和守护线程（后台线程），其中具有代表性的就是 垃圾回收线程（守护线程）。
+
+  - 守护线程的特点：一般守护线程是一个死循环，所有的用户线程只要结束，守护线程自动结束。
+
+
+    - 注意：主线程main方法是一个用户线程。
+
+  - 守护线程用在什么地方呢？
+
+
+    - 每天00:00的时候系统数据自动备份。这个需要使用到定时器，并且我们可以将定时器设置为守护线程。让它一直在那里看着，每到00:00的时候就备份一次。所有的用户线程如果结束了，守护线程自动退出，没有必要进行数据备份了。
+
+  - 将一个线程设置为守护线程：
+
     ```
-    .getPriority()
-    .setPriority(int xxx)
+    void setDaemon(boolean on)：实例方法，将一个用户线程设置为守护线程；
     ```
 
     ```
-    public class PriorityTest01 {
+    public class DaemonTest01 {
         public static void main(String[] args) {
-            MyThread t = new MyThread();
-            Thread thread1 = new Thread(t, "T-A");
-            Thread thread2 = new Thread(t, "T-B");
-            Thread thread3 = new Thread(t, "T-C");
-            Thread thread4 = new Thread(t, "T-D");
-            Thread thread5 = new Thread(t, "T-E");
-    
-            thread1.setPriority(1);
-            thread2.setPriority(3);
-            thread3.setPriority(5);
-            thread4.setPriority(7);
-            thread5.setPriority(Thread.MAX_PRIORITY);
-            thread1.start();
-            thread2.start();
-            thread3.start();
-            thread4.start();
-            thread5.start();
-    
+            God god = new God();
+            You you = new You();
+            Thread tGod = new Thread(god);
+            Thread tYou = new Thread(you);
+            tGod.setDaemon(true);
+            tGod.start();
+            tYou.start();
         }
-    }
     
-    class MyThread implements Runnable{
+    }
+    class You implements Runnable{
     
         @Override
         public void run() {
-            System.out.println(Thread.currentThread().getName() + "--->" + Thread.currentThread().getPriority());
+            for(int i = 0; i < 365000; i++){
+                System.out.println("你活着！");
+            }
+            System.out.println("=====你走了！=========");
+        }
+    }
+    
+    class God implements Runnable{
+    
+        @Override
+        public void run() {
+            while(true){
+                System.out.println("上帝保护！");
+            }
+    
         }
     }
     ```
@@ -6537,7 +6599,98 @@ boolean isAlive()
 
 ## 21.4 线程同步（重点）
 
+### 21.4.1 线程同步基本概念
 
+- 并发：同一个对象被多个线程同时操作。
+  - 例如：上万人同时抢100张票，两个银行同时对一个账户取钱。
+- 处理多线程问题时，多个线程访问同一个对象，并且某些线程还想修改这个对象，这时候我们就需要线程同步。线程同步其实就是一种等待机制，多个需要同时访问此对象的线程进入这个对象的等待池 形成队列，等待前面的线程使用完毕，下一个线程再使用。
+- 由于同一进程的多个线程共享同一块存储空间，在带来方便的同时，也带来了访问冲突问题，为了保证数据在方法中被访问时的正确性，在访问时加入锁机制（synchronized），当一个线程同时获得对象的排它锁，独占资源，其他线程必须等待，使用后释放锁即可，但存在以下问题。
+  - 一个线程持有锁会导致其他所有需要此锁的线程挂起；
+  - 在多线程竞争下，加锁或释放锁会导致比较多的上下文切换 和 调度延时，引起性能问题。
+  - 如果一个优先级高的线程等待一个优先级低的线程释放锁，会导致优先级倒置，引起性能问题。
+
+### 21.4.2 三大线程不安全案例
+
+- 案例1：多个线程在同一车站买票
+
+  - 问题：多个线程可能会同时读取到相同的ticketNum值，从而导致多个线程“拿到”同一张票。
+
+  ```java
+  public class ThreadUnsafeTest01 {
+      public static void main(String[] args) {
+          Station station = new Station();
+          new Thread(station, "A").start();
+          new Thread(station, "B").start();
+          new Thread(station, "C").start();
+          new Thread(station, "D").start();
+  
+      }
+  }
+  class Station implements Runnable{
+      private int ticketNum = 10;
+      private boolean flag = true;
+      @Override
+      public void run() {
+          while(flag){
+              try {
+                  buyTicket();
+              } catch (InterruptedException e) {
+                  e.printStackTrace();
+              }
+          }
+      }
+      private void buyTicket() throws InterruptedException {
+          if(ticketNum <= 0){
+              flag = false;
+              return;
+          }
+          Thread.sleep(100);
+          System.out.println(Thread.currentThread().getName() + "拿到了第" + ticketNum + "票！");
+          ticketNum = ticketNum - 1;
+      }
+  }
+  ```
+
+- 案例2：两个线程对同一账户取款
+
+  ```java
+  public class ThreadUnsafeTest02 {
+      public static void main(String[] args) {
+          Account act = new Account("12232077", 10000);
+          new Thread(act, "joker").start();
+          new Thread(act, "batman").start();
+      }
+  
+  }
+  class Account implements Runnable{
+      public String actNo;   // 账号
+      public int balance;    // 余额
+  
+      public Account() {
+      }
+  
+      public Account(String actNo, int balance) {
+          this.actNo = actNo;
+          this.balance = balance;
+      }
+  
+      @Override
+      public void run() {
+          int money = 5000;
+          withDraw(money);
+          System.out.println(Thread.currentThread().getName() + "在" + actNo + "账户中取款" + money + "，还剩" + balance + "元");
+  
+      }
+      public void withDraw(int money){
+          int before = balance;
+          int after = before - money;
+  
+          balance = after;
+      }
+  }
+  ```
+
+  
 
 ## 21.5 线程通信问题
 
