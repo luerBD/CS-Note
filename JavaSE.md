@@ -6027,9 +6027,245 @@ java.io.ObjectOutputStream（掌握）
   - 抢占式调度策略
     - 让优先级高的线程以较大的概率优先获得CPU的执行权，如果线程的优先级相同，那么就会随机选择一个线程获得CPU的执行权，而Java采用的就是抢占式调用。
 
-21.4 实现线程
+## 21.4 实现线程
 
-21.5 线程的生命周期
+### 21.4.1 实现方式1：继承Thread类
+
+- 步骤
+
+  - 编写一个类继承Thread，重写run方法。
+
+  - 创建线程对象：Thread t = new MyThread();
+
+  - 启动线程：t.start();
+
+- 例1：继承Thread类，实现一个线程
+
+  ```java
+  // 调用start()后就会启动一个新线程
+  // Java中有一个语法规则，对于方法体中的代码必须遵循自上而下的顺序依次逐行执行
+  // start()不结束，main()是无法继续往下执行的
+  // start()的特点是会瞬间结束，因为start()作用就是启动一个新的线程，只要新线程启动成功了，start()就结束了
+  public class MyThreadTest01  {
+      public static void main(String[] args) {
+          Thread t = new MyThread();
+          t.start();
+          for(int i = 0; i < 100; i++){
+              System.out.println("主线程--->" + i);
+          }
+      }
+  }
+  class MyThread extends Thread{
+      @Override
+      public void run() {
+          for(int i = 0; i < 100; i++){
+              System.out.println("分支线程--->" + i);
+          }
+      }
+  }
+  
+  ```
+
+  - 以上程序的内存图如下：
+
+    <img src="assets/image-20240627093749902.png" alt="image-20240627093749902" style="zoom: 50%;" />
+
+- 例2：继承Thread类，实现一个线程，不调用线程的start(), 而直接调用线程的run()会发生什么。
+
+  ```java
+  // 直接调用run()，不会启动新的线程
+  // Java中有一个语法规则，对于方法体中的代码，必须遵循自上而下的顺序依次执行。
+  // run()不结束，main()是无法继续往下执行的
+  
+  public class MyThreadTest01  {
+      public static void main(String[] args) {
+          Thread t = new MyThread();
+          t.run();
+          for(int i = 0; i < 100; i++){
+              System.out.println("主线程--->" + i);
+          }
+      }
+  }
+  class MyThread extends Thread{
+      @Override
+      public void run() {
+          for(int i = 0; i < 100; i++){
+              System.out.println("分支线程--->" + i);
+          }
+      }
+  }
+  // 会输出完"分支线程--->0"~"分支线程--->99"
+  // 再输出"主线程--->0" ~ "主线程--->99"
+  ```
+
+  - 以上程序的内存图如下：
+
+    <img src="assets/image-20240627093829873.png" alt="image-20240627093829873" style="zoom: 50%;" />
+
+### 21.4.2 实现方式2：实现Runnable接口
+
+- 步骤
+
+  - 编写一个类实现Runnable接口，实现run方法。
+  - 创建线程对象：Thread t = new Thread(new MyRunnable());
+  - 启动线程：t.start();
+
+- 例：实现Runnable接口，实现一个线程
+
+  ```java
+  public class MyThreadTest02 {
+      public static void main(String[] args) {
+          Thread t = new Thread(new MyRunnable());
+          t.start();
+          for(int i = 0; i < 100; i++){
+              System.out.println("主线程--->" + i);
+          }
+      }
+  }
+  
+  class MyRunnable implements Runnable{
+  
+      @Override
+      public void run() {
+          for(int i = 0; i < 100; i++){
+              System.out.println("分支线程--->" + i);
+          }
+      }
+  }
+  ```
+
+- 注：优先选择第二种方式：因为实现接口的同时，保留了类的继承。
+
+- 第二种方式也可以使用匿名内部类。
+
+  ```java
+  public class MyThreadTest03 {
+      public static void main(String[] args) {
+          Thread t = new Thread(new Runnable() {
+              @Override
+              public void run() {
+                  for(int i = 0; i < 100; i++){
+                      System.out.println("分支线程--->" + i);
+                  }
+              }
+          });
+          t.start();
+          for(int i = 0; i < 100; i++){
+              System.out.println("主线程--->" + i);
+          }
+      }
+  }
+  ```
+
+### 21.4.3 线程常用的三个方法
+
+- 实例方法
+
+  ```
+  String getName(); 
+  void setName(String name);
+  ```
+
+- 静态方法
+
+  ```
+  static Thread currentThread();
+  ```
+
+- 例1：获取主线程和分支线程的默认名称
+
+  ```java
+  public class MyThreadTest04 {
+      public static void main(String[] args) {
+          System.out.println(Thread.currentThread().getName());
+          Thread t1 = new MyThread02();
+          Thread t2 = new MyThread02();
+          t1.start();
+          t2.start();
+      }
+  }
+  class MyThread02 extends Thread{
+      @Override
+      public void run() {
+          System.out.println("分支线程--->" + Thread.currentThread().getName());
+      }
+  }
+  ```
+
+- 例2：修改主线程的名称
+
+  ```java
+  public class MyThreadTest05 {
+      public static void main(String[] args) {
+          Thread.currentThread().setName("newMain");
+          System.out.println(Thread.currentThread().getName());
+      }
+  }
+  ```
+
+- 例3：用实例方法修改分支线程的名称
+
+  ```java
+  public class MyThreadTest05 {
+      public static void main(String[] args) {
+          Thread t1 = new MyThread03();
+          Thread t2 = new MyThread03();
+          t1.setName("joker");
+          t2.setName("batman");
+          t1.start();
+          t2.start();
+      }
+  }
+  
+  class MyThread03 extends Thread{
+      @Override
+      public void run() {
+          System.out.println("分支线程--->" + Thread.currentThread().getName());
+      }
+  }
+  ```
+
+- 例4：用构造方法修改分支线程的名称
+
+  ```java
+  public class MyThreadTest06 {
+      public static void main(String[] args) {
+          Thread t1 = new MyThread04("joker");
+          Thread t2 = new MyThread04("batman");
+          t1.start();
+          t2.start();
+      }
+  }
+  
+  class MyThread04 extends Thread{
+      public MyThread04(String name) {
+          super(name);
+      }
+  
+      @Override
+      public void run() {
+          System.out.println("分支线程--->" + Thread.currentThread().getName());
+      }
+  }
+  ```
+
+  
+
+## 21.5 线程的生命周期
+
+- 线程生命周期指的是：从线程对象新建，到最终线程死亡的整个过程。
+
+- 线程生命周期包括七个重要阶段：
+
+  ```
+  新建状态（NEW）
+  就绪状态（RUNNABLE）
+  运行状态（RUNNABLE）
+  超时等待状态（TIMED_WAITING）
+  等待状态（WAITING）
+  阻塞状态（BLOCKED）
+  死亡状态（TERMINATED）
+  ```
 
 21.6 线程的休眠与终止
 

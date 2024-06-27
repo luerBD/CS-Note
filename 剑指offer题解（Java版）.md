@@ -267,6 +267,107 @@
 
 ### 1.2.1 替换空格
 
+- 题目描述：实现一个函数，把字符串中的每个空格都替换成“%20”。
+
+- 测试用例：一般是考虑功能用例，特殊（边缘）用例或者是反例，无效测试用例这三种情况。甚至可以从测试用例寻找一些规律解决问题，同时也可以让我们的程序更加完整鲁棒。
+
+  - 功能用例：字符串有一个或者多个空格
+  - 反例：字符串没有空格，或字符串长度为0
+  - 无效用例：数组是null
+
+- 分析：由于在Java中字符串String类型是不可变类型，所以没办法像C++一样在原来的字符串上进行修改，因此必须要开一个新的空间进行处理。下面是几种解法思路以及时间空间复杂度比较。
+
+  - 解法1：利用Java字符串工具库（不建议）
+
+    ```
+    `s.replace(" ","%20")`，该方法直接满足题意要求，比较简单。
+    ```
+
+  - 解法2：遍历字符串，逐个进行替换
+
+    ```
+    首先遍历字符串记录空格数，然后计算总共需要的空间大小，创建字符数组，并重新遍历字符串，遇到空格替换，否则原字符存入。
+    时间空间复杂度：O(n),O(n)
+    ```
+
+  - 解法3：遍历字符串，利用StringBuild
+
+    ```
+    和解法2类似，只是使用StringBuild进行存储，不需要提前计算字符数组空间。遍历字符串，遇到空格则把%20添加，否则添加原字符。
+    
+    时间空间复杂度：O(n),O(n)
+    ```
+
+- 代码：
+
+  ```
+  public class ReplaceSpaceInString {
+  	//解法2
+      public static String replaceSpaceInString(String s){
+          if (s == null || s.length() == 0) {
+              return s;
+          }
+          int spaceCount = 0;
+          char[] str = new char[32];
+          int i = 0;
+          while(i < s.length()){
+              str[i] = s.charAt(i);
+              if(s.charAt(i) == ' '){
+                  spaceCount++;
+              }
+              i++;
+          }
+          int srcLength = s.length();
+          int destLength = s.length() + spaceCount * 2;
+  
+          int p1 = srcLength, p2 = destLength;
+          while(p1 >= 0 && p2 > p1){
+              if(str[p1] == ' '){
+                  str[p2--] = '0';
+                  str[p2--] = '2';
+                  str[p2--] = '%';
+              }else{
+                  str[p2--] = str[p1];
+              }
+              p1--;
+          }
+  
+          return String.valueOf(str, 0, destLength);
+      }
+  
+  	//解法3
+      public static String replaceSpaceInString2(String s) {
+          if (s == null || s.length() == 0) {
+              return s;
+          }
+  
+          StringBuilder sb = new StringBuilder();
+          for(int i = 0; i < s.length(); i++){
+              char c = s.charAt(i);
+              if(c == ' '){
+                  sb.append("%20");
+              }else{
+                  sb.append(c);
+              }
+          }
+  
+          return String.valueOf(sb);
+      }
+      public static void main(String[] args) {
+          String s = "We are happy.";
+          System.out.println(replaceSpaceInString(s));
+          System.out.println(replaceSpaceInString2(s));
+      }
+  }
+  
+  ```
+
+  
+
+
+
+
+
 ```cpp
 #include <iostream>
 using namespace std;
