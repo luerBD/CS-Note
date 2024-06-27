@@ -418,30 +418,137 @@ void ReplaceBlank(char str[], int length)
 
 ### 1.3.1 从尾到头打印链表
 
-```cpp
-struct ListNode 
-{
-	int data;
-	ListNode* next;
-};
+- 题目描述
 
-void PrintList(ListNode* L) 
-{
-	stack<ListNode*> nodes;
-	ListNode* p = L;
-	while (p != nullptr) 
-	{
-		nodes.push(p);
-		p = p->next;
-	}
-	while (!nodes.empty()) 
-	{
-		cout << nodes.top()->data << " ";
-		nodes.pop();
-	}
-	cout << endl;
-}
-```
+  ```
+  输入一个链表的头节点，从尾到头反过来返回每个节点的值（用数组返回）。
+  要求不能更改链表的结构
+  ```
+
+- 测试用例
+
+  ```
+  一般是考虑功能用例，特殊（边缘）用例或者是反例，无效测试用例这三种情况。甚至可以从测试用例寻找一些规律解决问题，同时也可以让我们的程序更加完整鲁棒。
+  （1）功能用例：链表有多个节点
+  （2）反例：链表只有一个节点
+  （3）无效用例：链表为空
+  ```
+
+- 思路
+
+  - 分析：
+
+    由于需要整型数组作为返回值，所以遍历的时候结果要保存下来，因为不知道节点有多少，所以先用list保存，最后再存到整型数组。
+
+  - 下面是几种解法思路以及时间空间复杂度比较。
+
+    - 解法1：递归实现
+
+      ```
+      递归实现，其过程是从头节点开始递归，直到最后一个节点，然后每层返回时把节点值存到list里面，最后存到整型数组。
+      时间空间复杂度：O(n),O(n)
+      ```
+
+    - 解法2：非递归，利用辅助栈
+
+      ```
+      非递归实现，遍历整个链表，将节点存到辅助栈，最后将栈元素弹到整型数组。
+      时间空间复杂度：O(n),O(n)
+      ```
+
+- 代码
+
+  ```java
+  public class ListNode {
+      public int val;
+      public ListNode next;
+  
+      public ListNode(int val) {
+          this.val = val;
+          this.next = null;
+      }
+  
+      @Override
+      public String toString() {
+          StringBuilder ret = new StringBuilder();
+          for (ListNode cur = this; ; cur = cur.next) {
+              if (cur == null) {
+                  break;
+              }
+              ret.append(cur.val);
+              ret.append("\t");
+          }
+          return ret.toString();
+      }
+  }
+  import java.util.ArrayList;
+  import java.util.List;
+  import java.util.Stack;
+  
+  public class PrintReverseLink {
+      // 解法1：递归实现
+      public static int[] printReversingly1(ListNode head) {
+          if (head == null) {
+              return new int[0];
+          }
+          List<Integer> list = new ArrayList<>();
+          printReversinglyCore1(head, list);
+          int length = list.size();
+          int[] result = new int[length];
+          for (int i = 0; i < length; i++) {
+              result[i] = list.get(i);
+          }
+          return result;
+      }
+  
+      public static void printReversinglyCore1(ListNode node, List<Integer> list) {
+          if (node == null) {
+              return;
+          }
+          printReversinglyCore1(node.next, list);
+          list.add(node.val);
+      }
+  
+      // 解法2：非递归，使用辅助栈
+      public static int[] printReversingly2(ListNode head) {
+          if (head == null) {
+              return new int[0];
+          }
+          ListNode node = head;
+          Stack<Integer> stack = new Stack<>();
+          while (node != null) {
+              stack.add(node.val);
+              node = node.next;
+          }
+          int length = stack.size();
+          int[] result = new int[length];
+          for (int i = 0; i < length; i++) {
+              result[i] = stack.pop();
+          }
+          return result;
+      }
+  
+      public static void main(String[] args) {
+          ListNode head = new ListNode(1);
+          head.next = new ListNode(2);
+          head.next.next = new ListNode(3);
+          System.out.println(head);
+          int[] result1 = printReversingly1(head);
+          for (int i = 0; i < result1.length; i++) {
+              System.out.print(result1[i] + "\t");
+          }
+          System.out.println();
+          int[] result2 = printReversingly2(head);
+          for (int i = 0; i < result2.length; i++) {
+              System.out.print(result2[i] + "\t");
+          }
+          System.out.println();
+      }
+  }
+  
+  ```
+
+  
 
 ## 1.4 二叉树
 
