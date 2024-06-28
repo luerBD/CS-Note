@@ -1,4 +1,4 @@
-1.Java开发环境的搭建
+# 1.Java开发环境的搭建
 
 ## 1.1 常用的dos命令
 
@@ -6266,8 +6266,198 @@ java.io.ObjectOutputStream（掌握）
   阻塞状态（BLOCKED）
   死亡状态（TERMINATED）
   ```
+  
+  ![image-20240628171705627](assets/image-20240628171705627.png)
 
-21.6 线程的休眠与终止
+## 21.6 线程的休眠与终止
+
+### 21.6.1 线程的休眠:sleep()
+
+- sleep()
+
+  ```
+  static void sleep(long millis)
+  静态方法，没有返回值，参数是一个毫秒。1秒=1000毫秒
+  ```
+
+  - sleep()的作用
+
+    - 让当前线程进入休眠，也就是让当前线程放弃占有的CPU时间片，让其进入阻塞状态。意思是：你别再占用CPU了，让给其他线程吧。
+    - 阻塞多久呢？参数毫秒为准。在指定的时间范围内，当前线程没有权利抢夺CPU时间片了。
+    - 如何理解当前线程呢？
+      - Thread.sleep(1000);这个代码出现在哪个线程中，当前线程就是这个线程。
+    - sleep方法可以模拟每隔固定的时间调用一次程序。
+
+  - 例1：模拟倒计时
+
+    ```java
+    public class MyThreadTest07 {
+    
+        public static void main(String[] args) {
+            try {
+                Thread.sleep(5 * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + "刚才等候了五秒，然后分支线程开始执行了！");
+            Thread t = new Thread(new MyThread01());
+            t.start();
+        }
+    }
+    
+    
+    class MyThread01 implements Runnable{
+    
+        @Override
+        public void run() {
+            int i = 5;
+            while(i > 0){
+                System.out.println(Thread.currentThread().getName() + "--->" + i--);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    ```
+
+  - 例2：关于sleep的面试题，以下程序中，是main线程休眠5秒，还是分支线程休眠5秒？
+
+    ```java
+    public class ThreadTest {
+        public static void main(String[] args) {
+            MyThread t = new MyThread();
+            t.setName("t");
+            t.start();
+    
+            try {
+                // 这行代码并不是让t线程睡眠，而是让当前线程睡眠。
+                // 当前线程是main线程。
+                t.sleep(1000 * 5); // 等同于：Thread.sleep(1000 * 5);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+    
+            for (int i = 0; i < 100; i++) {
+                System.out.println(Thread.currentThread().getName() + "===>" + i);
+            }
+        }
+    }
+    
+    class MyThread extends Thread {
+        @Override
+        public void run(){
+            for (int i = 0; i < 100; i++) {
+                System.out.println(Thread.currentThread().getName() + "===>" + i);
+            }
+        }
+    }
+    
+    
+    ```
+
+  - 例3：怎么中断一个线程的睡眠。（怎么解除线程因sleep导致的阻塞，让其开始抢夺CPU时间片。）
+
+    ```java
+    public class ThreadTest {
+        public static void main(String[] args) {
+            // 创建线程对象并启动
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println(Thread.currentThread().getName() + "===> begin");
+                    try {
+                        // 睡眠一年
+                        Thread.sleep(1000 * 60 * 60 * 24 * 365);
+                    } catch (InterruptedException e) {
+                        // 打印异常信息
+                        //e.printStackTrace();
+                        System.out.println("知道了，这就起床！");
+                    }
+                    // 睡眠一年之后，起来干活了
+                    System.out.println(Thread.currentThread().getName() + " do some!");
+                }
+            });
+    
+            // 启动线程
+            t.start();
+    
+            // 主线程
+            // 要求：5秒之后，睡眠的Thread-0线程起来干活
+            try {
+                Thread.sleep(5 * 1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            // Thread-0起来干活了。
+            // 这行代码的作用是终止 t 线程的睡眠。
+            // interrupt方法是一个实例方法。
+            // 以下代码含义：t线程别睡了。
+            // 底层实现原理是利用了：异常处理机制。
+            // 当调用这个方法的时候，如果t线程正在睡眠，必然会抛出：InterruptedException，然后捕捉异常，终止睡眠。
+            t.interrupt();
+        }
+    }
+    ```
+
+### 21.6.2 线程的终止:打标记方式
+
+- 线程的终止不建议使用stop()，容易导致数据丢失，现在最常用的是打标记方式终止线程的执行。
+
+- 例：一般我们在实际开发中会使用打标记的方式，来终止一个线程的执行。
+
+  ```java
+  public class ThreadTest {
+      public static void main(String[] args) {
+          // 创建线程
+          MyRunnable mr = new MyRunnable();
+          Thread t = new Thread(mr);
+          t.setName("t");
+          // 启动线程
+          t.start();
+  
+          // 5秒之后终止线程t的执行
+          try {
+              Thread.sleep(5000);
+          } catch (InterruptedException e) {
+              throw new RuntimeException(e);
+          }
+  
+          //终止线程t的执行。
+          mr.run = false;
+      }
+  }
+  
+  class MyRunnable implements Runnable {
+      /**
+       * 是否继续执行的标记。
+       * true表示：继续执行。
+       * false表示：停止执行。
+       */
+      boolean run = true;
+  
+      @Override
+      public void run() {
+          for (int i = 0; i < 10; i++) {
+              if(run){
+                  System.out.println(Thread.currentThread().getName() + "==>" + i);
+                  try {
+                      Thread.sleep(1000);
+                  } catch (InterruptedException e) {
+                      throw new RuntimeException(e);
+                  }
+              }else{
+                  return;
+              }
+          }
+      }
+  }
+  
+  ```
+
+  
 
 21.7 守护线程
 
@@ -6288,801 +6478,3 @@ java.io.ObjectOutputStream（掌握）
 21.15 线程池实现线程
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 21.1 线程简介
-
-### 21.1.1 进程和线程
-
-- 说起进程，就不得不说一下程序。程序是指令和数据的有序集合，其本身没有任何运行的含义，是一个静态的概念。
-- 而进程则是执行程序的一次执行过程，它是一个动态的概念。是系统资源分配的单位。
-  - 进程就像是一个独立的厨房，每个厨房有自己的一套设备、食材和厨师。每个进程在计算机中是一个独立运行的程序，拥有自己的内存空间和系统资源。进程之间是彼此独立的，就像不同的厨房，互相之间不会直接干扰。
-- 通常在一个进程中可以包含若干个线程，当然一个进程中至少有一个线程，不然没有存在的意义。线程是CPU调度和执行的单位。
-  - 线程可以看作是一个厨房里的不同厨师。虽然他们在同一个厨房里工作，但每个厨师（线程）可以独立处理不同的任务。例如，一个厨师在切菜，另一个在炒菜，还有一个在煮汤。线程共享同一个厨房的资源，比如锅碗瓢盆（内存、文件等）。
-- 注意：很多“多线程”是模拟出来的，真正的多线程是指有多个CPU，即多核，如服务器。如果是模拟出来的多线程，即在一个CPU的情况下，在同一个时间点，CPU只能执行一个代码，因为切换的很快，所以有同时执行的错觉。
-  - 多线程是指在同一个进程（厨房）中有多个线程（厨师）同时工作。这样可以更快地完成任务，因为多个线程可以并行处理不同的任务。
-  - 例如：
-    - 在一个文本编辑器中，一个线程负责响应用户输入，另一个线程负责自动保存文件，还有一个线程负责拼写检查。
-    - 在一个网页浏览器中，一个线程负责加载网页，另一个线程负责渲染图像，还有一个线程负责处理用户的点击操作。
-
-- 普通方法调用和多线程
-
-  <img src="assets/image-20240614101105451.png" alt="image-20240614101105451" style="zoom:50%;" />
-
-- 本章核心概念
-
-  - 线程就是独立的执行路径；
-  - 在程序运行时，积食没有自己创建线程，后台也会有多个线程，如主线程main和gc线程。
-  - main()称之为主线程，为系统的入口，用于执行整个程序。
-  - 在一个进程中，如果开辟了多个线程，线程的运行由调度器安排调度，调度器是与操作系统紧密相关的，先后顺序是不能人为干预的。
-  - 对同一份资源操作时，会存在资源抢夺的问题，需要加入并发控制。
-  - 线程为带来额外的开销，如CPU调度时间，并发控制开销。
-  - 每个线程在自己的工作内存交互，内存控制不当会造成数据不一致。
-
-
-
-## 21.2 线程实现（重点）
-
-### 21.2.1 三种创建方式
-
-- 继承Thread类（重点）
-
-  - 自定义线程类继承Thread类
-
-  - 重写run()方法，编写线程执行体
-
-  - 创建线程对象，调用stat()方法启动线程
-
-  - 注意：线程开启不一定立即执行，由CPU调度执行
-
-    ```java
-    public class MyThread01 extends Thread{
-        @Override
-        public void run() {
-            for(int i = 0; i < 100; i++){
-                System.out.println("分支线程--->" + i);
-            }
-        }
-        public static void main(String[] args) {
-            MyThread01 t = new MyThread01();
-            t.start();
-            for(int i = 0; i < 100; i++){
-                System.out.println("主线程--->" + i);
-            }
-        }
-    }
-    ```
-
-    
-
-- 实现Runnable接口（重点）
-
-  - 定义MyRunnable类实现Runnable接口
-
-  - 实现run()方法，编写线程执行体
-
-  - 创建线程对象，调用start()方法启动线程
-
-  - 注意：推荐使用Runnable对象，因为Java单继承的局限性
-
-    ```java
-    public class MyThread02 implements Runnable{
-        @Override
-        public void run() {
-            for(int i = 0; i < 100; i++){
-                System.out.println("分支线程--->" + i);
-            }
-        }
-    
-        public static void main(String[] args) {
-    
-            MyThread02 t = new MyThread02();
-            new Thread(t).start();
-    
-            for(int i = 0; i < 100; i++){
-                System.out.println("主线程-->" + i);
-            }
-        }
-    }
-    ```
-
-  - 例：发现问题：多个线程操作同一个资源的情况下，线程不安全，数据紊乱
-
-    ```java
-    // 多个线程同时操作同一个对象
-    // 买火车票的例子
-    public class MyThread03 implements Runnable{
-        private int ticketNumber = 10;
-        @Override
-        public void run() {
-            while(true){
-                if(ticketNumber <= 0){
-                    break;
-                }
-                System.out.println(Thread.currentThread().getName() + "抢到了第" + this.ticketNumber-- + "票");
-            }
-        }
-        public static void main(String[] args) {
-            MyThread03 ticket = new MyThread03(); // 几个线程共享的东西
-            new Thread(ticket, "joker").start();
-            new Thread(ticket, "batman").start();
-            new Thread(ticket, "superman").start();
-            new Thread(ticket, "ironman").start();
-    
-        }
-    }
-    /*
-    ironman抢到了第10票
-    ironman抢到了第9票
-    ironman抢到了第8票
-    ironman抢到了第7票
-    batman抢到了第10票
-    superman抢到了第10票
-    joker抢到了第10票
-    joker抢到了第9票
-    joker抢到了第8票
-    superman抢到了第9票
-    superman抢到了第8票
-    superman抢到了第7票
-    superman抢到了第6票
-    superman抢到了第5票
-    batman抢到了第9票
-    ironman抢到了第6票
-    ironman抢到了第5票
-    ironman抢到了第4票
-    ironman抢到了第3票
-    batman抢到了第8票
-    batman抢到了第7票
-    batman抢到了第6票
-    batman抢到了第5票
-    superman抢到了第4票
-    joker抢到了第7票
-    superman抢到了第3票
-    batman抢到了第4票
-    ironman抢到了第2票
-    batman抢到了第3票
-    superman抢到了第2票
-    joker抢到了第6票
-    superman抢到了第1票
-    batman抢到了第2票
-    ironman抢到了第1票
-    batman抢到了第1票
-    joker抢到了第5票
-    joker抢到了第4票
-    joker抢到了第3票
-    joker抢到了第2票
-    joker抢到了第1票
-    
-    */
-    ```
-
-  - 例2：龟兔赛跑
-
-    - 首先来个赛道距离，然后要离终点越来越近
-    - 判断比赛是否结束
-    - 打印出胜利者
-    - 龟兔赛跑开始
-    - 故事中乌龟是赢的，兔子需要睡觉，所以我们来模拟兔子睡觉
-    - 终于，乌龟赢得比赛。
-
-    ```
-    package com.lzk.test18;
-    
-    public class MyThread04 implements Runnable{
-    
-        private String winner = null;
-    
-        @Override
-        public void run() {
-             boolean flag = false;
-            for(int i = 0; i <= 100; i++){
-                System.out.println(Thread.currentThread().getName() + "跑了" + i + "步！");
-                if(Thread.currentThread().getName().equals("兔子") && i % 30 == 0){
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                flag = gameOver(i);
-                if(flag){
-                    break;
-                }
-            }
-        }
-    
-        private boolean gameOver(int step){
-            if(winner != null){
-                return true;
-            }else{
-                if(step >= 100){
-                    winner = Thread.currentThread().getName();
-                    System.out.println("winner is " + winner);
-                    return true;
-                }
-            }
-            return false;
-        }
-    
-        public static void main(String[] args) {
-            MyThread04 runway = new MyThread04();
-            new Thread(runway, "兔子").start();
-            new Thread(runway, "乌龟").start();
-        }
-    }
-    
-    ```
-
-    
-
-- 实现Callable接口（了解）
-
-
-### 21.2.2 Lamda表达式
-
-- 为什么要使用Lamda表达式？
-
-  - 避免匿名内部类定义过多；
-  - 可以让你的代码看起来更简洁；
-  - 去掉了一堆没有意义的代码，只留下核心的逻辑。
-
-- 理解Functional Interface（函数式接口）是学习Java8 Lambda表达式的关键所在。
-
-  - 函数式接口的定义：
-
-    - 任何接口，如果只包含唯一一个抽象方法，那么它就是一个函数式接口。
-
-      ```java
-      public Interface Runnable{
-      	public abstract void run();
-      }
-      ```
-
-    - 对于函数式接口，我们可以通过lambda表达式来创建该接口的对象。
-
-  - 注意：
-
-    - lambda表达式只能有一行代码的情况下才能简化成为一行，如果有多行，那么就用代码块包裹；
-    - 前提是接口为函数式接口
-    - 多个参数也可以去掉参数类型，要去掉就都去掉，但必须加上括号。
-
-### 21.2.3 静态代理模式
-
-- 真实对象和代理对象都要实现同一个接口；
-- 代理对象要代理真实角色；
-- 好处
-  - 代理对象可以做很多真是对象做不了的事情
-  - 真实对象专注做自己的事情；
-
-## 21.3 线程状态
-
-### 21.3.1 线程的五种状态
-
-![image-20240619112543462](assets/image-20240619112543462.png)
-
-### 21.3.2 线程方法
-
-```
-更改线程的优先级
-setPriority(int newPriority)
-
-在指定的毫秒数内让当前正在执行的线程休眠
-static void sleep(long millis)
-
-等待线程终止
-void join()
-
-暂停当前正在执行的线程对象，并执行其他线程
-static void yield()
-
-中断线程(不建议使用这种方式)
-void interrupt()
-
-测试线程是否处于活动状态
-boolean isAlive()
-```
-
-- 停止线程
-
-  - 不推荐使用JDK提供的stop()、destroy()方法，已废弃。
-  
-  
-    - 推荐线程自己停下来。
-  
-  
-    - 建议使用一个标志位进行终止变量，当flag=false，则终止线程运行。
-  
-      ```java
-      public class TestStop implements Runnable{
-      	//1.线程中定义线程体使用的标识
-      	private boolean flag = true;
-      	public void run(){
-      		//2.线程体使用该标识
-      		while(flag){
-      			System.out.println("run.. Thread");
-      		}
-      	}
-      	//3.对外提供方法改变标识
-      	public void stop(){
-      		this.flag = false;
-      	}
-      }
-      ```
-  
-
-
-- 线程休眠
-
-  - 线程休眠
-
-    - sleep(时间)指定当前线程阻塞的毫秒数；
-
-    - sleep存在异常InterruptedException；
-
-    - sleep时间到达后线程进入就绪状态；
-
-    - sleep可以模拟网络延时，倒计时等。
-
-    - 每一个对象都有一个锁，sleep不会释放锁。
-
-  - 例1：模拟倒计时
-
-    ```
-    public class ThreadStopTest02 implements Runnable{
-        @Override
-        public void run() {
-            int num = 10;
-            while(true){
-                System.out.println(num--);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if(num <= 0){
-                    break;
-                }
-            }
-        }
-        public static void main(String[] args) {
-            ThreadStopTest02 t = new ThreadStopTest02();
-            new Thread(t).start();
-        }
-    }
-    ```
-
-  - 例2：模拟时间走
-
-    ```
-    public class ThreadSleepTest01 implements Runnable{
-        @Override
-        public void run() {
-            Date d = new Date();
-            while(true){
-    
-                System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(d));
-                d = new Date(); //更新当前时间
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    
-        public static void main(String[] args) {
-            ThreadSleepTest01 t = new ThreadSleepTest01();
-            new Thread(t).start();
-        }
-    }
-    ```
-
-- 线程礼让
-
-  - 让当前正在执行的线程从运行状态转为就绪状态
-
-  - 让CPU重新调度，礼让不一定成功！看CPU心情。
-
-    ```java
-    public class ThreadYieldTest01 implements Runnable {
-        @Override
-        public void run() {
-            System.out.println(Thread.currentThread().getName() + "开始执行！");
-            Thread.yield();
-            System.out.println(Thread.currentThread().getName() + "结束执行！");
-        }
-    
-        public static void main(String[] args) {
-            ThreadYieldTest01 t = new ThreadYieldTest01();
-            new Thread(t, "joker").start();
-            new Thread(t, "batman").start();
-        }
-    }
-    
-    ```
-
-- 线程强制执行
-
-  - join合并线程，其他线程处于阻塞状态，待此线程执行完成后，再执行其他线程。
-
-  - 可以想象成插队。
-
-    ```
-    public class ThreadJoinTest01 implements Runnable{
-    
-        @Override
-        public void run() {
-            for(int i = 0; i < 1000; i++){
-                System.out.println("分支线程--->" + i);
-            }
-        }
-    
-        public static void main(String[] args) {
-            ThreadJoinTest01 t = new ThreadJoinTest01();
-            Thread thread = new Thread(t);
-            thread.start();
-            for(int i = 0; i < 500; i++){
-                System.out.println("主线程--->" + i);
-                if(i == 450){
-                    try {
-                        thread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-    ```
-
-- 线程状态观测
-
-  - Thread.State查看线程状态，线程可以处于以下状态之一：
-    - NEW：尚未启动的线程处于此状态。
-
-    - RUNNABLE：再Java虚拟机中执行的线程处于此状态。
-
-    - BLOCKED：被阻塞等待监视器锁定的线程处于此状态。
-
-    - WAITING：正在等待另一个线程执行特定动作的线程处于此状态。
-
-    - TIMED_WAITING：正在等待另一个线程执行动作达到指定等待时间的线程处于此状态。
-
-    - TERMINATED：已退出的线程处于此状态。
-
-    - 一个线程可以再给定时间点处于一个状态，这些状态是不反应任何操作系统线程状态的虚拟机状态。
-
-      ```java
-      public class StateTest01 implements Runnable{
-      
-      
-          @Override
-          public void run() {
-              for (int i = 0; i < 5; i++) {
-                  try {
-                      Thread.sleep(1000);
-                  } catch (InterruptedException e) {
-                      e.printStackTrace();
-                  }
-              }
-          }
-      
-          public static void main(String[] args) {
-              // 新生状态
-              StateTest01 t = new StateTest01();
-              Thread thread =  new Thread(t);
-              Thread.State state = thread.getState();
-              System.out.println(state);
-      
-              // 运行状态
-              thread.start();
-              state = thread.getState();
-              System.out.println(state);
-      
-              // 等待或终止状态
-              while(state != Thread.State.TERMINATED){
-                  try {
-                      Thread.sleep(100);
-                  } catch (InterruptedException e) {
-                      e.printStackTrace();
-                  }
-                  state = thread.getState();
-                  System.out.println(state);
-              }
-          }
-      }
-      
-      ```
-
-- 线程优先级
-
-
-    - Java提供一个线程调度器来监控程序中启动后进入就绪状态的所有线程，线程调度器按照优先级决定应该调度哪个线程来执行。
-
-
-
-    - 线程的优先级用数字表示，范围从1~10.
-    
-      ```
-      Thread.MIN_PRIORITY = 1;
-      Thread.MAX_PRIORITY = 10;
-      Thread.NORM_PRIORITY = 5;
-      ```
-    
-      - 注：优先级低只是意味着获得调度的概率低，并不是优先级低就不会被调用了，这都是看CPU的调度。
-      - 注：优先级高只是意味着获得调度的概率高，但是这并不能保证高优先级的线程会在低优先级的线程前执行。
-      - 注：优先级的设定建议在start()调度前。
-
-
-
-  - 使用以下方式获取优先级或改变优先级
-
-      ```
-      .getPriority()
-      .setPriority(int xxx)
-      ```
-
-      ```
-      public class PriorityTest01 {
-          public static void main(String[] args) {
-              MyThread t = new MyThread();
-              Thread thread1 = new Thread(t, "T-A");
-              Thread thread2 = new Thread(t, "T-B");
-              Thread thread3 = new Thread(t, "T-C");
-              Thread thread4 = new Thread(t, "T-D");
-              Thread thread5 = new Thread(t, "T-E");
-      
-              thread1.setPriority(1);
-              thread2.setPriority(3);
-              thread3.setPriority(5);
-              thread4.setPriority(7);
-              thread5.setPriority(Thread.MAX_PRIORITY);
-              thread1.start();
-              thread2.start();
-              thread3.start();
-              thread4.start();
-              thread5.start();
-      
-          }
-      }
-      
-      class MyThread implements Runnable{
-      
-          @Override
-          public void run() {
-              System.out.println(Thread.currentThread().getName() + "--->" + Thread.currentThread().getPriority());
-          }
-      }
-      ```
-
-- 守护线程
-
-
-  - java语言中线程分为两大类：用户线程和守护线程（后台线程），其中具有代表性的就是 垃圾回收线程（守护线程）。
-
-  - 守护线程的特点：一般守护线程是一个死循环，所有的用户线程只要结束，守护线程自动结束。
-
-
-    - 注意：主线程main方法是一个用户线程。
-
-  - 守护线程用在什么地方呢？
-
-
-    - 每天00:00的时候系统数据自动备份。这个需要使用到定时器，并且我们可以将定时器设置为守护线程。让它一直在那里看着，每到00:00的时候就备份一次。所有的用户线程如果结束了，守护线程自动退出，没有必要进行数据备份了。
-
-  - 将一个线程设置为守护线程：
-
-    ```
-    void setDaemon(boolean on)：实例方法，将一个用户线程设置为守护线程；
-    ```
-
-    ```
-    public class DaemonTest01 {
-        public static void main(String[] args) {
-            God god = new God();
-            You you = new You();
-            Thread tGod = new Thread(god);
-            Thread tYou = new Thread(you);
-            tGod.setDaemon(true);
-            tGod.start();
-            tYou.start();
-        }
-    
-    }
-    class You implements Runnable{
-    
-        @Override
-        public void run() {
-            for(int i = 0; i < 365000; i++){
-                System.out.println("你活着！");
-            }
-            System.out.println("=====你走了！=========");
-        }
-    }
-    
-    class God implements Runnable{
-    
-        @Override
-        public void run() {
-            while(true){
-                System.out.println("上帝保护！");
-            }
-    
-        }
-    }
-    ```
-
-    
-
-
-## 21.4 线程同步（重点）
-
-### 21.4.1 线程同步基本概念
-
-- 并发：同一个对象被多个线程同时操作。
-  - 例如：上万人同时抢100张票，两个银行同时对一个账户取钱。
-- 处理多线程问题时，多个线程访问同一个对象，并且某些线程还想修改这个对象，这时候我们就需要线程同步。线程同步其实就是一种等待机制，多个需要同时访问此对象的线程进入这个对象的等待池 形成队列，等待前面的线程使用完毕，下一个线程再使用。
-- 由于同一进程的多个线程共享同一块存储空间，在带来方便的同时，也带来了访问冲突问题，为了保证数据在方法中被访问时的正确性，在访问时加入锁机制（synchronized），当一个线程同时获得对象的排它锁，独占资源，其他线程必须等待，使用后释放锁即可，但存在以下问题。
-  - 一个线程持有锁会导致其他所有需要此锁的线程挂起；
-  - 在多线程竞争下，加锁或释放锁会导致比较多的上下文切换 和 调度延时，引起性能问题。
-  - 如果一个优先级高的线程等待一个优先级低的线程释放锁，会导致优先级倒置，引起性能问题。
-
-### 21.4.2 三大线程不安全案例
-
-- 案例1：多个线程在同一车站买票
-
-  - 问题：多个线程可能会同时读取到相同的ticketNum值，从而导致多个线程“拿到”同一张票。
-
-  ```java
-  public class ThreadUnsafeTest01 {
-      public static void main(String[] args) {
-          Station station = new Station();
-          new Thread(station, "A").start();
-          new Thread(station, "B").start();
-          new Thread(station, "C").start();
-          new Thread(station, "D").start();
-  
-      }
-  }
-  class Station implements Runnable{
-      private int ticketNum = 10;
-      private boolean flag = true;
-      @Override
-      public void run() {
-          while(flag){
-              try {
-                  buyTicket();
-              } catch (InterruptedException e) {
-                  e.printStackTrace();
-              }
-          }
-      }
-      private void buyTicket() throws InterruptedException {
-          if(ticketNum <= 0){
-              flag = false;
-              return;
-          }
-          Thread.sleep(100);
-          System.out.println(Thread.currentThread().getName() + "拿到了第" + ticketNum + "票！");
-          ticketNum = ticketNum - 1;
-      }
-  }
-  ```
-
-- 案例2：两个线程对同一账户取款
-
-  ```java
-  public class ThreadUnsafeTest02 {
-      public static void main(String[] args) {
-          Account act = new Account("12232077", 10000);
-          new Thread(act, "joker").start();
-          new Thread(act, "batman").start();
-      }
-  
-  }
-  class Account implements Runnable{
-      public String actNo;   // 账号
-      public int balance;    // 余额
-  
-      public Account() {
-      }
-  
-      public Account(String actNo, int balance) {
-          this.actNo = actNo;
-          this.balance = balance;
-      }
-  
-      @Override
-      public void run() {
-          int money = 5000;
-          withDraw(money);
-          System.out.println(Thread.currentThread().getName() + "在" + actNo + "账户中取款" + money + "，还剩" + balance + "元");
-  
-      }
-      public void withDraw(int money){
-          int before = balance;
-          int after = before - money;
-  
-          balance = after;
-      }
-  }
-  ```
-
-- 案例3：ArrayList添加元素，最后元素数量不一定达到预期
-
-  ```java
-  public class ThreadUnsafeTest03 {
-      public static void main(String[] args) {
-          MyThread t = new MyThread();
-          for(int i = 0; i < 1000; i++){
-              new Thread(t).start();
-          }
-          System.out.println(t.list.size());
-      }
-  
-  }
-  
-  class MyThread implements Runnable{
-      ArrayList<String> list = new ArrayList<>();
-      @Override
-      public void run() {
-          list.add(Thread.currentThread().getName());
-      }
-  }
-  
-  ```
-
-  
-
-## 21.5 线程通信问题
-
-
-
-## 21.6 高级主题
