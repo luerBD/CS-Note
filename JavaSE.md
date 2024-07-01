@@ -6459,13 +6459,908 @@ java.io.ObjectOutputStream（掌握）
 
   
 
-21.7 守护线程
+## 21.7 守护线程
 
-21.8 定时任务
+- 在Java语言中，线程被分为两大类：
 
-21.9 线程的调度
+   * 第一类：用户线程（非守护线程）
 
-21.10 线程安全问题
+   * 第二类：守护线程（后台线程）
+
+ * 在JVM当中，有一个隐藏的守护线程一直在守护者，它就是GC线程。
+
+ * 守护线程的特点：所有的用户线程结束之后，守护线程自动退出/结束。
+
+ * 如何将一个线程设置为守护线程？
+
+  ```
+  t.setDaemon(true);
+  ```
+
+  - 例：创建一个线程，将其设置为守护线程，让它一直死循环执行，当main线程结束时候，守护线程结束。
+
+    ```java
+    public class ThreadTest {
+        public static void main(String[] args) {
+            MyThread myThread = new MyThread();
+            myThread.setName("t");
+    
+            // 在启动线程之前，设置线程为守护线程
+            myThread.setDaemon(true);
+    
+            myThread.start();
+    
+            // 10s结束！
+            // main线程中，main线程是一个用户线程。
+            for (int i = 0; i < 10; i++) {
+                System.out.println(Thread.currentThread().getName() + "===>" + i);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+    
+        }
+    }
+    class MyThread extends Thread {
+        @Override
+        public void run() {
+            int i = 0;
+            while(true){
+                System.out.println(Thread.currentThread().getName() + "===>" + (++i));
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+    ```
+
+## 21.8 定时任务
+
+- JDK中提供的定时任务：
+
+  ```
+  java.util.Timer         定时器
+  java.util.TimerTask     定时任务
+  ```
+
+*      定时器 + 定时任务：可以帮我们在程序中完成：每间隔多久执行一次某段程序。
+
+*      Timer的构造方法：
+
+       ```
+       Timer()
+       Timer(boolean isDaemon) isDaemon是true表示该定时器是一个守护线程。
+       ```
+
+*      例：
+
+       ```java
+       public class ThreadTest {
+           public static void main(String[] args) throws Exception{
+               // 创建定时器对象（本质上就是一个线程）
+               // 如果这个定时器执行的任务是一个后台任务，是一个守护任务，建议将其定义为守护线程。
+               Timer timer = new Timer(true);
+       
+               // 指定定时任务
+               SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+               Date firstTime = sdf.parse("2024-01-27 10:22:00");
+               //timer.schedule(new LogTimerTask(), firstTime, 1000);
+       
+       
+               // 匿名内部类的方式
+               timer.schedule(new TimerTask() {
+                   int count = 0;
+                   @Override
+                   public void run() {
+                       // 执行任务
+                       Date now = new Date();
+                       String strTime = sdf.format(now);
+                       System.out.println(strTime + ": " + count++);
+                   }
+               }, firstTime, 1000 * 5);
+       
+       
+               for (int i = 0; i < 10; i++) {
+                   Thread.sleep(1000);
+               }
+           }
+           
+       }
+       class LogTimerTask extends TimerTask {
+       
+           SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
+           int count = 0;
+       
+           @Override
+           public void run() {
+               // 执行任务
+               Date now = new Date();
+               String strTime = sdf.format(now);
+               System.out.println(strTime + ": " + count++);
+           }
+       
+       }
+       
+       ```
+
+## 21.9 线程的调度
+
+### 21.9.1 线程合并
+
+- 调用join()方法完成线程合并。
+- join()方法是一个实例方法。（不是静态方法） t.join
+
+*      假设在main方法（main线程）中调用了 t.join()，后果是什么？
+       *      t线程合并到主线程中。主线程进入阻塞状态。直到 t 线程执行结束。主线程阻塞解除。
+
+*      t.join()方法其实是让当前线程进入阻塞状态，直到t线程结束，当前线程阻塞解除。
+
+*      和sleep方法有点类似，但不一样：
+       *      第一：sleep方法是静态方法，join是实例方法。
+       *      第二：sleep方法可以指定睡眠的时长，join方法不能保证阻塞的时长。
+       *      第三：sleep和join方法都是让当前线程进入阻塞状态。
+       *      第四：sleep方法的阻塞解除条件？时间过去了。 join方法的阻塞解除条件？调用join方法的那个线程结束了。
+
+*      例：
+
+       ```java
+       public class ThreadTest {
+           public static void main(String[] args) throws InterruptedException {
+               Thread t = new MyThread();
+               t.setName("t");
+               t.start();
+       
+               System.out.println("main begin");
+       
+               // 合并线程
+               // t合并到main线程中。
+               // main线程受到阻塞（当前线程受到阻塞）
+               // t线程继续执行，直到t线程结束。main线程阻塞解除（当前线程阻塞解除）。
+               //t.join();
+       
+               // join方法也可以有参数，参数是毫秒。
+               // 以下代码表示 t 线程合并到 当前线程，合并时长 10 毫秒
+               // 阻塞当前线程 10 毫秒
+               //t.join(10);
+       
+               // 调用这个方法，是想让当前线程受阻10秒
+               // 但不一定，如果在指定的阻塞时间内，t线程结束了。当前线程阻塞也会解除。
+               t.join(1000 * 10);
+       
+               // 当前线程休眠10秒。
+               //Thread.sleep(1000 * 10);
+       
+               // 主线程
+               for (int i = 0; i < 100; i++) {
+                   System.out.println(Thread.currentThread().getName() + "==>" + i);
+               }
+       
+               System.out.println("main over");
+           }
+       }
+       
+       class MyThread extends Thread {
+           @Override
+           public void run() {
+               for (int i = 0; i < 100; i++) {
+                   System.out.println(Thread.currentThread().getName() + "==>" + i);
+               }
+           }
+       }
+       ```
+
+       
+
+### 21.9.2 线程优先级
+
+- 线程是可以设置优先级的，优先级较高的，获得CPU时间片的总体概率高一些。
+
+ * JVM采用的是抢占式调度模型。谁的优先级高，获取CPU时间片的总体概率就高。
+
+ * 默认情况下，一个线程的优先级是 5.
+
+ * 最低是1，最高是10.
+
+ * 例：
+
+   * 查看main线程的默认优先级；
+
+   * 给main线程设置一个优先级后再查看；
+
+   * 创建两个线程，一个设置最高优先级，一个设置最低优先级，观察他们的运行。
+
+     ```java
+     public class ThreadTest {
+         public static void main(String[] args) {
+             /*System.out.println("最低优先级：" + Thread.MIN_PRIORITY);
+             System.out.println("最高优先级：" + Thread.MAX_PRIORITY);
+             System.out.println("默认优先级：" + Thread.NORM_PRIORITY);
+     
+             // 获取main线程的优先级
+             Thread mainThread = Thread.currentThread();
+     
+             System.out.println("main线程的优先级：" + mainThread.getPriority()); // 5
+     
+             // 设置优先级
+             mainThread.setPriority(Thread.MAX_PRIORITY);
+     
+             System.out.println("main线程的优先级：" + mainThread.getPriority()); // 10*/
+     
+             // 创建两个线程
+             Thread t1 = new MyThread();
+             t1.setName("t1");
+     
+             Thread t2 = new MyThread();
+             t2.setName("t2");
+     
+             t1.setPriority(Thread.MAX_PRIORITY);
+             t2.setPriority(Thread.MIN_PRIORITY);
+     
+             t1.start();
+             t2.start();
+         }
+     }
+     
+     class MyThread extends Thread {
+         @Override
+         public void run() {
+             for (int i = 0; i < 1000; i++) {
+                 System.out.println(Thread.currentThread().getName() + "==>" + i);
+             }
+         }
+     }
+     ```
+
+### 21.9.3 线程让位
+
+- 静态方法：Thread.yield()
+
+- 让当前线程让位。
+
+ * 注意：让位不会让其进入阻塞状态。只是放弃目前占有的CPU时间片，进入就绪状态，继续抢夺CPU时间片。
+
+ * 只能保证大方向上的，大概率，到了某个点让位一次。
+
+ * 例：创建两个线程t1和t2，每次到t1执行的时候并且i==10时，让t1让位，观察t1让位后会不会立马调t2执行
+
+   ```java
+   public class ThreadTest {
+       public static void main(String[] args) {
+           Thread t1 = new MyThread();
+           t1.setName("t1");
+   
+           Thread t2 = new MyThread();
+           t2.setName("t2");
+   
+           t1.start();
+           t2.start();
+       }
+   }
+   
+   class MyThread extends Thread {
+       @Override
+       public void run() {
+           for (int i = 0; i < 500; i++) {
+               if(Thread.currentThread().getName().equals("t1") && i % 10 == 0){
+                   System.out.println(Thread.currentThread().getName() + "让位了，此时的i下标是：" + i);
+                   // 当前线程让位，这个当前线程一定是t1
+                   // t1会让位一次
+                   Thread.yield();
+               }
+               System.out.println(Thread.currentThread().getName() + "==>" + i);
+           }
+       }
+   }
+   ```
+
+## 21.10 线程安全问题
+
+* 什么情况下需要考虑线程安全问题？
+
+   *      条件1：多线程的并发环境下
+   *      条件2：有共享的数据
+   *      条件3：共享数据涉及到修改的操作
+
+* 一般情况下：
+
+   *      局部变量不存在线程安全问题。（尤其是基本数据类型不存在线程安全问题【在栈中，栈不是共享的】，如果是引用数据类型，就另说了！）
+   *      实例变量可能存在线程安全问题。实例变量在堆中。堆是多线程共享的。
+   *      静态变量也可能存在线程安全问题。静态变量在堆中。堆是多线程共享的。
+
+* 大家找一个现实生活中的例子，来说明一下，线程安全问题：比如同时取钱！
+
+* 以上多线程并发对同一个账户进行取款操作的时候，有安全问题？怎么解决？
+
+   <img src="assets/image-20240630105827259.png" alt="image-20240630105827259" style="zoom:50%;" />
+
+   *      让线程t1和线程t2排队执行。不要并发。要排队。
+   *      我们把线程排队执行，叫做：线程同步机制。（t1和t2线程，t1线程在执行的时候必须等待t2线程执行到某个位置之后，t1线程才能执行。只要t1和t2之间发生了等待，就认为是同步。）
+   *      如果不排队，我们将其称为：线程异步机制。（t1和t2各自执行各自的，谁也不需要等对方。并发的，就认为是异步）
+   *      异步：效率高。但是可能存在安全隐患。
+   *      同步：效率低。排队了。可以保证数据的安全问题。
+
+* 例1：以下程序存在安全问题。t1和t2线程同时对act一个账号进行取款操作。数据是错误的。
+
+   ```java
+   public class ThreadTest {
+       public static void main(String[] args) {
+           // 创建账户对象
+           Account act = new Account("act-001", 10000);
+           // 创建线程对象1
+           Thread t1 = new Thread(new Withdraw(act));
+           // 创建线程对象2
+           Thread t2 = new Thread(new Withdraw(act));
+           // 启动线程
+           t1.start();
+           t2.start();
+       }
+   }
+   
+   // 取款的线程类
+   class Withdraw implements Runnable {
+   
+       // 实例变量（共享数据）
+       private Account act;
+   
+       public Withdraw(Account act) {
+           this.act = act;
+       }
+   
+       @Override
+       public void run() {
+           act.withdraw(1000);
+       }
+   }
+   
+   // 银行账户
+   class Account {
+       /**
+        * 账号
+        */
+       private String actNo;
+       /**
+        * 余额
+        */
+       private double balance;
+   
+       public Account(String actNo, double balance) {
+           this.actNo = actNo;
+           this.balance = balance;
+       }
+   
+       public String getActNo() {
+           return actNo;
+       }
+   
+       public void setActNo(String actNo) {
+           this.actNo = actNo;
+       }
+   
+       public double getBalance() {
+           return balance;
+       }
+   
+       public void setBalance(double balance) {
+           this.balance = balance;
+       }
+   
+       /**
+        * 取款的方法
+        * @param money 取款额度
+        */
+       public void withdraw(double money){
+           // 想要演示出多线程并发带来的安全问题，这里建议分为两步去完成取款操作。
+           // 第一步：读取余额
+           double before = this.getBalance();
+           System.out.println(Thread.currentThread().getName() + "线程正在取款"+money+"，当前"+this.getActNo()+"账户余额" + before);
+   
+           try {
+               Thread.sleep(1000);
+           } catch (InterruptedException e) {
+               throw new RuntimeException(e);
+           }
+   
+           // 第二步：修改余额
+           this.setBalance(before - money);
+           System.out.println(Thread.currentThread().getName() + "线程取款成功，当前"+this.getActNo()+"账户余额" + this.getBalance());
+       }
+   }
+   ```
+
+* 使用线程同步机制，来保证多线程并发环境下的数据安全问题
+
+  * 线程同步的本质是：线程排队执行就是同步机制。
+
+  * 语法格式：
+
+    ```
+    synchronized(必须是需要排队的这几个线程共享的对象){
+    	// 需要同步的代码
+    }
+    ```
+
+    - “必须是需要排队的这几个线程共享的对象” 这个必须选对了。这个如果选错了，可能会无故增加同步的线程数量，导致效率降低。
+
+  * 原理是什么？
+
+    ```
+    synchronized(obj){
+    	// 同步代码块
+    }
+    ```
+
+    - 假设obj是t1 t2两个线程共享的。
+
+       *          t1和t2执行这个代码的时候，一定是有一个先抢到了CPU时间片。一定是有先后顺序的。
+       *          假设t1先抢到了CPU时间片。t1线程找共享对象obj的对象锁，找到之后，则占有这把锁。只要能够占有obj对象的对象锁，就有权利进入同步代码块执行代码。
+       *          当t1线程执行完同步代码块之后，会释放之前占有的对象锁（归还锁）。
+       *          同样，t2线程抢到CPU时间片之后，也开始执行，也会去找共享对象obj的对象锁，但由于t1线程占有这把锁，t2线程只能在同步代码块之外等待。
+
+    - 注意同步代码块的范围，不要无故扩大同步的范围，同步代码块范围越小，效率越高。
+
+    - 例：同步代码块
+  
+      ```java
+      public class ThreadTest {
+          public static void main(String[] args) {
+              // 创建账户对象
+              Account act = new Account("act-001", 10000);
+              // 创建线程对象1
+              Thread t1 = new Thread(new Withdraw(act));
+              // 创建线程对象2
+              Thread t2 = new Thread(new Withdraw(act));
+              // 启动线程
+              t1.start();
+              t2.start();
+          }
+      }
+      
+      // 取款的线程类
+      class Withdraw implements Runnable {
+      
+          // 实例变量（共享数据）
+          private Account act;
+      
+          public Withdraw(Account act) {
+              this.act = act;
+          }
+      
+          @Override
+          public void run() {
+              act.withdraw(1000);
+          }
+      }
+      
+      // 银行账户
+      class Account {
+      
+          private static Object obj = new Object();
+      
+          /**
+           * 账号
+           */
+          private String actNo;
+          /**
+           * 余额
+           */
+          private double balance;
+      
+          public Account(String actNo, double balance) {
+              this.actNo = actNo;
+              this.balance = balance;
+          }
+      
+          public String getActNo() {
+              return actNo;
+          }
+      
+          public void setActNo(String actNo) {
+              this.actNo = actNo;
+          }
+      
+          public double getBalance() {
+              return balance;
+          }
+      
+          public void setBalance(double balance) {
+              this.balance = balance;
+          }
+      
+          /**
+           * 取款的方法
+           * @param money 取款额度
+           */
+          public void withdraw(double money){
+              // this是当前账户对象
+              // 当前账户对象act，就是t1和t2共享的对象。
+              synchronized (this){
+              //synchronized (obj) {
+                  // 第一步：读取余额
+                  double before = this.getBalance();
+                  System.out.println(Thread.currentThread().getName() + "线程正在取款"+money+"，当前"+this.getActNo()+"账户余额" + before);
+      
+                  try {
+                      Thread.sleep(1000);
+                  } catch (InterruptedException e) {
+                      throw new RuntimeException(e);
+                  }
+      
+                  // 第二步：修改余额
+                  this.setBalance(before - money);
+                  System.out.println(Thread.currentThread().getName() + "线程取款成功，当前"+this.getActNo()+"账户余额" + this.getBalance());
+              }
+          }
+      }
+      
+      ```
+  
+  * 在实例方法上也可以添加 synchronized 关键字
+  
+    * 在实例方法上添加了synchronized关键字之后，整个方法体是一个同步代码块。
+  
+    * 在实例方法上添加了synchronized关键字之后，共享对象的对象锁一定是this的。
+  
+    * 这种方式相对于之前所讲的局部同步代码块的方式要差一些：
+  
+      ```
+      synchronized(共享对象){
+      	// 同步代码块
+      }
+      ```
+  
+    * 这种方式优点：
+  
+      *      灵活
+      *      共享对象可以随便调整。
+      *      同步代码块的范围可以随便调整。
+  
+    * 例：同步实例方法
+  
+      ```java
+      public class ThreadTest {
+          public static void main(String[] args) {
+              // 创建账户对象
+              Account act = new Account("act-001", 10000);
+              // 创建线程对象1
+              Thread t1 = new Thread(new Withdraw(act));
+              // 创建线程对象2
+              Thread t2 = new Thread(new Withdraw(act));
+              // 启动线程
+              t1.start();
+              t2.start();
+          }
+      }
+      
+      // 取款的线程类
+      class Withdraw implements Runnable {
+      
+          // 实例变量（共享数据）
+          private Account act;
+      
+          public Withdraw(Account act) {
+              this.act = act;
+          }
+      
+          @Override
+          public void run() {
+              act.withdraw(1000);
+          }
+      }
+      
+      // 银行账户
+      class Account {
+      
+          private static Object obj = new Object();
+      
+          /**
+           * 账号
+           */
+          private String actNo;
+          /**
+           * 余额
+           */
+          private double balance;
+      
+          public Account(String actNo, double balance) {
+              this.actNo = actNo;
+              this.balance = balance;
+          }
+      
+          public String getActNo() {
+              return actNo;
+          }
+      
+          public void setActNo(String actNo) {
+              this.actNo = actNo;
+          }
+      
+          public double getBalance() {
+              return balance;
+          }
+      
+          public void setBalance(double balance) {
+              this.balance = balance;
+          }
+      
+          /**
+           * 取款的方法
+           *
+           * @param money 取款额度
+           */
+          public synchronized void withdraw(double money) {
+              // 第一步：读取余额
+              double before = this.getBalance();
+              System.out.println(Thread.currentThread().getName() + "线程正在取款" + money + "，当前" + this.getActNo() + "账户余额" + before);
+      
+              try {
+                  Thread.sleep(1000);
+              } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+              }
+      
+              // 第二步：修改余额
+              this.setBalance(before - money);
+              System.out.println(Thread.currentThread().getName() + "线程取款成功，当前" + this.getActNo() + "账户余额" + this.getBalance());
+          }
+      }
+      
+      ```
+  
+    * 例：线程同步机制的面试题1，分析以下程序 m2 方法在执行的时候，需要等待 m1 方法的结束吗？
+  
+      ```java
+      // 不需要
+      public class ThreadTest {
+          public static void main(String[] args) {
+              MyClass mc = new MyClass();
+              Thread t1 = new Thread(new MyRunnable(mc));
+              Thread t2 = new Thread(new MyRunnable(mc));
+      
+              t1.setName("t1");
+              t2.setName("t2");
+      
+              t1.start();
+              try {
+                  Thread.sleep(1000);
+              } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+              }
+              t2.start();
+          }
+      }
+      
+      class MyRunnable implements Runnable {
+      
+          private MyClass mc;
+      
+          public MyRunnable(MyClass mc) {
+              this.mc = mc;
+          }
+      
+          @Override
+          public void run() {
+              if("t1".equals(Thread.currentThread().getName())){
+                  mc.m1();
+              }
+              if("t2".equals(Thread.currentThread().getName())){
+                  mc.m2();
+              }
+          }
+      }
+      
+      class MyClass {
+          public synchronized void m1(){
+              System.out.println("m1 begin");
+              try {
+                  Thread.sleep(1000 * 5);
+              } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+              }
+              System.out.println("m1 over");
+          }
+      
+          public void m2(){
+              System.out.println("m2 begin");
+              System.out.println("m2 over");
+          }
+      }
+      
+      ```
+  
+    * 例：线程同步机制的面试题2，分析以下程序 m2 方法在执行的时候，需要等待 m1 方法的结束吗？
+  
+      ```java
+      // 需要
+      public class ThreadTest {
+          public static void main(String[] args) {
+              MyClass mc = new MyClass();
+              Thread t1 = new Thread(new MyRunnable(mc));
+              Thread t2 = new Thread(new MyRunnable(mc));
+      
+              t1.setName("t1");
+              t2.setName("t2");
+      
+              t1.start();
+              try {
+                  Thread.sleep(1000);
+              } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+              }
+              t2.start();
+          }
+      }
+      
+      class MyRunnable implements Runnable {
+      
+          private MyClass mc;
+      
+          public MyRunnable(MyClass mc) {
+              this.mc = mc;
+          }
+      
+          @Override
+          public void run() {
+              if("t1".equals(Thread.currentThread().getName())){
+                  mc.m1();
+              }
+              if("t2".equals(Thread.currentThread().getName())){
+                  mc.m2();
+              }
+          }
+      }
+      
+      class MyClass {
+          public synchronized void m1(){
+              System.out.println("m1 begin");
+              try {
+                  Thread.sleep(1000 * 5);
+              } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+              }
+              System.out.println("m1 over");
+          }
+      
+          public synchronized void m2(){
+              System.out.println("m2 begin");
+              System.out.println("m2 over");
+          }
+      }
+      
+      ```
+  
+    * 例：线程同步机制的面试题3，分析以下程序 m2 方法在执行的时候，需要等待 m1 方法的结束吗？
+  
+      ```java
+      // 不需要
+      public class ThreadTest {
+          public static void main(String[] args) {
+              MyClass mc1 = new MyClass();
+              MyClass mc2 = new MyClass();
+              Thread t1 = new Thread(new MyRunnable(mc1));
+              Thread t2 = new Thread(new MyRunnable(mc2));
+      
+              t1.setName("t1");
+              t2.setName("t2");
+      
+              t1.start();
+              try {
+                  Thread.sleep(1000);
+              } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+              }
+              t2.start();
+          }
+      }
+      
+      class MyRunnable implements Runnable {
+      
+          private MyClass mc;
+      
+          public MyRunnable(MyClass mc) {
+              this.mc = mc;
+          }
+      
+          @Override
+          public void run() {
+              if("t1".equals(Thread.currentThread().getName())){
+                  mc.m1();
+              }
+              if("t2".equals(Thread.currentThread().getName())){
+                  mc.m2();
+              }
+          }
+      }
+      
+      class MyClass {
+          public synchronized void m1(){
+              System.out.println("m1 begin");
+              try {
+                  Thread.sleep(1000 * 5);
+              } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+              }
+              System.out.println("m1 over");
+          }
+      
+          public synchronized void m2(){
+              System.out.println("m2 begin");
+              System.out.println("m2 over");
+          }
+      }
+      ```
+  
+    * 例：线程同步机制的面试题3，分析以下程序 m2 方法在执行的时候，需要等待 m1 方法的结束吗？
+  
+      * 在静态方法上添加synchronized之后，线程会占有类锁。
+      * 类锁是，对于一个类来说，只有一把锁。不管创建了多少个对象，类锁只有一把。
+      * 静态方法上添加synchronized，实际上是为了保证静态变量的安全。
+      * 实例方法上添加synchronized，实际上是为了保证实例变量的安全。
+  
+      ```
+      // 需要
+      public class ThreadTest {
+          public static void main(String[] args) {
+              MyClass mc1 = new MyClass();
+              MyClass mc2 = new MyClass();
+              Thread t1 = new Thread(new MyRunnable(mc1));
+              Thread t2 = new Thread(new MyRunnable(mc2));
+      
+              t1.setName("t1");
+              t2.setName("t2");
+      
+              t1.start();
+              try {
+                  Thread.sleep(1000);
+              } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+              }
+              t2.start();
+          }
+      }
+      
+      class MyRunnable implements Runnable {
+      
+          private MyClass mc;
+      
+          public MyRunnable(MyClass mc) {
+              this.mc = mc;
+          }
+      
+          @Override
+          public void run() {
+              if("t1".equals(Thread.currentThread().getName())){
+                  mc.m1();
+              }
+              if("t2".equals(Thread.currentThread().getName())){
+                  mc.m2();
+              }
+          }
+      }
+      
+      class MyClass {
+          public static synchronized void m1(){
+              System.out.println("m1 begin");
+              try {
+                  Thread.sleep(1000 * 5);
+              } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+              }
+              System.out.println("m1 over");
+          }
+      
+          public static synchronized void m2(){
+              System.out.println("m2 begin");
+              System.out.println("m2 over");
+          }
+      }
+      ```
+  
+      
 
 21.11 线程间的通信
 
@@ -6476,5 +7371,4 @@ java.io.ObjectOutputStream（掌握）
 21.14 Callable实现线程
 
 21.15 线程池实现线程
-
 
