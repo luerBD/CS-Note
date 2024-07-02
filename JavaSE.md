@@ -6760,6 +6760,8 @@ java.io.ObjectOutputStream（掌握）
 
 ## 21.10 线程安全问题
 
+### 21.10.1 线程同步
+
 * 什么情况下需要考虑线程安全问题？
 
    *      条件1：多线程的并发环境下
@@ -7360,9 +7362,182 @@ java.io.ObjectOutputStream（掌握）
       }
       ```
   
-      
 
-21.11 线程间的通信
+### 21.10.2 线程死锁
+
+- 死锁指的是多个线程或者进程在执行过程中，互相持有对方需要的资源而造成的一种互相等待的状态，导致所有线程都无法继续执行下去，从而发生了一种僵局。
+
+- 造成死锁的原因通常是多个线程按照不同的顺序获取锁，从而造成了循环依赖。当线程A持有了锁1，尝试获取锁2时发现被线程B持有，线程B同时持有锁2并且尝试获取锁1时发现被线程A持有，因此两个线程互相等待对方释放锁，造成了死锁状态。
+
+- 例：死锁的例子
+
+  ```java
+  public class ThreadTest {
+      public static void main(String[] args) {
+          Object o1 = new Object();
+          Object o2 = new Object();
+          Thread t1 = new Thread(new MyRunnable(o1, o2));
+          Thread t2 = new Thread(new MyRunnable(o1, o2));
+          t1.setName("t1");
+          t2.setName("t2");
+          t1.start();
+          t2.start();
+      }
+  }
+  
+  class MyRunnable implements Runnable {
+  
+      private Object o1;
+      private Object o2;
+  
+      public MyRunnable(Object o1, Object o2) {
+          this.o1 = o1;
+          this.o2 = o2;
+      }
+  
+      @Override
+      public void run() {
+          if("t1".equals(Thread.currentThread().getName())){
+              synchronized (o1){
+                  try {
+                      Thread.sleep(1000);
+                  } catch (InterruptedException e) {
+                      throw new RuntimeException(e);
+                  }
+                  synchronized (o2){
+  
+                  }
+              }
+          }else if("t2".equals(Thread.currentThread().getName())){
+              synchronized (o2){
+                  try {
+                      Thread.sleep(1000);
+                  } catch (InterruptedException e) {
+                      throw new RuntimeException(e);
+                  }
+                  synchronized (o1){
+  
+                  }
+              }
+          }
+  
+      }
+  }
+  
+  ```
+
+
+## 21.11 线程间的通信
+
+### 21.11.1 线程通信涉及到三个方法
+
+```
+wait()、notify()、notifyAll()
+```
+
+- 以上三个方法都是Object类的方法
+
+- 其中wait()方法重载了三个：
+
+  ```
+  wait():调用此方法，线程进入“等待状态”
+  wait(毫秒)：调用此方法，线程进入“超时等待状态”
+  wait(毫秒, 纳秒)：调用此方法，线程进入“超时等待状态”
+  ```
+
+- 调用wait方法和notify相关方法的，不是通过线程对象去调用，而是通过共享对象去调用。
+
+  - 例如调用了：obj.wait()，什么效果？
+    *      obj是多线程共享的对象。
+    *      当调用了obj.wait()之后，在obj对象上活跃的所有线程进入无期限等待。直到调用了该共享对象的 obj.notify() 方法进行了唤醒。
+    *      而且唤醒后，会接着上一次调用wait()方法的位置继续向下执行。
+    *      obj.wait()方法调用之后，会释放之前占用的对象锁。
+  - 关于notify和notifyAll方法：
+     *      共享对象.notify(); 调用之后效果是什么？唤醒优先级最高的等待线程。如果优先级一样，则随机唤醒一个。
+     *      共享对象.notifyAll(); 调用之后效果是什么？唤醒所有在该共享对象上等待的线程。
+
+- 例1：实现两个线程交替输出
+
+  ```
+  t1-->1
+  t2-->2
+  t1-->3
+  t2-->4
+  t1-->5
+  t2-->6
+  t1-->7
+  t2-->8
+  t1-->9
+  t2-->10
+  t1-->11
+  t2-->12
+  t1-->13
+  t2-->14
+  ```
+
+  ```java
+  public class ThreadTest {
+      public static void main(String[] args) {
+          // 共享对象
+          MyRunnable mr = new MyRunnable();
+  
+          // 两个线程
+          Thread t1 = new Thread(mr);
+          Thread t2 = new Thread(mr);
+  
+          t1.setName("t1");
+          t2.setName("t2");
+  
+          t1.start();
+          t2.start();
+      }
+  }
+  
+  class MyRunnable implements Runnable {
+  
+      // 实例变量，多线程共享的。
+      private int count = 0;
+  
+      private Object obj = new Object();
+  
+      @Override
+      public void run() {
+          while(true){
+              //synchronized (this){
+              synchronized (obj) {
+  
+                  // 记得唤醒t1线程
+                  // t2线程执行过程中把t1唤醒了。但是由于t2仍然占用对象锁，所以即使t1醒了，也不会往下执行。
+                  //this.notify();
+                  obj.notify();
+  
+                  if(count >= 100) break;
+                  // 模拟延迟
+                  try {
+                      Thread.sleep(50);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+                  // 程序执行到这里count一定是小于100
+                  System.out.println(Thread.currentThread().getName() + "-->" + (++count));
+  
+                  try {
+                      // 让其中一个线程等待，这个等待的线程可能是t1，也可能是t2
+                      // 假设是t1线程等待。
+                      // t1线程进入无期限的等待，并且等待的时候，不占用对象锁。
+                      //this.wait();
+                      obj.wait();
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+              }
+          }
+      }
+  }
+  
+  ```
+
+  
 
 21.12 单例模式的线程安全问题
 
