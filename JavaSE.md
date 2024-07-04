@@ -7445,17 +7445,6 @@ wait()、notify()、notifyAll()
   wait(毫秒, 纳秒)：调用此方法，线程进入“超时等待状态”
   ```
 
-- 调用wait方法和notify相关方法的，不是通过线程对象去调用，而是通过共享对象去调用。
-
-  - 例如调用了：obj.wait()，什么效果？
-    *      obj是多线程共享的对象。
-    *      当调用了obj.wait()之后，在obj对象上活跃的所有线程进入无期限等待。直到调用了该共享对象的 obj.notify() 方法进行了唤醒。
-    *      而且唤醒后，会接着上一次调用wait()方法的位置继续向下执行。
-    *      obj.wait()方法调用之后，会释放之前占用的对象锁。
-  - 关于notify和notifyAll方法：
-     *      共享对象.notify(); 调用之后效果是什么？唤醒优先级最高的等待线程。如果优先级一样，则随机唤醒一个。
-     *      共享对象.notifyAll(); 调用之后效果是什么？唤醒所有在该共享对象上等待的线程。
-
 - 例1：实现两个线程交替输出
 
   ```
@@ -7537,13 +7526,289 @@ wait()、notify()、notifyAll()
   
   ```
 
+
+- 例2：实现三个线程交替输出
+
+  ```
+  t1--->A
+  t2--->B
+  t3--->C
+  t1--->A
+  t2--->B
+  t3--->C
+  t1--->A
+  t2--->B
+  t3--->C
+  t1--->A
+  t2--->B
+  t3--->C
+  t1--->A
+  t2--->B
+  t3--->C
+  ...
+  .
+  ```
+
+  ```java
+  public class ThreadTest {
+  
+      public static void main(String[] args) {
+          Lock lock = new Lock(true, false, false);
+          MyRunnable1 mr1 = new MyRunnable1(lock);
+          MyRunnable2 mr2 = new MyRunnable2(lock);
+          MyRunnable3 mr3 = new MyRunnable3(lock);
+          Thread t1 = new Thread(mr1);
+          Thread t2 = new Thread(mr2);
+          Thread t3 = new Thread(mr3);
+          t1.setName("t1");
+          t2.setName("t2");
+          t3.setName("t3");
+          t1.start();
+          t2.start();
+          t3.start();
+  
+      }
+  }
+  
+  class Lock{
+      private boolean t1Output;
+      private boolean t2Output;
+      private boolean t3Output;
+  
+      public Lock() {
+  
+      }
+  
+      public Lock(boolean t1Output, boolean t2Output, boolean t3Output) {
+          this.t1Output = t1Output;
+          this.t2Output = t2Output;
+          this.t3Output = t3Output;
+      }
+  
+      public boolean isT1Output() {
+          return t1Output;
+      }
+  
+      public void setT1Output(boolean t1Output) {
+          this.t1Output = t1Output;
+      }
+  
+      public boolean isT2Output() {
+          return t2Output;
+      }
+  
+      public void setT2Output(boolean t2Output) {
+          this.t2Output = t2Output;
+      }
+  
+      public boolean isT3Output() {
+          return t3Output;
+      }
+  
+      public void setT3Output(boolean t3Output) {
+          this.t3Output = t3Output;
+      }
+  }
+  
+  
+  class MyRunnable1 implements Runnable{
+      Lock lock;
+  
+      public MyRunnable1(Lock lock) {
+          this.lock = lock;
+      }
+  
+      @Override
+  
+      public void run() {
+          synchronized (lock){
+              for(int i = 0; i < 10; i++){
+                  while(!lock.isT1Output()){
+                      try {
+                          lock.wait();
+                      } catch (InterruptedException e) {
+                          e.printStackTrace();
+                      }
+                  }
+                  try {
+                      Thread.sleep(1000);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+                  System.out.println(Thread.currentThread().getName() + "--->" + "A");
+                  lock.setT1Output(false);
+                  lock.setT2Output(true);
+                  lock.setT3Output(false);
+                  lock.notifyAll();
+              }
+          }
+      }
+  }
+  class MyRunnable2 implements Runnable{
+      Lock lock;
+  
+      public MyRunnable2(Lock lock) {
+          this.lock = lock;
+      }
+  
+      @Override
+      public void run() {
+          synchronized (lock){
+              for(int i = 0; i < 10; i++){
+                  while(!lock.isT2Output()){
+                      try {
+                          lock.wait();
+                      } catch (InterruptedException e) {
+                          e.printStackTrace();
+                      }
+                  }
+                  try {
+                      Thread.sleep(1000);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+                  System.out.println(Thread.currentThread().getName() + "--->" + "B");
+                  lock.setT1Output(false);
+                  lock.setT2Output(false);
+                  lock.setT3Output(true);
+                  lock.notifyAll();
+              }
+          }
+      }
+  }
+  
+  class MyRunnable3 implements Runnable{
+      Lock lock;
+  
+      public MyRunnable3(Lock lock) {
+          this.lock = lock;
+      }
+  
+      @Override
+      public void run() {
+          synchronized (lock){
+              for(int i = 0; i < 10; i++){
+                  while(!lock.isT3Output()){
+                      try {
+                          lock.wait();
+                      } catch (InterruptedException e) {
+                          e.printStackTrace();
+                      }
+                  }
+                  try {
+                      Thread.sleep(1000);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+                  System.out.println(Thread.currentThread().getName() + "--->" + "C");
+                  lock.setT1Output(true);
+                  lock.setT2Output(false);
+                  lock.setT3Output(false);
+                  lock.notifyAll();
+              }
+          }
+      }
+  }
+  ```
+
+### 21.11.2 线程通信涉及到三个方法总结
+
+- 调用wait方法和notify相关方法的，不是通过线程对象去调用，而是通过共享对象去调用。
+  - 例如调用了：obj.wait()，什么效果？
+    *      obj是多线程共享的对象。
+    *      当调用了obj.wait()之后，在obj对象上活跃的所有线程进入无期限等待。直到调用了该共享对象的 obj.notify() 方法进行了唤醒。
+    *      而且唤醒后，会接着上一次调用wait()方法的位置继续向下执行。
+    *      obj.wait()方法调用之后，会释放之前占用的对象锁。
+  - 关于notify和notifyAll方法：
+    *      共享对象.notify(); 调用之后效果是什么？唤醒优先级最高的等待线程。如果优先级一样，则随机唤醒一个。
+    *      共享对象.notifyAll(); 调用之后效果是什么？唤醒所有在该共享对象上等待的线程。
+  - wait()和sleep的区别？
+    - 相同点：都会阻塞。
+    - 不同点：
+      - wait是Object类的实例方法。sleep是Thread的静态方法。
+      - wait只能用在同步代码块或同步方法中。sleep随意。
+      - wait方法执行会释放对象锁。sleep不会。
+      - wait结束时机是notify唤醒，或达到指定时间。sleep结束时机是到达指定时间。
+
+
+
+## 21.12 实现线程的另外两种方式
+
+### 21.12.1 实现方式3：实现Collable接口
+
+- 使用`Callable`接口创建线程相对于其他方式的区别在于它可以返回一个值或者抛出一个异常，而其他方式都没有这个特性。这使得`Callable`在某些场景下更加灵活和方便。
+
+
+- 要使用`Callable`接口创建线程，需要实现`Callable`接口并重写`call()`方法。`call()`方法会在`Thread`对象中通过`start()`方法运行。下面是一个简单的示例代码：
+
+  ```java
+  public class ThreadTest {
+      public static void main(String[] args) {
+          FutureTask<Integer> futureTask = new FutureTask<>(new MyCallable());
+          Thread t = new Thread(futureTask);
+          t.start();
+          try {
+              System.out.println(futureTask.get());
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          } catch (ExecutionException e) {
+              e.printStackTrace();
+          }
+      }
+  
+  }
+  class MyCallable implements Callable<Integer> {
+  
+  
+      @Override
+      public Integer call() throws Exception {
+          int sum = 0;
+          for(int i = 1; i <= 10; i++){
+              sum += i;
+          }
+  
+          Thread.sleep(5 * 1000);
+          return sum;
+      }
+  }
+  ```
+
   
 
-21.12 单例模式的线程安全问题
+- 在这个示例中，我们创建了一个类`CallableDemo`，实现了`Callable<Integer>`接口，并重写了`call()`方法。`call()`方法计算了1到10的和，并返回结果。在`main`方法中，我们创建了`CallableDemo`对象，并调用`call()`方法，获取到了计算结果。
 
-21.13 可重入锁
 
-21.14 Callable实现线程
+- 需要注意的是，在实际应用中，一般是利用`Executor`接口来启动`Callable`任务，可以通过线程池来重用线程和减少线程创建和销毁的开销。
 
-21.15 线程池实现线程
+
+- 相对于其他方式，`Callable`接口的主要优点在于可以返回一个值或者抛出异常，这可以方便地获取到线程执行的结果或者处理异常。此外，`Callable`接口还支持泛型，可以避免类型不匹配的问题。但是由于需要手动启动`Thread`对象，相对来说比较繁琐，还需要利用`Executor`接口进行管理，需要在实际应用中进行评估选用。
+
+### 21.12.2 实现方式4：通过线程池
+
+ * 线程池本质上就是一个缓存：cache
+ * 一般都是服务器在启动的时候，初始化线程池，
+ * 也就是说服务器在启动的时候，创建N多个线程对象，
+ * 直接放到线程池中，需要使用线程对象的时候，直接从线程池中获取。
+
+```java
+public class ThreadTest {
+    public static void main(String[] args) {
+        ExecutorService es = Executors.newFixedThreadPool(3);
+        es.submit(new Runnable() {
+            @Override
+            public void run() {
+                for(int i = 0; i < 10; i++){
+                    System.out.println(Thread.currentThread().getName() + "--->" + i);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        es.shutdown();
+    }
+}
+```
 
