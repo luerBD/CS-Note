@@ -7812,3 +7812,197 @@ public class ThreadTest {
 }
 ```
 
+# 22.反射
+
+## 22.1 反射机制概述
+
+- 反射机制是JDK中的一套类库，这套类库可以帮助我们操作/读取 class 字节码文件。
+
+ * 后期学习的大量的java框架，底层都是基于反射机制实现的，所以必须掌握（要能够数量的使用反射机制中的方法）。
+
+ * 反射机制可以让程序更加灵活。怎么灵活？？？？
+
+ * 反射机制最核心的几个类：
+
+   ```
+   java.lang.Class：Class类型的实例代表硬盘上的某个class文件。或者说代表某一种类型。
+   java.lang.reflect.Filed：Filed类型的实例代表类中的属性/字段
+   java.lang.reflect.Constructor: Constructor类型的实例代表类中的构造方法
+   java.lang.reflect.Method: Method类型的实例代表类中的方法
+   ```
+
+   
+
+## 22.2 获取Class
+
+- 第一种方式
+
+  ```
+  Class c = Class.forName("完整的全限定类名");
+  ```
+
+   * 注意
+
+      *              全限定类名是带有包名的。
+
+      *              是lang包下的，java.lang也不能省略。
+
+      *              这是个字符串参数。
+
+      *              如果这个类根本不存在，运行时会报异常：java.lang.ClassNotFoundException
+
+      *              这个方法的执行会导致类的加载动作的发生。
+
+ * 第二种方式
+
+   ```
+   Class c = obj.getClass();
+   ```
+
+   *          注意：这个方法是通过引用去调用的。
+
+ * 第三种方式：在java语言中，任何一种类型，包括基本数据类型，都有 .class 属性。用这个属性可以获取Class实例。
+
+```java
+public class ReflectTest01 {
+    public static void main(String[] args) throws ClassNotFoundException {
+
+        // stringClass 就代表 String类型。
+        // stringClass 就代表硬盘上的 String.class文件。
+        Class stringClass = Class.forName("java.lang.String");
+
+        // 获取 User 类型
+        Class userClass = Class.forName("com.powernode.javase.reflect.User");
+
+        String s1 = "动力节点";
+        Class stringClass2 = s1.getClass();
+
+        // 某种类型的字节码文件在内存当中只有一份。
+        // stringClass 和 stringClass2 都代表了同一种类型：String类型
+        System.out.println(stringClass == stringClass2); // true
+
+        User user = new User("zhangsan", 20);
+        Class userClass2 = user.getClass();
+        System.out.println(userClass2 == userClass); // true
+
+        // intClass 代表的就是基本数据类型 int类型
+        Class intClass = int.class;
+        Class doubleClass = double.class;
+        Class stringClass3 = String.class;
+        Class userClass3 = User.class;
+
+        System.out.println(stringClass3 == stringClass); // true
+    }
+}
+
+```
+
+
+
+## 22.3 反射作用的体现
+
+### 22.3.1 获取到Class后可以实例化对象
+
+```java
+public class ReflectTest02 {
+    public static void main(String[] args) throws Exception{
+
+        // 获取到Class类型的实例之后，可以实例化对象
+        // 通过反射机制实例化对象
+        Class userClass = Class.forName("com.powernode.javase.reflect.User"); // userClass 代表的就是 User类型。
+
+        // 通过userClass来实例化User类型的对象
+        // 底层实现原理是：调用了User类的无参数构造方法完成了对象的实例化。
+        // 要使用这个方法实例化对象的话，必须保证这个类中是存在无参数构造方法的。如果没有无参数构造方法，则出现异常：java.lang.InstantiationException
+        User user = (User)userClass.newInstance();
+
+        System.out.println(user);
+
+        User user2 = (User)userClass.newInstance();
+        System.out.println(user == user2); // false
+    }
+}
+```
+
+### 22.3.2 验证反射机制的灵活性
+
+- 在属性配置文件中配置类名：classInfo.properties
+
+  ```
+  className=java.util.Date
+  ```
+
+- 通过IO流读取属性配置文件，获取类名，再通过反射机制实例化对象。
+
+  - 资源绑定器
+
+    - ava.util包下提供了一个资源绑定器，便于获取属性配置文件中的内容。使用以下这种方式的时候，属性配置文件xxx.properties必须放到类路径下。
+
+    - 资源绑定器，只能绑定xxx.properties文件。并且这个文件必须在类路径下。文件扩展名也必须是properties，并且在写路径的时候，路径后面的扩展名不能写。
+
+      ```java
+      public class ResourceBundleTest {
+          public static void main(String[] args) {
+      
+              // 资源绑定器，只能绑定xxx.properties文件。并且这个文件必须在类路径下。文件扩展名也必须是properties
+              // 并且在写路径的时候，路径后面的扩展名不能写。
+              //ResourceBundle bundle = ResourceBundle.getBundle("classinfo2");
+      
+              ResourceBundle bundle = ResourceBundle.getBundle("com/bjpowernode/java/bean/db");
+      
+              String className = bundle.getString("className");
+              System.out.println(className);
+      
+          }
+      }
+      ```
+
+
+
+- 如果要创建其他类的实例对象，只需要修改classInfo.properties配置文件即可。
+
+
+- 这说明反射机制可以让程序变的更加灵活。在进行系统扩展时，可以达到OCP开闭原则。
+
+## 22.4 反射Field																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				
+
+- 通过反射机制获取某个类的所有属性
+
+  ```
+  Field[] fields = 类型.getDeclaredFields(); // 获取所有的属性，包括私有的
+  ```
+
+- 获取到某个类的所有属性后，就可以遍历这个属性数组，然后进而获取属性权限修饰符、属性类型、属性名
+
+  ```
+  Class peopleClass = Class.forName("com.lzk.test35.People");
+  Field[] fields = peopleClass.getDeclaredFields();
+  for(Field f : fields){
+  	System.out.println(
+  	f.getType() + "--->" + 
+  	f.getName() + "==>" + 
+  	Modifier.toString(f.getModifiers())); 
+  	// 注意：getModifiers获取到的是权限修饰符的数字表示
+  	// 通过Modifier.toString(f.getModifiers())可以将权限修饰符的数字表示转换成我们需要的权限修饰符名称
+  }
+  ```
+
+  
+
+## 22.5 反射Method
+
+
+
+## 22.6 反射Constructor
+
+
+
+## 22.7 模拟框架的部分实现
+
+
+
+## 22.8 类加载及双亲委派机制
+
+
+
+## 22.9 反射泛型
