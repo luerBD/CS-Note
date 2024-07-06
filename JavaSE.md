@@ -7964,38 +7964,63 @@ public class ReflectTest02 {
 
 - 这说明反射机制可以让程序变的更加灵活。在进行系统扩展时，可以达到OCP开闭原则。
 
-## 22.4 反射Field																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				
+## 22.4 反射Field
 
-- 通过反射机制获取某个类的所有属性
+- 反射Field包括两方面：
 
-  ```
-  Field[] fields = 类型.getDeclaredFields(); // 获取所有的属性，包括私有的
-  ```
+  - 一方面：通过反射机制获取Field
 
-- 获取到某个类的所有属性后，就可以遍历这个属性数组，然后进而获取属性权限修饰符、属性类型、属性名
+    ```
+    Field field = clazz.getDeclaredField("fieldName"); // 通过属性名获取 
+    
+    Field[] fields = clazz.getDeclaredFields(); // 获取所有的属性，包括私有的
+    ```
 
-  ```
-  Class peopleClass = Class.forName("com.lzk.test35.People");
-  Field[] fields = peopleClass.getDeclaredFields();
-  for(Field f : fields){
-  	System.out.println(
-  	f.getType() + "--->" + 
-  	f.getName() + "==>" + 
-  	Modifier.toString(f.getModifiers())); 
-  	// 注意：getModifiers获取到的是权限修饰符的数字表示
-  	// 通过Modifier.toString(f.getModifiers())可以将权限修饰符的数字表示转换成我们需要的权限修饰符名称
-  }
-  ```
+  - 另一方面：通过Filed访问对象的属性
 
-  
+    ```
+    Object fieldValue = field.get(myObject); // 读取某个对象的属性值
+    
+    field.set(myObject, newValue); // 修改某个对象的属性值
+    ```
 
 ## 22.5 反射Method
 
+- 反射Method包括两方面：
 
+  - 一方面：通过反射机制获取Method
+
+    ```
+    Method method = clazz.getDeclaredMethod("methodName", paramTypes);
+    ```
+
+  - 另一方面：通过Method调用方法
+
+    ```
+    Class clazz = MyClass.class;
+    Method method = clazz.getDeclaredMethod("methodName", paramTypes);
+    Object[] args = {arg1, arg2, arg3};
+    Object result = method.invoke(myObject, args);
+    ```
 
 ## 22.6 反射Constructor
 
+- 反射Constructor包括两方面：
 
+  - 一方面：通过反射机制获取Constructor
+
+    ```
+    Constructor constructor2 = clazz.getDeclaredConstructor(paramTypes); 
+    ```
+
+  - 另一方面：通过Constructor创建对象
+
+    ```
+    Class clazz = MyClass.class;
+    Constructor constructor = clazz.getDeclaredConstructor(paramTypes);
+    Object[] args = {arg1, arg2, arg3};
+    Object myObject = constructor.newInstance(args);
+    ```
 
 ## 22.7 模拟框架的部分实现
 
