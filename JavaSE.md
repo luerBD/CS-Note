@@ -8024,10 +8024,149 @@ public class ReflectTest02 {
 
 ## 22.7 模拟框架的部分实现
 
+- 配置文件中配置如下信息：classInfo.properties
 
+  ```
+  className=com.powernode.javase.reflect.UserService
+  methodName=login
+  parameterTypes=java.lang.String,java.lang.String
+  parameterValues=admin,123456
+  ```
+
+
+- 通过反射机制创建对象，调用配置的方法
+
+  ```java
+  public class ReflectionTest09 {
+      public static void main(String[] args) throws Exception{
+          ResourceBundle bundle = ResourceBundle.getBundle("com.lzk.test36.classInfo");
+          String className = bundle.getString("className");
+          String methodName = bundle.getString("methodName");
+          String parameterTypes = bundle.getString("parameterTypes");
+          String parameterValues = bundle.getString("parameterValues");
+          // 获取类
+          Class msClass = Class.forName(className);
+  
+          // 获取构造方法创建对象
+          Constructor constructor = msClass.getConstructor();
+          Object o = constructor.newInstance();
+  
+          // 获取方法
+          String[] types = parameterTypes.split(",");
+          Class[] typesClasses = new Class[types.length];
+          for (int i = 0; i < types.length; i++) {
+              typesClasses[i] = Class.forName(types[i]);
+          }
+          Method login =  msClass.getMethod(methodName, typesClasses);
+  
+          // 调用方法
+          String[] values = parameterValues.split(",");
+  
+          Object result = login.invoke(o, values);
+          System.out.println(result);
+  
+      }
+  }
+  
+  class ManagementSystem {
+      public String userName;
+      public String password;
+      public ManagementSystem() {
+  
+      }
+      public boolean login(String userName, String password){
+          return "admin".equals(userName) && "123456".equals(password);
+      }
+  
+  }
+  ```
+
+- 本案例的实现类似于Spring框架中部分实现，主要是通过修改配置文件来达到创建不同的对象，调用不同的方法。
 
 ## 22.8 类加载及双亲委派机制
 
+### 22.8.1 类加载的过程
 
+<img src="assets/image-20240708104456519.png" alt="image-20240708104456519" style="zoom:33%;" />
+
+- 装载（loading）
+
+  - 类加载器负责将类的class文件读入内存，并创建一个java.lang.Class对象
+
+- 链接(linking)
+
+  - 验证（Verify）
+
+    - 确保加载类的信息符合JVM规范。
+
+  - 准备（Prepare）
+
+    - 正式为静态变量在方法区中开辟存储空间并设置默认值
+
+      ```
+      public static int k = 10; 此时：k会赋值0
+      public static final int f = 10; 此时： f会赋值10
+      ```
+
+  - 解析（Resolve）
+
+    - 将虚拟机常量池内的符号引用替换为直接引用（地址）的过程。
+
+- 初始化（initialization）
+
+  - 静态变量赋值，静态代码块执行
+
+### 22.8.2 获取class的四种方式
+
+- 静态方法
+
+  ```
+  Class clazz = Class.forName(“全限定类名”)
+  ```
+
+- 实例方法
+
+  ```
+  Class clazz = 引用.getClass();
+  ```
+
+- class属性
+
+  ```
+  Class clazz = 类型名.class;
+  ```
+
+- 通过类加载器获取
+
+  ```
+  ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+  Class clazz = classLoader.loadClass(“全限定类名”);
+  ```
+
+- Class.forName和classLoader.loadClass()的区别？
+  - Class.forName()：类加载时会进行初始化。
+  - classLoader.loadClass()：类加载时不会进行初始化，直到第一次使用该类。
+
+### 22.8.3 类加载器
+
+- 虚拟机内部提供了三种类加载器（Java9+）：
+  - 启动类加载器（BootstrapClassLoader）：加载Java最核心的类，例如String
+    - 注意：启动类加载器负责加载的是JDK核心类库，这个类加载器的名字看不到，直接输出的时候，结果是null。
+  - 平台类加载器（PlatformClassLoader）：加载Java平台扩展的类库，例如解析XML的
+  - 应用类加载器（AppClassLoader）：加载classpath中的
+    - 通过自定义的类获取的类加载器是应用类加载器。
+    - 通过getParent()方法可以获取当前类加载器的“父”类加载器
+  - 同时我们还可以自定义一个类加载器（UserClassLoader）
+- 获取类加载器可以通过 getParent()方法一级一级获取
+
+### 22.8.4 双亲委派机制
+
+<img src="assets/image-20240708113507800.png" alt="image-20240708113507800" style="zoom:33%;" />
+
+- 某个类加载器接收到加载类的任务时，通常委托给“父 类加载”完成加载。
+- 最“父 类加载器”无法加载时，一级一级向下委托加载任务。
+- 作用：
+  - 保护程序的安全。
+  - 防止类加载重复。
 
 ## 22.9 反射泛型
