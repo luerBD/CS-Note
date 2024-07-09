@@ -8169,4 +8169,239 @@ public class ReflectTest02 {
   - 保护程序的安全。
   - 防止类加载重复。
 
-## 22.9 反射泛型
+# 23.注解
+
+## 23.1 注解概述
+
+- 什么是注解？
+  - 注解是JDK1.5才引入的。
+  - 注解可以标注在 类上，属性上，方法上 等。
+  - 注解可以做到在不改变代码逻辑的前提下在代码中嵌入补充信息。
+- 注解与注释
+  - 注释：给程序员看的，编译器编译时会忽略注释。
+  - 注解：给编译器看的，或给其它程序看的，程序根据有没有这个注解来决定不同的处理方式。
+- 注解的重要性
+  - 框架是如何实现的：框架 = 反射 + 注解 + 设计模式。
+
+## 23.2 Java预置注解
+
+### 23.2.1 @Deprecated
+
+- 被这个注解标注的元素已过时。
+
+- 这个注解是给编译器看的。编译器看到这个注解之后会有警告提示信息。
+
+- 经过测试 @Deprecated 注解可以标注的元素很多，例如：类上，方法上，属性上....
+
+  ```
+  // since属性值表示从哪个版本开始已过时。
+  // forRemoval属性值如果是true表示已移除。
+  @Deprecated(since = "9", forRemoval = true)
+  ```
+
+  ```
+  public class AnnotationTest01 {
+      public static void main(String[] args) {
+          MyClass1 myClass1 = new MyClass1();
+          System.out.println(myClass1.num);
+          myClass1.doSome();
+      }
+  }
+  
+  // 标注这个类已过时，不建议使用了
+  @Deprecated
+  class MyClass1 {
+  
+      // since属性值表示从哪个版本开始已过时。
+      // forRemoval属性值如果是true表示已移除。
+      @Deprecated(since = "9", forRemoval = true)
+      public int num = 100;
+  
+      @Deprecated
+      public void doSome(){
+  
+      }
+  }
+  
+  ```
+
+### 23.2.2 @Override
+
+- 给编译器看的。
+
+ * 这个注解标注实例方法，被标注的方法必须是重写父类的方法。
+
+ * 这个注解就是在编译阶段进行方法检查的，检查这个方法是否重写了父类方法，如果没有重写父类方法，则报错。
+
+ * 通过测试这个@Override注解只能使用在实例方法上。其他位置不能应用。
+
+   ```
+   public class AnnotationTest02 {
+   
+       //@Override
+       public static int num = 100;
+   
+       @Override
+       public boolean equals(Object obj){
+           return false;
+       }
+   
+       //@Override
+       public static void m(){
+   
+       }
+   }
+   ```
+
+### 23.2.3 @FunctionalInterface
+
+- 这个注解是专门用来标注接口的。
+
+ * 被标注的接口必须是一个函数式接口，如果不是函数式接口，则编译器报错。
+
+   *      什么是函数式接口？
+          *      如果这个接口中抽象方法只有一个（有且仅有一个）。称为函数式接口。
+
+ * 这个注解也是给编译器看的。
+
+ * 被 @FunctionalInterface 标注的接口中，允许有多个默认方法和静态方法。
+
+   ```
+   public class AnnotationTest04 {
+   }
+   
+   @FunctionalInterface
+   interface Flyable {
+       void fly();
+   
+       //void run();
+   
+       default void run(){
+           System.out.println("默认方法是可以的");
+       }
+   
+       static void doSome(){
+           System.out.println("静态方法");
+       }
+   }
+   
+   ```
+
+   
+
+## 23.3 自定义注解
+
+### 23.3.1 自定义注解
+
+- 使用 @interface 来定义注解。
+
+- 默认情况下注解可以出现在类上、方法上、属性上、构造方法上、方法参数上等......
+
+- 所有自定义的注解，它的父类是：java.lang.annotation.Annotation
+
+  ```
+  @interface MyAnnotation{
+  
+  }
+  
+  @MyAnnotation
+  class MyClass{
+      @MyAnnotation
+      public String name;
+  
+      @MyAnnotation
+      public MyClass(String name) {
+          this.name = name;
+      }
+  
+      @MyAnnotation
+      public void doSome(@MyAnnotation int a, @MyAnnotation int b){
+  
+      }
+  }
+  ```
+
+### 23.3.2 注解也可以定义属性
+
+- 注解也可以定义属性，但是属性定义时有要求，属性名后面必须添加：()
+
+- 语法：
+
+  ```
+  属性的类型 属性的名字();
+  ```
+
+  ```
+  public @interface DataBaseInfo {
+      /**
+       * 注解也可以定义属性，但是属性定义时有要求，属性名后面必须添加：()
+       * 语法：
+       *      属性的类型 属性的名字();
+       */
+      String driver() default "com.mysql.cj.jdbc.Driver"; // 使用 default 关键字来指定属性的默认值。
+      String url();
+      String user();
+      String password();
+  
+      byte b() default 0;
+      short s() default 0;
+      int i() default 0;
+      long l() default 0L;
+      float f() default 0.0F;
+      double d() default 0.0;
+      boolean flag() default false;
+      char c() default '0';
+      Class clazz() default String.class;
+      Season season() default Season.SPRING;
+      MyAnnotation myAnnotation();
+  
+      /**
+       * 可以是一维数组形式
+       * @return
+       */
+      String[] names();
+  
+      // 注解的属性的数据类型，必须是以上的几种类型，或者这几种类型的一维数组，不能是其他类型。
+      //Object obj();
+  }
+  ```
+
+  
+
+### 23.3.3 注解的使用
+
+```
+/**
+ * 使用自定义的注解：@DataBaseInfo
+ */
+public class AnnotationTest06 {
+
+    // 语法规则：如果这个注解中有属性，那么使用的时候，必须给属性赋值。没有赋值则报错。
+    // 除非你定义注解的时候给属性指定了默认值。
+    // 怎么给属性赋值？语法：@DataBaseInfo(属性名=值,属性名=值,属性名=值,属性名=值,属性名=值)
+    @DataBaseInfo(
+            //driver="oracle.jdbc.driver.OracleDriver",
+            url="jdbc:mysql://localhost:3306/powernode",
+            user="root",
+            password="123456",
+            myAnnotation=@MyAnnotation,
+            names={"zhangsan", "lisi", "wangwu"},
+            flag=true,
+            i=100,
+            clazz=Integer.class,
+            season=Season.WINTER)
+    public void connDB(){
+
+    }
+
+}
+```
+
+
+
+## 23.4 元注解
+
+
+
+## 23.5 反射注解
+
