@@ -267,13 +267,22 @@
 
 ### 1.2.1 替换空格
 
-- 题目描述：实现一个函数，把字符串中的每个空格都替换成“%20”。
+- 题目描述
 
-- 测试用例：一般是考虑功能用例，特殊（边缘）用例或者是反例，无效测试用例这三种情况。甚至可以从测试用例寻找一些规律解决问题，同时也可以让我们的程序更加完整鲁棒。
+  ```
+  实现一个函数，把字符串中的每个空格都替换成“%20”。
+  ```
 
-  - 功能用例：字符串有一个或者多个空格
-  - 反例：字符串没有空格，或字符串长度为0
-  - 无效用例：数组是null
+- 测试用例
+
+  ```
+  一般是考虑功能用例，特殊（边缘）用例或者是反例，无效测试用例这三种情况。甚至可以从测试用例寻找一些规律解决问题，同时也可以让我们的程序更加完整鲁棒。
+  （1）功能用例：字符串有一个或者多个空格
+  （2）反例：字符串没有空格，或字符串长度为0
+  （3）无效用例：数组是null
+  ```
+
+  
 
 - 分析：由于在Java中字符串String类型是不可变类型，所以没办法像C++一样在原来的字符串上进行修改，因此必须要开一个新的空间进行处理。下面是几种解法思路以及时间空间复杂度比较。
 
@@ -554,58 +563,90 @@ void ReplaceBlank(char str[], int length)
 
 ### 1.4.1 重建二叉树
 
-```c
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
- * };
- */
+- 题目描述
 
- struct TreeNode* deduceTreeCore(int* startPreorder, int* endPreorder, int* startInorder, int* endInorder)
-{
-    // 在先序遍历序列中找到根节点的值
-    int rootValue = startPreorder[0];
-    struct TreeNode* root = (struct TreeNode *)malloc(sizeof(struct TreeNode));
-    root->val = rootValue;
-    root->left = root->right = NULL;
+  ```
+  输入某二叉树的前序遍历和中序遍历的结果，请构建该二叉树并返回其根节点。
+  假设输入的前序遍历和中序遍历的结果中都不含重复的数字。
+  例如：先序遍历为[3,9,20,15,7]，中序遍历为 [9,3,15,20,7]，其对应的二叉树如下
+  		  3
+  	    /   \
+  	  9 	20
+             /  \
+           15    7
+  ```
 
-    // 在中序遍历序列中找到根节点的值
-    int* rootInorder = startInorder;
-    while(rootInorder <= endInorder && *rootInorder != rootValue)
-    {
-        rootInorder++;
-    }
+- 测试用例
 
-    int leftLength = rootInorder - startInorder;        // 获取中序序列中左子树节点个数
-    int* leftPreorderEnd = startPreorder + leftLength;  // 指向先序序列中左子树的末尾结点
+  ```
+  一般是考虑功能用例，特殊（边缘）用例或者是反例，无效测试用例这三种情况。甚至可以从测试用例寻找一些规律解决问题，同时也可以让我们的程序更加完整鲁棒。
+  （1）功能用例：完全与非完全二叉树。
+  （2）边缘用例：只有一个节点，只有左节点，只有右节点。
+  （3）无效用例：树为空，对应数组为空。
+  ```
 
-    // 如果中序序列中左子树节点个数>0的话，就可以创建左子树了
-    if(leftLength > 0)
-    {
-        root->left = deduceTreeCore(startPreorder + 1, leftPreorderEnd, startInorder, rootInorder - 1);
-    } 
+- 思路
 
-    // 如果中序序列中左子树节点个数 == 除根节点以外的节点个数的话，说明该树是一棵左单支树，没有右子树，此时就不用创建右子树了
-    // 否则就可以创建右子树
-    if(leftLength < endPreorder - startPreorder)
-    {
-        root->right = deduceTreeCore(leftPreorderEnd + 1, endPreorder, rootInorder + 1, endInorder);
-    }
-    return root;
+  - 分析
+
+    - 从数据结构中可知，根据二叉树的先序与中序遍历结果可以唯一的重建二叉树（另外根据后序与中序也可以唯一的重建二叉树）。需要注意的是：前提条件是，树中的任意两个节点值不能相同
 
 
-}
-struct TreeNode* deduceTree(int* preorder, int preorderSize, int* inorder, int inorderSize) 
-{
-    if(preorder == NULL || inorder == NULL || preorderSize == 0 || inorderSize == 0)
-    {
-        return NULL;
-    }
-    return deduceTreeCore(preorder, preorder + preorderSize - 1, inorder, inorder + inorderSize - 1);
-}
+    - 重建二叉树，最直接的想法是找到根节点，以及左右子树的节点集合，然后对每个节点不断递归即可。下面考虑如何找到根节点以及左右子树节点集合，并以上例举例（先序遍历为[3,9,20,15,7]，中序遍历为 [9,3,15,20,7]）。
 
-```
+
+    - 根节点：根据先序遍历的特点，第一个节点即是根节点（值为3的节点为根节点）。
+    - 左右子树集合：根据中序遍历特点，根节点左边的节点集合为左子树（[ 9 ]），根节点右边的节点集合为右子树（[15,20,7]）
+
+  - 下面是递归解法思路与具体过程、以及时间空间复杂度比较。
+
+    - 解法：递归实现
+      - 递归终止条件：当输入先序、中序遍历结果数组没有元素时，说明左/右子树构建完成，直接返回null即可。
+      - 划分左右子树：根据先序遍历的第一个节点，找到中序遍历与之相同的节点，左边是左子树，右边是右子树
+      - 构建根节点：根据先序遍历的第一个节点构建新节点，即当前根节点root
+      - 递归构建左右子树：更新先序、中序遍历结果数组递归调用。
+      - 返回值：最后回溯返回的根节点即整个二叉树的根节点。
+      - 注意： 比较简单直接地方式是每次递归左右子树时，可以新建左右子树数组传进去进行处理，但会浪费时间与空间，优化方式是使用下标以及左右子树节点数量来代替，具体细节见代码。
+      - 时间空间复杂度：O(n),O(n)
+
+  - 难点：递归调用时候确定左右子树的开始位置与长度。
+
+- 代码
+
+  ```java
+  class Solution {
+      public TreeNode deduceTree(int[] preorder, int[] inorder) {
+          if(preorder == null || 
+             inorder == null || 
+             preorder.length == 0 || 
+             inorder.length == 0 || 
+             preorder.length != 
+             inorder.length){
+              return null;
+          }
+          return deduceTreeCore(preorder, 0, inorder, 0, preorder.length);
+      }
+      public TreeNode deduceTreeCore(int[] preorder, int preStart, int[] inorder, int inStart, int length){
+          if(length == 0){
+              return null;
+          }
+          int index = -1;
+          for(int i = inStart; i < inStart + length; i++){
+              if(inorder[i] == preorder[preStart]){
+                  index = i;
+                  break;
+              }
+          }
+          int leftLength = index - inStart;
+          int rightLength = length - leftLength - 1;
+          TreeNode root = new TreeNode(preorder[preStart]);
+          
+          root.left = deduceTreeCore(preorder, preStart + 1, inorder, inStart, leftLength);
+          root.right = deduceTreeCore(preorder, preStart + leftLength + 1, inorder, index + 1, rightLength);
+          return root;
+      }
+  }
+  ```
+
+  
 
