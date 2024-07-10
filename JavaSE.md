@@ -8227,13 +8227,13 @@ public class ReflectTest02 {
 
 ### 23.2.2 @Override
 
-- 给编译器看的。
+- 它是给编译器看的。
 
  * 这个注解标注实例方法，被标注的方法必须是重写父类的方法。
 
  * 这个注解就是在编译阶段进行方法检查的，检查这个方法是否重写了父类方法，如果没有重写父类方法，则报错。
 
- * 通过测试这个@Override注解只能使用在实例方法上。其他位置不能应用。
+ * 通过测试得出，这个@Override注解只能使用在实例方法上。其他位置不能应用。
 
    ```
    public class AnnotationTest02 {
@@ -8331,6 +8331,16 @@ public class ReflectTest02 {
   属性的类型 属性的名字();
   ```
 
+- 属性的类型只能是：
+
+  ```
+  ①byte，short，int，long，float，double，boolean，char
+  ②String、Class、枚举类型、注解类型
+  ③以上所有类型的一维数组形式
+  ```
+
+  
+
   ```
   public @interface DataBaseInfo {
       /**
@@ -8370,6 +8380,10 @@ public class ReflectTest02 {
 
 ### 23.3.3 注解的使用
 
+- 注解在使用时必须给属性赋值，除非你使用了default关键字为属性指定了默认值。
+- 如果属性只有一个，并且属性名是value时，使用注解时value可以省略不写。
+- 如果属性是一个数组，使用注解时，数组值只有一个，数组的大括号是可以省略的
+
 ```
 /**
  * 使用自定义的注解：@DataBaseInfo
@@ -8400,6 +8414,89 @@ public class AnnotationTest06 {
 
 
 ## 23.4 元注解
+
+- 用来标注注解的注解叫做元注解。(也是JDK内置的注解。)
+- 常用的元注解：
+  - @Retention：设置注解的保持性
+  - @Target：设置注解可以出现的位置
+  - @Documented：设置注解是否可以生成到帮助文档中
+  - @Inherited：设置注解是否支持继承
+  - @Repeatable：设置注解在某一个元素上是否可以重复使用（Java8的新特性。）
+
+### 23.4.1 @Retention
+
+- Retention英文意思有保留、保持的意思，它表示注解存在阶段是保留在源代码（编译期），字节码（类加载）或者运行时（JVM中运行）。
+
+- 在@Retention注解中使用枚举RetentionPolicy来表示注解保留时期。
+
+  - @Retention(RetentionPolicy.SOURCE)：注解仅存在于源代码中，在字节码文件中不包含。
+
+  - @Retention(RetentionPolicy.CLASS)：注解在字节码文件中存在，但运行时无法获得（默认）。
+
+  - @Retention(RetentionPolicy.RUNTIME)：注解在字节码文件中存在，且运行时可通过反射获取。
+
+    ```
+    @Retention(RetentionPolicy.SOURCE)
+    @interface MyAnnotation {
+    }
+    
+    public class Test {
+        public static void main(String[] args) {
+    
+            // 获取这个类
+            Class<Test> testClass = Test.class;
+    
+            // 获取这个类上的注解
+            //MyAnnotation annotation = testClass.getAnnotation(MyAnnotation.class);
+            // java.lang.annotation.Annotation是所有注解的老祖宗。
+            Annotation annotation = testClass.getAnnotation(MyAnnotation.class);
+    
+            System.out.println(annotation);
+        }
+    }
+    ```
+
+    
+
+### 23.4.2 @Target
+
+- 用于描述注解可以使用的位置，该注解使用ElementType枚举类型用于描述注解可以出现的位置，ElementType有如下枚举值：
+
+  - @Target(ElementType.TYPE)：作用于接口、类、枚举、注解
+  - @Target(ElementType.FIELD)：作用于属性、枚举的常量
+  - @Target(ElementType.METHOD)：作用于方法
+  - @Target(ElementType.PARAMETER)：作用于方法参数
+  - @Target(ElementType.CONSTRUCTOR)：作用于构造方法
+  - @Target(ElementType.LOCAL_VARIABLE)：作用于局部变量
+  - @Target(ElementType.ANNOTATION_TYPE)：作用于注解
+  - @Target(ElementType.PACKAGE)：作用于包
+  - @Target(ElementType.TYPE_PARAMETER)：作用于泛型，即泛型方法、泛型类和泛型接口。 
+  - @Target(ElementType.TYPE_USE)：作用于任意类型。
+
+  ```
+  //@Target(value={ElementType.METHOD})
+  //@Target(ElementType.METHOD) // 限定注解只能出现在方法上
+  @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
+  public @interface MyAnnotation {
+  }
+  
+  @MyAnnotation
+  public class Test {
+  
+      @MyAnnotation
+      int num = 100;
+  
+      @MyAnnotation
+      public static void main(String[] args) {
+  
+      }
+  }
+  
+  ```
+
+  
+
+### 23.4.3 @Documented
 
 
 
