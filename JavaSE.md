@@ -8494,11 +8494,146 @@ public class AnnotationTest06 {
   
   ```
 
-  
 
 ### 23.4.3 @Documented
 
+- Documented的英文意思是文档。使用javadoc.exe工具可以从程序源代码中抽取类、方法、属性等注释形成一个源代码配套的API帮助文档，而该工具抽取时默认不包括注释内容。如果使用的注解被@Documented标注，那么该注解就能被javadoc.exe工具提取到API文档。
 
+### 23.4.4 @Inherited
+
+- Inherited的英文意思是继承，但是这个继承和我们平时理解的继承大同小异，一个被@Inherited注解了的注解修饰了一个父类，则它的子类也继承了父类的注解。
+
+  ```
+  @Inherited
+  @Retention(RetentionPolicy.RUNTIME)
+  public @interface MyAnnotation {
+  
+  }
+  ```
+
+  ```
+  @MyAnnotation
+  public class Animal {
+  
+  }
+  ```
+
+  ```
+  public class Cat extends Animal {
+  
+  }
+  ```
+
+  ```
+  public class AnnotationTest {
+      public static void main(String[] args) {
+          Class clazz = Cat.class;
+          Annotation anno =  clazz.getAnnotation(MyAnnotation.class);
+          System.out.println(anno);
+      }
+  }
+  ```
+
+  
+
+### 23.4.5 @Repeatable
+
+- Repeatable表示可重复的含义，该注解属于JDK1.8版本的新特性。
+
+  ```
+  @Repeatable(Authors.class) // Repeatable中的参数必须是Author名称的复数形式即Authors
+  public @interface Author {
+      public String name();
+  }
+  ```
+
+  ```
+  public @interface Authors {
+      Author[] value();
+  }
+  ```
+
+  ```
+  @Author(name = "joker")
+  @Author(name = "lzk")
+  public class Animal {
+      public static void main(String[] args) {
+  
+      }
+  }
+  ```
 
 ## 23.5 反射注解
+
+```
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
+public @interface Annotation1 {
+    String name() default "";
+    int age() default 0;
+}
+```
+
+```
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
+public @interface Annotation2 {
+    String email() default "";
+    double price() default 0.0;
+}
+
+```
+
+```
+@Annotation1(name="zhangsan22222", age=3333)
+@Annotation2(email="zhangsan@123.com", price = 3000.5)
+public class MyClass {
+
+    @Annotation1
+    @Annotation2
+    String s;
+
+    @Annotation1
+    @Annotation2
+    public void doSome(){
+
+    }
+}
+```
+
+```
+public class Test {
+    public static void main(String[] args) {
+        // 获取类
+        Class<MyClass> mcClass = MyClass.class;
+
+        // 获取类上的所有注解
+        /*Annotation[] annotations = mcClass.getAnnotations();
+        for(Annotation a : annotations){
+            System.out.println(a);
+        }*/
+
+        // 判断该类上是否存在这个注解
+        if(mcClass.isAnnotationPresent(Annotation1.class)){
+            // 获取指定的某个注解
+            Annotation1 a1 = mcClass.getAnnotation(Annotation1.class);
+            // 访问注解对象中的属性
+            System.out.println(a1.name());
+            System.out.println(a1.age());
+        }
+
+        if(mcClass.isAnnotationPresent(Annotation2.class)){
+            Annotation2 a2 = mcClass.getAnnotation(Annotation2.class);
+            System.out.println(a2.email());
+            System.out.println(a2.price());
+        }
+
+    }
+}
+
+```
 
