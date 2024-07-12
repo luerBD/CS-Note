@@ -5866,6 +5866,8 @@ java.io.ObjectOutputStream（掌握）
 
 ## 20.6 java.io.File类
 
+### 20.6.1 java.io.File类概述
+
 - File类的理解
 
   - File类和四大家族没有关系，所以File类不能完成文件的读和写。
@@ -5928,6 +5930,62 @@ java.io.ObjectOutputStream（掌握）
   File[] listFiles() 
   返回一个抽象路径名数组，表示此抽象路径名表示的目录中的文件。
   ```
+
+### 20.6.2 目录拷贝案例
+
+```java
+public class CopyDir {
+    public static void main(String[] args) {
+
+        // 拷贝源
+        File src = new File("E:\\powernode\\02-JavaSE\\code"); // E:\powernode\02-JavaSE\code\chapter01\A.java
+
+        // 拷贝目标
+        File dest = new File("E:\\a\\b\\c"); // E:\a\b\c\powernode\02-JavaSE\code\chapter01\A.java
+
+        // 开始拷贝
+        copy(src, dest);
+    }
+
+    /**
+     * 拷贝目录的方法
+     * @param src 拷贝源
+     * @param dest 拷贝目标
+     */
+    private static void copy(File src, File dest) {
+        if(src.isFile()){
+            // 是文件的时候要拷贝。
+            try(FileInputStream in = new FileInputStream(src);
+                FileOutputStream out = new FileOutputStream(dest.getAbsoluteFile() + src.getAbsolutePath().substring(2))){
+                // 开始拷贝
+                byte[] bytes = new byte[1024 * 1024];
+                int readCount = 0;
+                while((readCount = in.read(bytes)) != -1){
+                    out.write(bytes, 0, readCount);
+                }
+                out.flush();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+            return;
+        }
+        // 假设src是一个目录
+        // 程序能够执行到此处一定是一个目录
+        // 创建目录
+        File newDir = new File(dest.getAbsolutePath() + src.getAbsolutePath().substring(2));
+        if(!newDir.exists()){
+            newDir.mkdirs();
+        }
+        File[] files = src.listFiles();
+        for (File file : files){
+            //System.out.println(file.getAbsolutePath());
+            copy(file, dest);
+        }
+    }
+}
+```
+
+
 
 ## 20.7 IO+Properties的联合应用
 
