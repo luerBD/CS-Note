@@ -8695,3 +8695,225 @@ public class Test {
 
 ```
 
+##  23.6 综合练习
+
+- 储备知识：
+
+  <img src="assets/image-20240713091558146.png" alt="image-20240713091558146" style="zoom:33%;" />
+
+  ```
+  数据库是用来组织数据的，数据库使用表来组织数据，一个数据库表如图所示。
+  一张表应该有表名，例如：t_user
+  一张表中应该有很多字段，每个字段有字段名和数据类型，例如age字段是int类型。
+  数据库中整数对应的类型是：int。字符串对应的类型是：varchar。
+  ```
+
+- 编写程序扫描一个包下所有的类，凡是被 @Table 注解标注的类都要生成一条建表语句，表名在 @Table 注解中指定。被@Table 标注的类中的属性被 @Column 注解标注，在 @Column注解中描述字段的名称和字段的数据类型。
+
+  - 先创建以下的包和类以及注解
+
+    <img src="assets/image-20240713091917373.png" alt="image-20240713091917373" style="zoom: 50%;" />
+
+  - 写代码
+
+    ```
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface Table {
+        public String value();
+    }
+    ```
+
+    ```
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface Column {
+        public String name();
+        public String type() default "varchar";
+    }
+    ```
+
+    ```
+    @Table("t_user")
+    public class User {
+        @Column(name = "uid")
+        private String userId;
+    
+        @Column(name = "uname")
+        private String userName;
+    
+        @Column(name = "upwd")
+        private String userPassword;
+    
+        @Column(name = "uage", type = "int")
+        private int userAge;
+    
+        private String userEmail;
+    }
+    
+    ```
+
+    ```
+    @Table("t_vip")
+    public class Vip {
+        @Column(name = "vid")
+        private String vipId;
+    
+        @Column(name = "vname")
+        private String vipName;
+    
+        @Column(name = "vgrade")
+        private String vipGrade;
+    }
+    
+    ```
+
+    ```
+    @Table("t_customer")
+    public class Customer {
+        @Column(name = "cid")
+        private String customerId;
+    
+        @Column(name = "cname")
+        private String customerName;
+    
+        @Column(name = "cage", type = "int")
+        private int customerAge;
+    
+        @Column(name = "caddr")
+        private String customerAddress;
+    }
+    ```
+
+    ```
+    public class Test {
+        private static String classpathRoot = Thread.currentThread().getContextClassLoader().getResource(".").getPath();
+        public static void main(String[] args) {
+            File root = new File(classpathRoot);
+            generateStatement(root);
+    
+    
+    
+        }
+    
+        private static void generateStatement(File root) {
+            if(root.isFile()){
+                if(root.getAbsolutePath().endsWith(".class")){
+                    String className = root.getAbsolutePath().substring(classpathRoot.length() - 1, root.getAbsolutePath().length() - ".class".length()).replace("\\", ".");
+                    try {
+                        Class<?> clazz = Class.forName(className);
+                        if(clazz.isAnnotationPresent(Table.class)){
+                            Table tableAnnotation = clazz.getAnnotation(Table.class);
+                            StringBuilder statement = new StringBuilder();
+                            statement.append("create table ");
+                            statement.append(tableAnnotation.value());
+                            statement.append("(");
+                            Field[] fields = clazz.getDeclaredFields();
+                            for(Field f : fields){
+                                if(f.isAnnotationPresent(Column.class)){
+                                    Column columnAnnotation = f.getAnnotation(Column.class);
+                                    statement.append(columnAnnotation.name());
+                                    statement.append(" ");
+                                    statement.append(columnAnnotation.type());
+                                    statement.append(",");
+    
+                                }
+                            }
+    
+                            statement.deleteCharAt(statement.length() - 1);
+                            statement.append(");");
+                            System.out.println(statement);
+                        }
+    
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+    //                System.out.println(className);
+                }
+                return;
+            }
+            File[] files = root.listFiles();
+            for(File file : files){
+    
+    
+                generateStatement(file);
+            }
+        }
+    }
+    ```
+
+    
+
+# 24.网络编程
+
+## 24.1 网络编程概述
+
+### 24.1.1 什么是网络编程？
+
+网络编程是指利用计算机网络实现程序之间通信的一种编程方式。在网络编程中，程序需要通过网络协议（如 TCP/IP）来进行通信，以实现不同计算机之间的数据传输和共享。
+
+### 24.1.2 在网络编程中通常有三个基本要素
+
+- IP 地址：定位网络中某台计算机
+- 端口号port：定位计算机上的某个进程（某个应用）
+- 通信协议：通过IP地址和端口号定位后，如何保证数据可靠高效的传输，这就需要依靠通信协议了。
+
+## 24.2 网络编程三要素
+
+### 24.2.1 IP地址
+
+- IP地址
+
+  - IP 地址用于唯一标识网络中的每一台计算机。在 Internet 上，使用 IPv4 或 IPv6 地址来表示 IP 地址。通常 IPv4 地址格式为 xxx.xxx.xxx.xxx，其中每个 xxx 都表示一个 8 位的二进制数（每一个xxx的取值范围是0-255），组合起来可以表示 2^32 个不同的 IP 地址。
+
+  - IPv4 地址的总数量是4294967296 个，但并不是所有的 IPv4 地址都可以使用。IPv4 地址被分为网络地址和主机地址两部分，前3个字节用于表示网络（省市区），最后1个字节用于表示主机（家门牌）。而一些 IP 地址被保留或者被私有机构使用，不能用于公网的地址分配。另外，一些 IP 地址被用作多播地址，仅用于特定的应用场景。因此实际上可供使用的 IPv4 地址数量要少于总数量，而且随着 IPv4 地址的逐渐枯竭，IPv6 地址已经开始逐渐普及，IPv6 地址数量更是相当巨大。
+
+  - IPv6使用16个字节表示IP地址(128位)，这样就解决了网络地址资源数量不够的问题。IPv6 地址由 8 组 16 位十六进制数表示，每组之间用冒号分隔，如：3ffe:3201:1401:1280:c8ff:fe4d:db39:1984
+
+  - 本机地址：127.0.0.1，主机名：localhost。
+
+  - 192.168.0.0-192.168.255.255为私有地址，属于非注册地址，专门为组织机构内部使用。
+
+- IP地址相关的：域名与DNS
+
+  - 域名
+    - IP地址毕竟是数字标识，使用时不好记忆和书写，因此在IP地址的基础上又发展出一种符号化的地址方案，来代替数字型的IP地址。每一个符号化的地址都与特定的IP地址对应。这个与网络上的数字型IP地址相对应的字符型地址，就被称为域名。
+    - 目前域名已经成为互联网品牌、网上商标保护必备的要素之一，除了识别功能外，还有引导、宣传等作用。如：www.baidu.com
+  - DNS
+    - 在Internet上域名与IP地址之间是一对一（或者多对一）的，域名虽然便于人们记忆，但机器之间只能互相认识IP地址，它们之间的转换工作称为域名解析，域名解析需要由专门的域名解析服务器来完成，DNS（Domain Name System域名系统）就是进行域名解析的服务器，域名的最终指向是IP。
+
+### 24.2.2 端口号（port）
+
+- 在计算机中，不同的应用程序是通过端口号区分的。
+
+- 端口号是用两个字节（无符号）表示的，它的取值范围是0~65535，而这些计算机端口可分为3大类：
+
+  - 公认端口：0~1023。被预先定义的服务通信占用（如：HTTP占用端口80，FTP占用端口21，Telnet占用端口23等）
+  - 注册端口：1024~49151。分配给用户进程或应用程序。（如：Tomcat占用端口8080，MySQL占用端口3306，Oracle占用端口1521等）。
+  - 动态/私有端口：49152~65535。
+
+- 通常情况下，服务器程序使用固定的端口号来监听客户端的请求，而客户端则使用随机端口连接服务器。
+
+- IP地址好比每个人的地址（门牌号），端口好比是房间号。必须同时指定IP地址和端口号才能够正确的发送数据。接下来通过一个图例来描述IP地址和端口号的作用，如图所示:
+
+  <img src="assets/image-20240713111512053.png" alt="image-20240713111512053" style="zoom:33%;" />
+
+### 24.2.3 通信协议
+
+- 通过计算机网络可以使多台计算机实现连接，位于同一个网络中的计算机在进行连接和通信时需要遵守一定的规则。就像两个人想要顺利沟通就必须使用同一种语言一样，如果一个人只懂英语而另外一个人只懂中文，这样就会造成没有共同语言而无法沟通。
+- 在计算机网络中，这些连接和通信的规则被称为网络通信协议，它对数据的传输格式、传输速率、传输步骤等做了统一规定，通信双方必须同时遵守才能完成数据交换。
+- 在计算机网络中，常用的协议有 TCP、UDP、HTTP、FTP 等。这些协议规定了数据传输的格式、传输方式和传输顺序等细节。其中，TCP（传输控制协议）是一种可靠的面向连接的协议，它提供数据传输的完整性保证；而 UDP（用户数据报协议）则是一种无连接的协议，传输效率高。在网络编程中，需要选取合适的协议类型来实现数据传输。
+
+## 24.3 网络编程基础类
+
+
+
+## 24.4 TCP与UDP协议
+
+
+
+## 24.5 基于TCP协议的编程
+
+
+
+## 24.6 基于UDP协议的编程
