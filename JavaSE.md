@@ -8901,16 +8901,137 @@ public class Test {
 ### 24.2.3 通信协议
 
 - 通过计算机网络可以使多台计算机实现连接，位于同一个网络中的计算机在进行连接和通信时需要遵守一定的规则。就像两个人想要顺利沟通就必须使用同一种语言一样，如果一个人只懂英语而另外一个人只懂中文，这样就会造成没有共同语言而无法沟通。
+
 - 在计算机网络中，这些连接和通信的规则被称为网络通信协议，它对数据的传输格式、传输速率、传输步骤等做了统一规定，通信双方必须同时遵守才能完成数据交换。
+
 - 在计算机网络中，常用的协议有 TCP、UDP、HTTP、FTP 等。这些协议规定了数据传输的格式、传输方式和传输顺序等细节。其中，TCP（传输控制协议）是一种可靠的面向连接的协议，它提供数据传输的完整性保证；而 UDP（用户数据报协议）则是一种无连接的协议，传输效率高。在网络编程中，需要选取合适的协议类型来实现数据传输。
+
+- OSI参考模型
+
+  - 世界上第一个网络体系结构由IBM公司提出（1974年，SNA），以后其他公司也相继提出自己的网络体系结构如：Digital公司的DNA，美国国防部的TCP/IP等，多种网络体系结构并存，其结果是若采用IBM的结构，只能选用IBM的产品，只能与同种结构的网络互联。
+
+  - 为了促进计算机网络的发展，国际标准化组织ISO（International Organization for Standardization）于1977年成立了一个委员会，在现有网络的基础上，提出了不基于具体机型、操作系统或公司的网络体系结构，称为开放系统互连参考模型，即OSI/RM （Open System Interconnection Reference Model）。OSI模型把网络通信的工作分为7层，分别是物理层、数据链路层、网络层、传输层、会话层、表示层和应用层。OSI七层协议模型如图所示：
+
+    <img src="assets/image-20240714092029528.png" alt="image-20240714092029528" style="zoom:33%;" />
+
+- TCP/IP参考模型
+
+  - OSI参考模型的初衷是提供全世界范围的计算机网络都要遵循的统一标准，但是由于存在模型和协议自身的缺陷，迟迟没有成熟的产品推出。TCP/IP协议在实践中不断完善和发展取得成功，作为网络的基础，Internet的语言，可以说没有TCP/IP参考模型就没有互联网的今天。
+
+  - TCP/IP，即Transmission Control Protocol/Internet Protocol的简写，中译名为传输控制协议/因特网互联协议，是Internet最基本的协议、Internet国际互联网络的基础。
+
+  - TCP/IP协议是一个开放的网络协议簇，它的名字主要取自最重要的网络层IP协议和传输层TCP协议。TCP/IP协议定义了电子设备如何连入因特网，以及数据如何在它们之间传输的标准。TCP/IP参考模型采用4层的层级结构，每一层都呼叫它的下一层所提供的协议来完成自己的需求，这4个层次分别是：网络接口层、互联网层（IP层）、传输层（TCP层）、应用层。
+
+  - OSI模型与TCP/IP模型的对应关系如图所示：
+
+    <img src="assets/image-20240714092133365.png" alt="image-20240714092133365" style="zoom:33%;" />
+
+    
+
 
 ## 24.3 网络编程基础类
 
+### 24.3.1 InetAddress类
 
+-  java.net.IntAddress类用来封装计算机的IP地址和DNS（没有端口信息），它包括一个主机名和一个IP地址，是java对IP地址的高层表示。大多数其它网络类都要用到这个类，包括Socket、ServerSocket、URL、DatagramSocket、DatagramPacket等。
+
+- 常用静态方法
+
+  ```
+  static InetAddress getLocalHost() 
+  得到本机的InetAddress对象，其中封装了IP地址和主机名
+  
+  static InetAddress getByName(String host) 
+  传入目标主机的名字或IP地址得到对应的InetAddress对象，其中封装了IP地址和主机名（底层会自动连接DNS服务器进行域名解析）
+  ```
+
+- 常用实例方法
+
+  ```
+  public String getHostAddress() 获取IP地址
+  public String getHostName() 获取主机名/域名
+  ```
+
+### 24.3.2 URL类
+
+- URL是统一资源定位符，对可以从互联网上得到的资源的位置和访问方法的一种简洁的表示，是互联网上标准资源的地址。互联网上的每个文件都有一个唯一的URL，它包含的信息指出文件的位置以及浏览器应该怎么处理它。
+
+- URL由4部分组成：协议、存放资源的主机域名、端口号、资源文件名。如果未指定该端口号，则使用协议默认的端口。例如HTTP协议的默认端口为80。在浏览器中访问网页时，地址栏显示的地址就是URL。
+
+- URL标准格式为：<协议>://<域名或IP>:<端口>/<路径>。其中，<协议>://<域名或IP>是必需的，<端口>/<路径>有时可省略。如：https://www.baidu.com。
+
+- 为了方便程序员编程，JDK中提供了URL类，该类的全名是java.net.URL，该类封装了大量复杂的涉及从远程站点获取信息的细节，可以使用它的各种方法来对URL对象进行分割、合并等处理。
+
+- URL类的构造方法：
+
+  ```
+  URL url = new URL(“http://127.0.0.1:8080/oa/index.html?name=zhangsan#tip”);
+  ```
+
+- URL类的常用方法：
+
+  ```
+  获取协议：url.getProtocol()		获取域名：url.getHost()		获取默认端口：url.getDefaultPort()
+  获取端口：url.getPort()			获取路径：url.getPath()		获取资源：url.getFile()		
+  获取数据：url.getQuery()			获取锚点：url.getRef()
+  ```
+
+- 使用URL类的openStream()方法可以打开到此URL的连接并返回一个用于从该连接读入的InputStream，实现最简单的网络爬虫
+
+  ```
+  public class UrlTest02 {
+      public static void main(String[] args) throws Exception{
+          URL url = new URL("https://mp.csdn.net/?spm=1008.2221.3001.8539");;
+          InputStream is = url.openStream();
+          BufferedReader br = new BufferedReader(new InputStreamReader(is));
+          String s = null;
+          while((s = br.readLine()) != null){
+              System.out.println(br.readLine());
+          }
+          br.close();
+      }
+  }
+  ```
+
+  
 
 ## 24.4 TCP与UDP协议
 
+### 24.4.1 Socket套接字概述
 
+- 我们开发的网络应用程序位于应用层，TCP和UDP属于传输层协议，在应用层如何使用传输层的服务呢？在应用层和传输层之间，则是使用套接Socket来进行分离。
+
+- 套接字就像是传输层为应用层开的一个小口，应用程序通过这个小口向远程发送数据，或者接收远程发来的数据。而这个小口以内，也就是数据进入这个口之后，或者数据从这个口出来之前，是不知道也不需要知道的，也不会关心它如何传输，这属于网络其它层次工作。
+
+- Socket实际是传输层供给应用层的编程接口。Socket就是应用层与传输层之间的桥梁。使用Socket编程可以开发客户机和服务器应用程序，可以在本地网络上进行通信，也可通过Internet在全球范围内通信。
+
+- TCP协议和UDP协议是传输层的两种协议。Socket是传输层供给应用层的编程接口，所以Socket编程就分为TCP编程和UDP编程两类。
+
+  <img src="assets/image-20240714111707695.png" alt="image-20240714111707695" style="zoom:33%;" />
+
+### 24.4.2 TCP协议和UDP协议
+
+- TCP协议
+
+  - 使用TCP协议，须先建立TCP连接，形成传输数据通道，似于拨打电话
+  - 传输前，采用“三次握手”方式，属于点对点通信，是面向连接的，效率低。
+  - 仅支持单播传输，每条TCP传输连接只能有两个端点（客户端、服务端）。
+  - 两个端点的数据传输，采用的是“字节流”来传输，属于可靠的数据传输。
+  - 传输完毕，需释放已建立的连接，开销大，速度慢，适用于文件传输、邮件等。
+
+- UDP协议
+
+  - 采用数据报（数据、源、目的）的方式来传输，无需建立连接，类似于发短信。
+
+  - 每个数据报的大小限制在64K内，超出64k可以分为多个数据报来发送。
+
+  - 发送不管对方是否准备好，接收方即使收到也不确认，因此属于不可靠的。
+
+  - 可以广播发送，也就是属于一对一、一对多和多对一连接的通信协议。
+
+  - 发送数据结束时无需释放资源，开销小，速度快，适用于视频会议、直播等。
+
+    <img src="assets/image-20240714111901775.png" alt="image-20240714111901775" style="zoom:33%;" />
 
 ## 24.5 基于TCP协议的编程
 
