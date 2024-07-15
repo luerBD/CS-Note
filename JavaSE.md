@@ -9033,7 +9033,222 @@ public class Test {
 
     <img src="assets/image-20240714111901775.png" alt="image-20240714111901775" style="zoom:33%;" />
 
+- TCP协议的三次握手（通道建立）
+
+  - TCP（传输控制协议）是一种面向连接的、可靠的传输层协议。它使用三次握手来建立连接，以确保数据在两个设备之间可靠地传输。
+
+    <img src="assets/image-20240715093846970.png" alt="image-20240715093846970" style="zoom:33%;" />
+
+  - 三次握手的过程如下：
+
+    - 客户端发送 SYN（同步）数据包。这个数据包包含客户端的初始序列号（ISN）。
+    - 服务器收到 SYN 数据包后，发送 SYN-ACK（同步确认）数据包。这个数据包包含服务器的初始序列号（ISN）和对客户端 ISN 的确认号（ACK）。
+    - 客户端收到 SYN-ACK 数据包后，发送 ACK（确认）数据包。这个数据包包含对服务器 ISN 的确认号（ACK）。
+      三次握手完成后，客户端和服务器就可以开始交换数据了。
+
+  - 三次握手的意义：
+
+    - 三次握手可以确保数据在两个设备之间可靠地传输。它可以防止以下情况的发生：
+    - 不会丢失：如果没有三次握手，客户端和服务器可能会同时发送数据，导致数据丢失。
+    - 不会重复：如果没有三次握手，客户端和服务器可能会重复发送数据，导致数据重复。
+    - 不会乱序：如果没有三次握手，客户端和服务器可能会乱序发送数据，导致数据乱序。
+
+- TCP协议的四次挥手（通道关闭）
+
+  - 使用四次挥手来关闭连接，以确保数据在两个设备之间可靠地传输。
+
+    <img src="assets/image-20240715093945991.png" alt="image-20240715093945991" style="zoom:33%;" />
+
+  - 四次挥手的过程如下：
+
+    - 客户端发送 FIN（结束）数据包。这个数据包表示客户端已经完成数据传输，并希望关闭连接。
+    - 服务器收到 FIN 数据包后，发送 ACK（确认）数据包。这个数据包表示服务器已经收到客户端的 FIN 数据包，并同意关闭连接。
+    - 服务器发送 FIN 数据包。这个数据包表示服务器已经完成数据传输，并希望关闭连接。
+    - 客户端收到 FIN 数据包后，发送 ACK（确认）数据包。这个数据包表示客户端已经收到服务器的 FIN 数据包，并同意关闭连接。四次挥手完成后，客户端和服务器之间的连接就关闭了。
+
+  - 四次挥手的意义
+
+    - 四次挥手可以确保数据在两个设备之间可靠地传输。它可以防止以下情况的发生：
+    - 如果没有四次挥手，客户端和服务器可能会同时关闭连接，导致数据丢失。
+    - 如果没有四次挥手，客户端和服务器可能会重复发送数据，导致数据重复。
+    - 如果没有四次挥手，客户端和服务器可能会乱序发送数据，导致数据乱序。
+
+
 ## 24.5 基于TCP协议的编程
+
+### 24.5.1 TCP协议编程概述
+
+- 套接字是一种进程间的数据交换机制，利用套接字(Socket)开发网络应用程序早已被广泛的采用，以至于成为事实上的标准。
+
+- 在网络通讯中，第一次主动发起通讯的程序被称作客户端(Client)，而在第一次通讯中等待连接的程序被称作服务端(Server)。一旦通讯建立，则客户端和服务器端完全一样，没有本质的区别。
+
+- 套接字与主机地址和端口号相关联，主机地址就是客户端或服务器程序所在的主机的IP地址，端口地址是指客户端或服务器程序使用的主机的通信端口。在客户端和服务器中，分别创建独立的Socket，并通过Socket的属性，将两个Socket进行连接，这样客户端和服务器通过套接字所建立连接并使用IO流进行通信。
+
+  <img src="assets/image-20240715094403232.png" alt="image-20240715094403232" style="zoom:33%;" />
+
+### 24.5.2 Socket类概述
+
+- Socket类实现客户端套接字(Client），套接字是两台机器间通信的端点
+
+- Socket类构造方法：
+
+  ```
+  public Socket(InetAddress a, int p)  创建套接字并连接到指定IP地址的指定端口号
+  ```
+
+- Socket类实例方法：
+
+  ```
+  public InetAddress getInetAddress()			返回此套接字连接到的远程 IP 地址。
+  public InputStream getInputStream()			返回此套接字的输入流（接收网络消息）。
+  public OutputStream getOutputStream()		返回此套接字的输出流（发送网络消息）。
+  public void shutdownInput()					禁用此套接字的输入流
+  public void shutdownOutput()				禁用此套接字的输出流。
+  public synchronized void close()			关闭此套接字（默认会关闭IO流）。
+  ```
+
+### 24.5.3 ServerSocket类概述
+
+- ServerSocket类用于实现服务器套接字(Server服务端)。服务器套接字等待请求通过网络传入。它基于该请求执行某些操作，然后可能向请求者返回结果.
+
+- ServerSocket构造方法：
+
+  ```
+  public ServerSocket(int port)
+  ```
+
+- ServerSocket实例方法：
+
+  ```
+  public Socket accept()					侦听要连接到此套接字并接受它。
+  public InetAddress getInetAddress()		返回此服务器套接字的本地地址。
+  public void close()						关闭此套接字。
+  ```
+
+### 24.5.4 实现客户端与服务器之间的单向循环通信
+
+```
+public class Client {
+    public static void main(String[] args) {
+        Socket clientSocket = null;
+        BufferedWriter bw = null;
+        try {
+            // 创建客户端套接字对象
+            // 需要指定服务器的IP地址，和端口号
+            InetAddress ia = InetAddress.getLocalHost();
+            int port = 8888;
+            clientSocket = new Socket(ia, port);
+
+            // 客户端给服务器端发送消息
+            // 客户端你是输出流
+            bw = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+
+            // 发送消息
+            /*while(true){
+                bw.write("你好，最近身体怎么样啊！");
+                bw.write("\n");
+                bw.write("你收到消息了吗？");
+                // 刷新
+                bw.flush();
+                // 延迟效果
+                Thread.sleep(1000);
+            }*/
+
+            Scanner scanner = new Scanner(System.in);
+            while(true){
+                System.out.print("请输入您要发送的消息：");
+                // 从键盘上接收的消息
+                String msg = scanner.next();
+                // 把消息发送给服务器
+                bw.write(msg);
+                bw.write("\n");
+
+                // 刷新
+                bw.flush();
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (bw != null) {
+                try {
+                    bw.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (clientSocket != null) {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+}
+
+```
+
+```
+public class Server {
+    public static void main(String[] args) {
+        ServerSocket serverSocket = null;
+        Socket clientSocket = null;
+        BufferedReader br = null;
+        try {
+            // 先启动服务器端，启动服务器端后，这个应用肯定要对应一个端口。
+            // 创建服务器端套接字对象
+            int port = 8888;
+            serverSocket = new ServerSocket(port);
+
+            System.out.println("服务器正在启动，请稍后....");
+            System.out.println("服务器启动成功，端口号" + port + "，等待客户端的请求！");
+            
+            // 开始接收客户端的请求
+            clientSocket = serverSocket.accept();
+
+            // 后续代码怎么写一会再说！
+            // 服务器端接收消息，所以服务器端应该获取输入流。
+            br = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+            // 开始读
+            String s = null;
+            while((s = br.readLine()) != null){
+                System.out.println(s);
+            }
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (clientSocket != null) {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            // 关闭服务器端套接字
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+}
+
+```
 
 
 
