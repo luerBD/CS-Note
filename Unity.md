@@ -114,3 +114,302 @@
   - Inspector可以看到每个演员的剧本，它要扮演什么角色；
   - Project是后台，所有未上场的演员和没有使用的剧本都在这里；
   - Console是表演过程中的信息反馈。
+
+# 2.生命周期函数（以下顺序也是执行顺序）
+
+## 2.1 Awake()，只执行一次
+
+- 当对象被创建时，自动调用Awake()，并且一个只调用一次。
+
+- 目的是让一个对象刚被创建时，在Awake()中执行一些初始化的操作
+
+  ```
+  private void Awake()
+  {
+  	// 当我的脚本所在的类没有继承MonoBehaviour类的时候，使用Debug.Log("")打印信息
+      Debug.Log("hello world!");
+      
+      // 当我的脚本所在的类继承MonoBehaviour类的时候，使用print("")打印信息
+      print("hello world!");
+  }
+  ```
+
+## 2.2 OnEnable()
+
+- 如果想要当一个对象被激活时，进行一些逻辑处理，就可以写在OnEnable()函数中；
+
+  ```
+  private void OnEnable()
+  {
+      print("OnEnable函数被调用了");
+  }
+  ```
+
+## 2.3 Start()，只执行一次
+
+- 主要作用是用于初始化信息的，但是它相对Awake来说，要晚一点。因为它是在对象进行第一次帧更新之前才会执行的。
+
+  ```
+  void Start()
+  {
+  	print("Start函数被调用了");
+  }
+  ```
+
+## 2.4 FixedUpdate()
+
+- 根据设置的间隔时间，每间隔一段时间执行一次
+
+- 间隔时间实在project setting中的Time里去设置的
+
+  ```
+  private void FixedUpdate()
+  {
+      print("FixedUpdate函数执行了！");
+  }
+  ```
+
+## 2.5 Update()
+
+- 根据设置的间隔时间，每间隔一段时间执行一次
+
+- 主要用于处理游戏核心逻辑更新的函数
+
+  ```
+  void Update()
+  {
+  	print("Update函数被调用了");
+  }
+  ```
+
+## 2.6 LateUpdate()
+
+- 一般这个更新是用来处理摄像机位置更新相关内容的
+
+- update和LateUpdate之间，unity进行了一些处理，处理我们动画相关的更新，所以LateUpdate()的执行是晚于update的
+
+  ```
+  private void LateUpdate()
+  {
+  	print("LateUpdate函数执行了！");
+  }
+  ```
+
+## 2.7 OnDisable()
+
+- 如果我们希望在一个对象失活时做一些处理，就可以在该函数中写逻辑
+
+  ```
+  private void OnDisable()
+  {
+  	print("OnDisable函数被调用了！");
+  }
+  ```
+
+## 2.8 OnDestroy()，只执行一次
+
+- 如果我们希望在一个对象被删除时做一些处理，就可以在该函数中写逻辑
+
+  ```
+  private void OnDestroy()
+  {
+  	print("OnDestroy函数被调用了！");
+  }
+  ```
+
+## 2.9 总结
+
+- 生命周期函数支持继承多态
+- 这些生命周期函数，如果你不打算在其中写逻辑，那就不要在这写出该生命周期函数
+
+- 如果对象是失活状态，该对象的所有生命周期函数都是无法执行的
+
+# 3.Inspector窗口可编辑的变量
+
+- 私有权限和保护权限的变量无法在Inspector窗口中显示
+
+  ```
+     private int num;			//不可以在Inspector窗口中显示
+     protected bool gender;	//不可以在Inspector窗口中显示
+  ```
+
+- 加上强制序列化字段特性[SerializeField]就可以让私有权限和保护权限的变量在Inspector窗口中显示
+
+  ```
+      [SerializeField]
+      private int num;		//可以在Inspector窗口中显示
+  
+      [SerializeField]
+      protected bool gender;	//可以在Inspector窗口中显示
+  ```
+
+- 公共权限的变量可以在Inspector窗口中显示编辑
+
+  ```
+     public string name ;		//可以在Inspector窗口中显示
+  ```
+
+- 公共权限的变量也可以不让其显示编辑，需要在变量前加上特性[HideInInspector]
+
+  ```
+     [HideInInspector]
+     public string name ;		//不可以在Inspector窗口中显示
+  ```
+
+- 字典和自定义类型（被class以及struct声明的）不能在Inspector窗口显示
+
+  ```
+  public class MyClass
+  {
+      public string no;
+      public string name;
+  }
+  public struct MyStruct 
+  {
+      public string name; 
+  
+  }
+  public enum MyEnum 
+  {
+      SPRING,
+      SUMMER,
+      AUTUMN,
+      WINTER
+  }
+  
+  public class Lesson2 : MonoBehaviour
+  {
+      public MyClass myClass; //不能在Inspector窗口显示
+      public MyStruct myStruct;//不能在Inspector窗口显示
+      public Dictionary<int, string> keyValuePairs = new Dictionary<int, string>();//不能在Inspector窗口显示
+      public MyEnum myEnum;//可以在Inspector窗口显示
+  }
+  ```
+
+- 让自定义类型（被class以及struct声明的）在Inspector窗口显示，需要加序列化特性[System.Serializable]
+
+  ```
+  [System.Serializable]
+  public class MyClass
+  {
+      public string no;
+      public string name;
+  }
+  [System.Serializable]
+  public struct MyStruct 
+  {
+      public string name; 
+  
+  }
+  public enum MyEnum 
+  {
+      SPRING,
+      SUMMER,
+      AUTUMN,
+      WINTER
+  }
+  
+  public class Lesson2 : MonoBehaviour
+  {
+      public MyClass myClass; //可以在Inspector窗口显示
+      public MyStruct myStruct;//可以在Inspector窗口显示
+      public Dictionary<int, string> keyValuePairs = new Dictionary<int, string>();//不能在Inspector窗口显示
+      public MyEnum myEnum;//可以在Inspector窗口显示
+  }
+  ```
+
+- 一些辅助特性
+
+  - 分组说明特性[Header("分组说明")]
+
+    ```
+    public class Lesson2 : MonoBehaviour
+    {
+        [Header("基础属性")]
+        public int no;
+        public string name;
+    
+        [Header("战斗属性")]
+        public string attack;
+        public string defense;
+    }
+    ```
+
+  - 间隔特性[Space()]，让两个字段上下出现间隔
+
+    ```
+    public class Lesson2 : MonoBehaviour
+    {
+        [Header("基础属性")]
+        public int no;
+        public string name;
+    
+        [Header("战斗属性")]
+        public string attack;
+        [Space()]
+        public string defense;
+    }
+    ```
+
+  - 修饰数值的滑条范围[Range(最小值, 最大值)]
+
+    ```
+    public class Lesson2 : MonoBehaviour
+    {
+        [Range(10, 20)]
+        public int luck;
+    }
+    ```
+
+  - 多行显示字符串，默认不写参数显示三行，写参数就是对应行，[Multiline(4)]
+
+    ```
+    public class Lesson2 : MonoBehaviour
+    {
+    	[Multiline(5)]
+        public string addr;
+    }
+    ```
+
+  - 滚动条显示字符串，默认不写参数就是超过三行显示滚动条
+
+    - [TextArea(3, 4)]，表示最少显示3行，最多4行，超过4行就显示滚动条
+
+      ```
+      public class Lesson2 : MonoBehaviour
+      {
+      	[TextArea(3, 4)]
+          public string addr;
+      }
+      ```
+
+  - 为变量添加快捷方法[ContextMenuItem("显示按钮名", "方法名")]
+
+    ```
+    public class Lesson2 : MonoBehaviour
+    {
+      	[ContextMenuItem("重置钱", "Test")]
+        public int money;
+        public void Test() 
+        {
+            money = 99;
+        }
+    }  
+    ```
+
+  - 为方法添加特性能够在Inspector中执行，[ContextMenu("哈哈哈哈")]
+
+    ```
+    public class Lesson2 : MonoBehaviour
+    {
+      	[ContextMenu("测试方法")]
+        public void TestMethod() 
+        {
+            print("测试方法");
+        }
+    }  
+    
+    ```
+
+    
+

@@ -9253,3 +9253,142 @@ public class Server {
 
 
 ## 24.6 基于UDP协议的编程
+
+### 24.6.1 UDP协议编程概述
+
+- 在UDP通信协议下，两台计算机之间进行数据交互，并不需要先建立连接，发送端直接往指定的IP和端口号上发送数据即可，但是它并不能保证数据一定能让对方收到，也不能确定什么时候可以送达。
+- java.net.DatagramSocket类和java.net.DatagramPacket类是使用UDP编程中需要使用的两个类，并且发送端和接收端都需要使用这个俩类，并且发送端与接收端是两个独立的运行程序。
+  - DatagramSocket：负责接收和发送数据，创建接收端时需要指定端口号。
+  - DatagramPacket：负责把数据打包，创建发送端时需指定接收端的IP地址和端口。
+
+### 24.6.2 DatagramSocket类的概述
+
+- DatagramSocket类作为基于UDP协议的Socket，使用DatagramSocket类可以用于接收和发送数据，同时创建接收端时还需指定端口号。
+
+- DatagramSocket的构造方法：
+
+  ```
+  public DatagramSocket()				创建发送端的数据报套接字
+  public DatagramSocket(int port)		创建接收端的数据报套接字，并指定端口号
+  ```
+
+- DatagramSocket的实例方法：
+
+  ```
+  public void send(DatagramPacket p)		发送数据报。
+  public void receive(DatagramPacket p)	接收数据报。
+  public void close()						关闭数据报套接字。
+  ```
+
+### 24.6.3 DatagramPacket类的概述
+
+- DatagramPacket类负责把发送的数据打包（打包的数据为byte类型的数组），并且创建发送端时需指定接收端的IP地址和端口
+
+- DatagramPacket的构造方法：
+
+  ```
+  public DatagramPacket(byte buf[], int offset, int length) 创建接收端的数据报。
+  public DatagramPacket(byte buf[], int offset, int length, InetAddress address, int port) 创建发送端的数据报，并指定接收端的IP地址和端口号。
+  ```
+
+- DatagramPacket的实例方法：
+
+  ```
+  public synchronized byte[] getData() 返回数据报中存储的数据
+  public synchronized int getLength()  获得发送或接收数据报中的长度
+  ```
+
+### 24.6.4 基于UDP编程的实现
+
+- 接收端实现步骤
+
+  - 创建DatagramSocket对象（接收端），并指定端口号；
+
+  - 创建DatagramPacket对象（数据报）；
+
+  - 调用receive()方法，用于接收数据报；
+
+  - 调用close()方法关闭资源
+
+    ```
+    public class Receive {
+        public static void main(String[] args) throws Exception{
+    
+            DatagramSocket ds = new DatagramSocket(8888);
+    
+            byte[] bytes = new byte[64 * 1024];
+            // 准备一个包，这个包接收发送方的信息。
+            DatagramPacket dp = new DatagramPacket(bytes, bytes.length);
+            // 程序执行到这里，停下来，等待发送方的发送。
+            ds.receive(dp);
+    
+            // 程序执行到这里说明，已经完全将发送方发送的数据接收到了。
+            // 从包中取出来数据。
+            String msg = new String(bytes, 0, dp.getLength());
+            System.out.println("接收到的发送方发过来的消息：" + msg);
+    
+            ds.close();
+        }
+    }
+    
+    ```
+
+    
+
+- 发送端实现步骤
+
+  - 创建DatagramSocket对象（发送端）；
+
+  - 创建DatagramPacket对象（数据报），并指定接收端IP地址和端口；
+
+  - 调用send()方法，用于发送数据报；
+
+  - 调用close()方法关闭资源。
+
+    ```
+    public class Send {
+        public static void main(String[] args) throws Exception{
+            DatagramSocket ds = new DatagramSocket();
+    
+            // 创建包
+            byte[] bytes = "动力节点".getBytes();
+            DatagramPacket dp = new DatagramPacket(bytes, 0, bytes.length, InetAddress.getLocalHost(), 8888);
+    
+            // 发送消息
+            ds.send(dp);
+    
+            ds.close();
+        }
+    }
+    ```
+
+    
+
+# 25.Lambda表达式
+
+## 25.1 Lambda表达式的引入
+
+Lambda表达式是JDK1.8的一个新特性，可以取代大部分的匿名内部类，以便写出更优雅的Java代码，尤其在集合的遍历和其他集合操作中，可以极大地优化代码结构。
+在以前的学习中，想要实现对List集合的“降序”排序操作，就需要使用匿名内部类来实现，这样的代码非常的复杂和繁琐，代码如下：
+
+```java
+// 方式一：使用匿名内部类来实现
+List<Integer> list = Arrays.asList(3, 6, 1, 7, 2, 5, 4);
+Collections.sort(list, new Comparator<Integer>() {
+    @Override
+    public int compare(Integer o1, Integer o2) {
+        return o2 - o1;
+    }
+});
+System.out.println("排序后：" + list);
+```
+
+针对以上对List集合的的“降序”排序操作，除了使用匿名内部类来实现外，还可以使用Lambda表达式来实现，使用Lambda表达式的代码非常优雅，并且还非常的简洁，代码如下：
+
+```java
+// 方式二：使用Lambda表达式来实现
+List<Integer> list = Arrays.asList(3, 6, 1, 7, 2, 5, 4);
+Collections.sort(list, (o1, o2) -> o2 - o1);
+System.out.println("排序后：" + list);
+```
+
