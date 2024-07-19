@@ -413,3 +413,183 @@
 
     
 
+# 4.MonoBehaviour类中的重要内容
+
+## 4.1 重要成员
+
+### 4.1.1 获取本脚本所依附的GameObject
+
+```
+print(this.gameObject.name);
+```
+
+### 4.1.2 获取本脚本依附的GameObject的位置信息
+
+```
+ print(this.transform.position); // 游戏对象的位置信息
+ print(this.transform.eulerAngles); // 游戏对象的角度信息
+ print(this.transform.lossyScale); // 游戏对象的缩放大小信息
+```
+
+### 4.1.3 获取本脚本是否激活
+
+```
+this.enabled = false;
+```
+
+### 4.1.4 获取本脚本所依附的GameObject中所包含的其他GameObject成员的相关信息
+
+```
+public class NewBehaviourScript : MonoBehaviour
+{
+    public GameObject otherObject;
+    void Start()
+    {
+        print("other name:" + otherObject.name);
+        print("other position:" + otherObject.transform.position);
+    }
+}
+
+```
+
+![image-20240719154232153](assets/image-20240719154232153.png)
+
+## 4.2 重要方法
+
+### 4.2.1 获取本脚本所依附的GameObject中的某个脚本
+
+```
+print(this.GetComponent<某个脚本名称>());
+```
+
+<img src="assets/image-20240719162523833.png" alt="image-20240719162523833" style="zoom: 50%;" />
+
+```
+print(this.GetComponent<Lesson3_test>()); // 获取本脚本（Lesson3）
+print(this.GetComponent<Lesson3_test>()); // 获取本脚本（Lesson3）所依附的Tank对象中的Lesson3_test
+```
+
+注意：只要你能得到场景中的对象或者对象依附的脚本，那你就可以获取到它的所有信息
+
+### 4.2.2 得到自己挂载的多个脚本
+
+<img src="assets/image-20240719162930328.png" alt="image-20240719162930328" style="zoom:50%;" />
+
+方法1：数组
+
+```
+Lesson3_test[] lt = this.GetComponent<Lesson3_test>(true);
+print(lt.Length);
+```
+
+方法2：List集合
+
+```
+List<Lesson3_test> list = new List<Lesson3_test>();
+this.GetComponent(true, list);
+print(list.Count);
+```
+
+### 4.2.3 得到子对象挂载的脚本（它默认也会找自己身上是否挂载该脚本）
+
+![image-20240719165501235](assets/image-20240719165501235.png)
+
+函数是有一个参数的，不写的话默认是false，意思就是如果子对象失活，是不会去找这个对象上是否有某个脚本的；如果写true，即使失活也会找
+
+```
+print(this.GetComponentInChildren<Lesson3_test>(true));
+```
+
+### 4.2.4 得到子对象挂载的多个脚本
+
+![image-20240719171153179](assets/image-20240719171153179.png)
+
+方法1：数组
+
+```
+Lesson3_test[] lt = this.GetComponentsInChildren<Lesson3_test>(true);
+print(lt.Length);
+```
+
+方法2：List集合
+
+```
+List<Lesson3_test> list = new List<Lesson3_test>();
+this.GetComponentsInChildren(true, list);
+print(list.Count);
+```
+
+### 4.2.5 得到父对象挂载的脚本（它默认也会找自己身上是否挂载该脚本）
+
+![image-20240719172515260](assets/image-20240719172515260.png)
+
+```
+print(this.GetComponentInParent<Lesson3_test>());
+```
+
+### 4.2.5 得到父对象挂载的多个脚本
+
+方法1：数组
+
+```
+Lesson3_test[] lt = this.GetComponentsInParent<Lesson3_test>();
+print(lt.Length);
+```
+
+方法2：List集合
+
+```
+List<Lesson3_test> list = new List<Lesson3_test>();
+this.GetComponentsInParent(true, list);
+print(list.Count);
+```
+
+### 4.2.6 尝试获取脚本
+
+提供了一个更加安全的，获取单个脚本的方法，如果得到了会返回true，然后再来进行逻辑处理即可。
+
+方法1：
+
+```
+Lesson3_Test 13t;
+if(this.TryGetComponent<Lesson3_Test>(out l3t)){
+	// 逻辑处理
+}
+```
+
+方法2：
+
+```
+if(this.GetComponent<脚本名>() != null){
+	// 逻辑处理
+}
+```
+
+
+
+## 4.2 一个继承了MonoBehavior的脚本中，this、this.gameObject、this.transform分别代表什么？
+
+- this代表这个脚本对象
+- this.gameObject代表这个脚本对象依附的GameObject游戏对象
+- this.transform代表这个脚本对象依附的GameObject游戏对象的位置相关信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
