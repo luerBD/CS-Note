@@ -5,7 +5,9 @@
 - 什么是dos命令？
 
   ```
-  在DOS命令窗口中才可以输入并执行DOS命令。在最初的windows计算机中没有图形界面的，只有DOS命令窗口。也就是说通过执行DOS命令窗口可以完全完成文件的新建、编辑、保存、删除等一系列操作。
+  在DOS命令窗口中才可以输入并执行DOS命令。
+  在最初的windows计算机中没有图形界面的，只有DOS命令窗口。
+  也就是说通过执行DOS命令窗口可以完全完成文件的新建、编辑、保存、删除等一系列操作。
   ```
 
 - 默认情况下DOS命令窗口打开之后，定位的位置是哪里？
@@ -4494,86 +4496,129 @@ Set<Map.Entry<K,V>> entrySet()；
 
 ## 19.6 集合工具类Collections
 
-- Collections中的常用方法
+### 19.6.1 Collections中的常用方法
 
-  ```
-  Collections.synchronizedList(List list)方法;
-  得到一个线程安全的list。
-  
-  Collections.sort(List list)方法
-  Collections.sort(List list, Comparetor comparetor)方法
-  用于对List集合进行排序；
-  要求集合中元素实现Comparable接口或写一个继承Comparetor的比较器类或匿名内部类。
-  ```
+```
+Collections.synchronizedList(List list)方法;
+得到一个线程安全的list。
 
-  - 例1
+Collections.sort(List list)方法
+Collections.sort(List list, Comparetor comparetor)方法
+用于对List集合进行排序；
+要求集合中元素实现Comparable接口或写一个继承Comparetor的比较器类或匿名内部类。
+```
 
-    ```java
-    public class CollectionsTest01 {
-        public static void main(String[] args) {
-            List<String> list1 = new ArrayList<>();
-            list1.add("zhangsan");
-            list1.add("lisi");
-            list1.add("wangwu");
-            list1.add("zhaoliu");
-            list1.add("zhangwei");
-            for(String s : list1){
-                System.out.println(s);
-            }
-            System.out.println("=============排序后==============");
-            Collections.sort(list1);
-            for(String s : list1){
-                System.out.println(s);
-            }
+### 19.6.2 Java中已定义好的类可直接使用Collections.sort()排序
+
+```java
+public class CollectionsTest01 {
+    public static void main(String[] args) {
+        List<String> list1 = new ArrayList<>();
+        list1.add("zhangsan");
+        list1.add("lisi");
+        list1.add("wangwu");
+        list1.add("zhaoliu");
+        list1.add("zhangwei");
+        for(String s : list1){
+            System.out.println(s);
+        }
+        System.out.println("=============排序后==============");
+        Collections.sort(list1);
+        for(String s : list1){
+            System.out.println(s);
         }
     }
-    ```
+}
+```
 
-  - 例2
+### 19.6.3 自定义类排序需要实现Comparable接口
 
-    ```java
-    public class CollectionsTest02 {
-        public static void main(String[] args) {
-            List<Student> list = new ArrayList<>();
-            list.add(new Student(18));
-            list.add(new Student(16));
-            list.add(new Student(20));
-            list.add(new Student(11));
-    
-            for(Student s : list){
-                System.out.println(s);
-            }
-    
-            System.out.println("=============排序后==============");
-            Collections.sort(list, new StudentComparator());
-    
-            for(Student s : list){
-                System.out.println(s);
-            }
+```
+public class LambdaTest03 {
+    public static void main(String[] args) {
+        ArrayList<Student> list = new ArrayList<>();
+        list.add(new Student(2));
+        list.add(new Student(5));
+        list.add(new Student(1));
+        list.add(new Student(3));
+        list.add(new Student(7));
+        list.add(new Student(4));
+        list.add(new Student(8));
+        list.add(new Student(6));
+        list.add(new Student(10));
+        Collections.sort(list);
+        Iterator<Student> it = list.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
         }
     }
-    class Student{
-        public int age;
-        public Student(){}
-        public Student(int age) {
-            this.age = age;
+}
+class Student implements Comparable<Student>{
+    public int age;
+
+    public Student(int age) {
+        this.age = age;
+    }
+
+    @Override
+    public int compareTo(Student o) {
+        return this.age - o.age;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "age=" + age +
+                '}';
+    }
+}
+```
+
+### 19.6.4 自定义类排序需要实现Comparetor接口
+
+```java
+public class CollectionsTest02 {
+    public static void main(String[] args) {
+        List<Student> list = new ArrayList<>();
+        list.add(new Student(18));
+        list.add(new Student(16));
+        list.add(new Student(20));
+        list.add(new Student(11));
+
+        for(Student s : list){
+            System.out.println(s);
         }
-    
-        @Override
-        public String toString() {
-            return "Student{" +
-                    "age=" + age +
-                    '}';
+
+        System.out.println("=============排序后==============");
+        Collections.sort(list, new StudentComparator());
+
+        for(Student s : list){
+            System.out.println(s);
         }
     }
-    
-    class StudentComparator implements Comparator<Student> {
-        @Override
-        public int compare(Student o1, Student o2) {
-            return o1.age - o2.age;
-        }
+}
+class Student{
+    public int age;
+    public Student(){}
+    public Student(int age) {
+        this.age = age;
     }
-    ```
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "age=" + age +
+                '}';
+    }
+}
+
+class StudentComparator implements Comparator<Student> {
+    @Override
+    public int compare(Student o1, Student o2) {
+        return o1.age - o2.age;
+    }
+}
+```
 
 ## 19.7 集合这块最主要掌握的内容（动手测试）
 
@@ -9366,7 +9411,9 @@ public class Server {
 
 # 25.Lambda表达式
 
-## 25.1 Lambda表达式的引入
+## 25.1 Lambda表达式概述
+
+### 25.1.1 Lambda表达式的引入
 
 Lambda表达式是JDK1.8的一个新特性，可以取代大部分的匿名内部类，以便写出更优雅的Java代码，尤其在集合的遍历和其他集合操作中，可以极大地优化代码结构。
 在以前的学习中，想要实现对List集合的“降序”排序操作，就需要使用匿名内部类来实现，这样的代码非常的复杂和繁琐，代码如下：
@@ -9392,3 +9439,281 @@ Collections.sort(list, (o1, o2) -> o2 - o1);
 System.out.println("排序后：" + list);
 ```
 
+### 25.1.2 函数式编程思想的概述
+
+Java从诞生之日起就一直倡导“一切皆对象”，在Java语言中面向对象（OOP）编程就是一切，但是随着Python和Scala等语言的崛起和新技术的挑战，Java也不得不做出调整以便支持更加广泛的技术要求，即Java语言不但支持OOP还支持OOF（面向函数编程）。
+JDK1.8引入Lambda表达式之后，Java语言也开始支持函数式编程，但是Lambda表达式不是Java语言最早使用的，目前C++、C#、Python、Scala等语言都支持Lambda表示。
+
+- 面向对象的思想
+  - 做一件事情，找一个能解决这个事情的对象，然后调用对象的方法，最终完成事情。
+- 函数式编程思想
+  - 只要能获得结果，谁去做的，怎么做的都不重要，重视的是结果，不重视实现过程。 
+
+在函数式编程语言中，函数被当成一等公民对待。在将函数当成一等公民的编程语言中，Lambda表达式的类型是函数，但是Lambda表达式却是一个对象，而不是函数，它们必须依附于一类特别的对象类型，也就是所谓的函数式接口。
+简单点说，JDK1.8中的Lambda表达式就是一个函数式接口的实例，这就是Lambda表达式和函数式接口的关系。也就是说，**只要一个对象是函数式接口的实例，那么该对象就可以使用Lambda表达式来表示**。
+
+### 25.1.3 如何去理解函数式接口
+
+能够使用Lambda表达式的一个重要依据是必须有相应的函数式接口，所谓的函数式接口，指的就是“一个接口中有且只能有一个抽象方法”。也就是说，如果一个接口只有一个抽象方法，那么该接口就是一个函数式接口。
+如果我们在接口上声明了 @FunctionalInterface 注解，那么编译器就会按照函数式接口的定义来要求该接口，也就是该接口中有且只能定义一个抽象方法，如果该接口中定义了多个或0个抽象方法，则程序编译时就会报错。
+【示例】定义一个函数式接口
+
+```java
+@FunctionalInterface
+public interface Flyable {
+    // 在函数式接口中，我们有且只能定义一个抽象方法
+    void showFly();
+    // 但是，可以定义任意多个默认方法或静态方法
+    default void show() {
+        System.out.println("JDK1.8之后，接口还可以定义默认方法和静态方法");
+    }
+}
+```
+
+另外，从某种意义上来说，只要你保证你的接口中有且只有一个抽象方法，则接口中没有使用 @FunctionalInterface 注解来标注，那么该接口也依旧属于函数式接口。
+在以下代码中，Flyable接口中没有使用@FunctionalInterface 注解，但是Flyable接口中只存在一个抽象方法，因此Flyable接口依旧属于函数式接口，那么使用Lambda表达式就可以表示Flyable 接口的实例，代码如下：
+
+```java
+/**
+ * 没有使用@FunctionalInterface标注的接口
+ */
+public interface Flyable {
+    void showFly();
+}
+/**
+ * 测试类
+ */
+public class Test01 {
+    public static void main(String[] args) {
+        // 使用lambda表示来表示Flyable接口的实例
+        Flyable flyable = () -> {
+            System.out.println("小鸟自由自在的飞翔");
+        };
+        // 调用Flyable接口的实例的showFly()方法
+        flyable.showFly();
+    }
+}
+```
+
+### 25.1.4 Lambda表达式和匿名内部类的区别
+
+- 所需类型不同
+  - 匿名内部类：可以是接口，抽象类，具体类。
+  - Lambda表达式：只能是接口。
+- 使用限制不同
+  - 如果接口中有且仅有一个抽象方法，可以使用Lambda表达式，也可以使用匿名内部类。
+  - 如果接口中有多个抽象方法，则就只能使用匿名内部类，而不能使用Lambda表达式。
+- 实现原理不同
+  - 匿名内部类：编译之后，会生成一个单独的.class字节码文件。
+  - Lambda表达式：编译之后，没有生成一个单独的.class字节码文件。
+
+## 25.5 Lambda表达式的使用
+
+### 25.5.1 Lambda表达式的语法
+
+Lambda表达式本质就是一个匿名函数，在函数的语法中包含返回值类型、方法名、形参列表和方法体等，而在Lambda表达式中我们只需要关心形参列表和方法体即可。
+在Java语言中，Lambda表达式的语法为“(形参列表) -> {方法体}”，其中“->”为 lambda操作符或箭头操作符，“形参列表”为对应接口实现类中重写方法的形参列表，“方法体”为对应接口实现类中重写方法的方法体。
+接下来，我们就以匿名内部类为例，从而将匿名内部类演化为Lambda表达式，代码如下：
+
+```java
+public class LambdaTest04 {
+    public static void main(String[] args) {
+        ArrayList<Student> list = new ArrayList<>();
+        list.add(new Student(8));
+        list.add(new Student(1));
+        list.add(new Student(5));
+        list.add(new Student(2));
+        list.add(new Student(6));
+        list.add(new Student(3));
+        list.add(new Student(9));
+        list.add(new Student(4));
+        list.add(new Student(5));
+        list.add(new Student(3));
+        Collections.sort(list, new Comparator<Student>() {
+            @Override
+            public int compare(Student o1, Student o2) {
+                return o1.age - o2.age;
+            }
+        });
+        Iterator<Student> it = list.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
+        }
+
+    }
+}
+class Student{
+    public int age;
+    public Student(int age) {
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "age=" + age +
+                '}';
+    }
+}
+```
+
+对应的Lambda表达式代码实现如下：
+
+```java
+public class LambdaTest04 {
+    public static void main(String[] args) {
+        ArrayList<Student> list = new ArrayList<>();
+        list.add(new Student(8));
+        list.add(new Student(1));
+        list.add(new Student(5));
+        list.add(new Student(2));
+        list.add(new Student(6));
+        list.add(new Student(3));
+        list.add(new Student(9));
+        list.add(new Student(4));
+        list.add(new Student(5));
+        list.add(new Student(3));
+        Collections.sort(list, (o1, o2)->{return o1.age - o2.age;}
+        );
+        Iterator<Student> it = list.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
+        }
+
+    }
+}
+class Student{
+    public int age;
+
+    public Student(int age) {
+        this.age = age;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "age=" + age +
+                '}';
+    }
+}
+```
+
+因此Lambda本质上就是去掉了一堆没有意义的代码，只留下核心的代码逻辑，从而让代码看起来更加的简洁且优雅。
+
+### 25.5.2 Lambda表达式的基本使用
+
+- 无返回值函数式接口
+
+  - 情况1：无返回值无参数
+
+    ```java
+    public class LambdaTest05 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public void fly() {
+                    System.out.println("鸟儿在飞翔！");
+                }
+            };
+            f1.fly();
+            
+            // Lambda表达式方式
+            Flyable f2 = ()->{
+                System.out.println("鸟儿在飞翔");
+            };
+            f2.fly();
+        }
+    }
+    @FunctionalInterface
+    interface Flyable{
+        void fly();
+    }
+    
+    ```
+
+  - 情况2：无返回值一个参数
+
+    ```java
+    public class LambdaTest06 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public void fly(String name) {
+                    System.out.println(name + "鸟在飞翔！");
+                }
+            };
+            f1.fly("乌鸦");
+            // Lambda表达式方式
+            Flyable f2 = (String name)->{
+                System.out.println(name + "鸟在飞翔！");
+            };
+            f2.fly("大鹏");
+        }
+    }
+    @FunctionalInterface
+    interface Flyable{
+        void fly(String name);
+    }
+    ```
+
+  - 情况3：无返回值多个参数
+
+    ```java
+    public class LambdaTest07 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public void fly(int a, int b) {
+                    System.out.println(a + b + "只鸟在飞翔！");
+                }
+            };
+            f1.fly(2, 3);
+    
+    
+            // Lambda表达式方式
+            Flyable f2 = (int a, int b)->{
+                System.out.println(a + b + "只鸟在飞翔！");
+            };
+            f2.fly(4, 5);
+        }
+    }
+    @FunctionalInterface
+    interface Flyable{
+        void fly(int a, int b);
+    }
+    ```
+
+- 有返回值函数式接口
+
+  - 情况1：有返回值无参数
+
+    ```java
+    public class LambdaTest08 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public String fly() {
+                    return "鸟儿在飞翔！";
+                }
+            };
+            System.out.println(f1.fly());
+    
+            // Lambda表达式方式
+            Flyable f2 = ()->{
+                return "鸟儿在飞翔!";
+            };
+            System.out.println(f2.fly());
+        }
+    }
+    @FunctionalInterface
+    interface Flyable{
+        String fly();
+    }
+    ```
+
+    

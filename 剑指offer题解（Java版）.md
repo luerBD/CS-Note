@@ -661,3 +661,13 @@ void ReplaceBlank(char str[], int length)
 
   <img src="assets/image-20240711175819623.png" alt="image-20240711175819623" style="zoom:33%;" />
 
+## 1.5 栈和队列
+
+### 1.5.1 用两个栈实现队列
+
+- 题目描述
+  - 用两个栈，实现队列的从队尾插入元素offer()和从队头抛出元素poll()。
+  - ***leetcode链接：** [用两个栈实现队列](https://leetcode-cn.com/problems/yong-liang-ge-zhan-shi-xian-dui-lie-lcof/)（以下代码已测试，提交通过）*
+
+- 思路
+- 
