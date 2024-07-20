@@ -9716,4 +9716,237 @@ class Student{
     }
     ```
 
+  - 情况2：有返回值一个参数
+  
+    ```java
+    public class LambdaTest09 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public String fly(String name) {
+                    return name + "在飞翔！";
+                }
+            };
+            System.out.println(f1.fly("麻雀"));
     
+            // Lambda方式
+            Flyable f2 = (String name)->{return name + "在飞翔";};
+            System.out.println(f2.fly("大鹏"));
+        }
+    }
+    
+    @FunctionalInterface
+    interface Flyable{
+        String fly(String name);
+    }
+    
+    ```
+  
+  - 情况3：有返回值多个参数
+  
+    ```java
+    public class LambdaTest10 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public String fly(String name1, String name2) {
+                    return name1 + "和" + name2 + "正在飞翔！";
+                }
+            };
+            System.out.println(f1.fly("麻雀", "大鹏"));
+    
+            // Lambda方式
+            Flyable f2 = (String name1, String name2)->{return name1 + "和" + name2 + "正在飞翔！";};
+            System.out.println(f2.fly("姑获鸟", "乌鸦"));
+        }
+    }
+    
+    interface Flyable{
+        String fly(String name1, String name2);
+    }
+    
+    ```
+
+### 25.5.3 Lambda表达式的语法精简
+
+在以上代码中，虽然Lambda表达式的语法已经很简洁了，但是Lambda表达式的语法格式还可以更加的精简，从而写出更加优雅的代码，但是相应的代码可读性也会变差。
+在以下的应用场景中，我们就可以对Lambda表达式的语法进行精简，场景如下：
+
+1. 形参类型可以省略，如果需要省略，则每个形参的类型都要省略。
+2. 如果形参列表中只存在一个形参，那么形参类型和小括号都可以省略。
+3. 如果方法体当中只有一行语句，那么方法体的大括号也可以省略。
+4. 如果方法体中只有一条return语句，那么大括号可以省略，且必须去掉return关键字。
+
+接下来，我们就对以下的Lambda表达式代码进行精简，从而写出更加优雅的代码。
+
+- 无返回值函数式接口
+
+  - 情况1：无返回值无参数
+
+    ```
+    public class LambdaTest05 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public void fly() {
+                    System.out.println("鸟儿在飞翔！");
+                }
+            };
+            f1.fly();
+    
+            // Lambda表达式方式
+            Flyable f2 = ()->System.out.println("鸟儿在飞翔");
+            f2.fly();
+        }
+    }
+    @FunctionalInterface
+    interface Flyable{
+        void fly();
+    }
+    ```
+
+  - 情况2：无返回值一个参数
+
+    ```java
+    public class LambdaTest05 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public void fly() {
+                    System.out.println("鸟儿在飞翔！");
+                }
+            };
+            f1.fly();
+    
+            // Lambda表达式方式
+            Flyable f2 = ()->System.out.println("鸟儿在飞翔");
+            f2.fly();
+        }
+    }
+    @FunctionalInterface
+    interface Flyable{
+        void fly();
+    }
+    ```
+
+  - 情况3：无返回值多个参数
+
+    ```
+    public class LambdaTest07 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public void fly(int a, int b) {
+                    System.out.println(a + b + "只鸟在飞翔！");
+                }
+            };
+            f1.fly(2, 3);
+    
+    
+            // Lambda表达式方式
+            Flyable f2 = (a, b)->System.out.println(a + b + "只鸟在飞翔！");
+            f2.fly(4, 5);
+        }
+    }
+    @FunctionalInterface
+    interface Flyable{
+        void fly(int a, int b);
+    }
+    
+    ```
+
+- 有返回值函数式接口
+
+  - 情况1：有返回值无参数
+
+    ```
+    public class LambdaTest08 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public String fly() {
+                    return "鸟儿在飞翔！";
+                }
+            };
+            System.out.println(f1.fly());
+    
+            // Lambda表达式方式
+            Flyable f2 = ()->"鸟儿在飞翔!";
+            System.out.println(f2.fly());
+        }
+    }
+    @FunctionalInterface
+    interface Flyable{
+        String fly();
+    }
+    ```
+
+  - 情况2：有返回值一个参数
+
+    ```
+    public class LambdaTest09 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public String fly(String name) {
+                    return name + "在飞翔！";
+                }
+            };
+            System.out.println(f1.fly("麻雀"));
+    
+            // Lambda方式
+            Flyable f2 = name->name + "在飞翔";
+            System.out.println(f2.fly("大鹏"));
+        }
+    }
+    
+    @FunctionalInterface
+    interface Flyable{
+        String fly(String name);
+    }
+    
+    ```
+
+  - 情况3：有返回值多个参数
+
+    ```java
+    public class LambdaTest10 {
+        public static void main(String[] args) {
+            // 匿名内部类方式
+            Flyable f1 = new Flyable() {
+                @Override
+                public String fly(String name1, String name2) {
+                    return name1 + "和" + name2 + "正在飞翔！";
+                }
+            };
+            System.out.println(f1.fly("麻雀", "大鹏"));
+    
+            // Lambda方式
+            Flyable f2 = (name1,name2)->name1 + "和" + name2 + "正在飞翔！";
+            System.out.println(f2.fly("姑获鸟", "乌鸦"));
+        }
+    }
+    
+    interface Flyable{
+        String fly(String name1, String name2);
+    }
+    
+    ```
+
+### 25.5.4 jdk内置的4个基本的函数式接口
+
+| 名字 | 接口名         | 对应的抽象方法     |
+| ---- | -------------- | ------------------ |
+| 消费 | Consumer<T>    | void accept(T t);  |
+| 生产 | Supplier<T>    | T get();           |
+| 转换 | Function<T, R> | R apply(T t);      |
+| 判断 | Predicate<T>   | boolean test(T t); |
+
+以上的函数式接口都在java.util.function包中，通常函数接口出现的地方都可以使用Lambda表达式，所以不必记忆函数接口的名字，这些函数式接口及子接口在后续学习中很常用。
