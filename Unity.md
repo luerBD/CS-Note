@@ -115,6 +115,8 @@
   - Project是后台，所有未上场的演员和没有使用的剧本都在这里；
   - Console是表演过程中的信息反馈。
 
+
+
 # 2.生命周期函数（以下顺序也是执行顺序）
 
 ## 2.1 Awake()，只执行一次
@@ -573,23 +575,261 @@ if(this.GetComponent<脚本名>() != null){
 - this.gameObject代表这个脚本对象依附的GameObject游戏对象
 - this.transform代表这个脚本对象依附的GameObject游戏对象的位置相关信息。
 
+# 5.GameObject的成员变量
+
+## 5.1 name
+
+```
+print(this.gameObject.name);
+this.gameObject.name = "Lesson4_GameObject";
+```
+
+## 5.2 activeSelf(是否激活)
+
+```
+print("激活状态：" + this.gameObject.activeSelf);
+```
+
+## 5.3 isStatic(是否是静态)
+
+```
+ print("是否是静态：" + this.gameObject.isStatic);
+```
+
+## 5.4 layer(层级)
+
+```
+print("层级：" + this.gameObject.layer);
+```
+
+## 5.5 tag(标签)
+
+```
+print("标签：" + this.gameObject.tag);
+```
+
+## 5.6 transform(改变)
+
+```
+print("改变：" + this.gameObject.transform.position);
+```
+
+# 6.GameObject中的静态方法
+
+## 6.1 CreatePrimitive(PrimitiveType.Cube);创建自带的几何体
+
+```
+GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+obj.name = "lzk创建的几何体对象";
+```
+
+## 6.2 查找对象相关的方法
+
+- 无法找到失活的对象，只能找到激活的对象
+- 如果场景中存在多个满足条件的对象，我们无法准确找到是谁
+- 得到某一个单个对象，目前有2种方式：
+  - public从外部面板拖，进行关联
+  - 通过API去找
+
+### 6.2.1 Find("对象名称");通过对象名进行查找单个对象
+
+- 它是从Hierarchy层级窗口中的对象中开始找的
+
+- 这个查找效率比较低，因为它会在场景中的所有对象中去查找，没有找到，返回null。
+
+```
+      GameObject obj = GameObject.Find("陆忠凯");
+      if (obj != null)
+      {
+          print(obj.name);
+      }
+      else 
+      {
+          print("没有找到相应对象！");
+      }
+```
+
+### 6.2.2 FindWithTag("标签名称");通过标签名称来查找单个对象
+
+```
+        GameObject obj = GameObject.FindWithTag("Player");
+        // 等同于 GameObject obj = GameObject.FindGameObjectWithTag("Player");
+        if (obj != null)
+        {
+            print("按标签查找，找到了：" + obj.name);
+        }
+        else 
+        {
+            print("按标签查找，没找到！");
+        }
+```
+
+### 6.2.3 通过标签名称来查找多个对象
+
+- 找多个对象的API，只能通过tag去找多个，通过名字是没有找多个的方法的
+- 通过tag找到多个对象，它也是只能找到激活对象，无法找到失活对象。
+
+```
+        GameObject[] objs = GameObject.FindGameObjectsWithTag("Player");
+        print(objs.Length);
+```
+
+## 6.4 Instantiate(另一个对象)，根据已有的对象实例化对象（克隆对象）
+
+- 它的作用是根据一个GameObject对象，创建出一个和它一模一样的对象
+
+```
+public GameObject myObj = null;
+void Start()
+{
+    GameObject.Instantiate(myObj);
+    //也可直接Instantiate(myobj);
+}
+```
+
+- 如果继承了MonoBehavior，其实可以不用写GameObject.，一样可以使用。因为这个方法是unity里面的Object积累提供给我们的，所以可以直接用。
+
+## 6.5 Destroy(对象or脚本)，删除对象（或脚本）
+
+- 注意：这个Destroy方法，不会马上移除对象，只是给这个对象加了一个移除标识，一般情况下，它会在下一帧时把这个对象移除并从内存中移除。
+
+- 如果没有特殊需求（也就是一定要马上移除一个对象），只建议使用上面的Destroy方法，因为该方法是异步的，会降低卡顿的几率。下面这个方法就是把对象从内存中移除了。
+
+  ```
+  GameObject.DestroyImmediate(myObj);
+  ```
+
+### 6.5.1 不延时删除
+
+```
+ GameObject.Destroy(myObj); //删除对象
+ GameObject.Destroy(this); //删除脚本
+```
+
+### 6.5.2 延时几秒再删除
+
+```
+GameObject.Destroy(myObj, 5); // 延时删除对象
+GameObject.Destroy(myObj, 5); // 延时删除脚本
+```
+
+## 6.6 过场景不移除某些对象，DontDestroyOnLoad(某些对象)
+
+```
+GameObject.DontDestroyOnLoad(this.gameObject); // 过场景而不移除这个脚本所依附的那些对象
+```
+
+# 7.GameObject中的成员方法
+
+## 7.1 创建空物体
+
+```
+GameObject obj1 = new GameObject(); // 创建默认空物体
+GameObject obj2 = new GameObject("陆忠凯创建的空物体"); // 创建空物体，并给它命名
+GameObject obj3 = new GameObject("带脚本的空物体", typeof(Lesson1), typeof(Lesson2)); // 创建带脚本的空物体，所带的脚本为Lesson1和Lesson2
+```
+
+## 7.2 为对象动态添加脚本
+
+- 如果想要动态的添加继承自MonoBehavior的脚本在某一个对象上，直接使用GameObject提供的实例方法即可
+
+```
+        GameObject obj4 = new GameObject();
+        Lesson2 lesson4 = obj4.AddComponent<Lesson2>();
+```
+
+- 通过返回值，可以得到加入的脚本信息，从而进行一些处理
+
+## 7.3 得到脚本的成员方法和继承MonoBehaviour的类得到脚本的方法一模一样。
 
 
 
+## 7.4 标签比较
 
+下面两种比较的方法是一样的
 
+```
+if (this.gameObject.CompareTag("Player")) 
+{
+	print("对象的标签是Player");
+}
 
+if (this.gameObject.tag == "Player") 
+{
+	print("对象的标签是Player");
+}
+```
 
+## 7.5 设置激活失活
 
+- false：失活；true：激活
 
+```
+GameObject obj2 = new GameObject("陆忠凯创建的空物体"); // 创建空物体，并给它命名
+GameObject obj3 = new GameObject("带脚本的空物体", typeof(Lesson1), typeof(Lesson2));
+obj2.SetActive(false);
+obj3.SetActive(false);
+```
 
+# 8.GameObject相关的练习
 
+8.1 一个空物体上挂了一个脚本，游戏运行时该脚本可以实例化出之前的坦克预设体。一般情况下，我们实例化出的对象，都是克隆的预设提，但是也可以拖场景上的对象进行克隆
 
+```
+    void Start()
+    {
+        //GameObject.Instantiate(obj);
+        GameObject tank = GameObject.Find("Tank");
+        if (tank != null) 
+        {
+            GameObject obj = GameObject.Instantiate(tank);
+        }
+    }
+```
 
+8.2 一个脚本A，一个脚本B，脚本A挂在A对象上，脚本B挂在B对象上。实现A脚本的Start函数中将B对象上的B脚本失活（用GameObject相关知识做）；
 
+方法1：A对象关联B对象
 
+方法2：查找，查找B对象，获取B对象的脚本，从而设置脚本失活
 
+```
+    void Start()
+    {
+        //b.GetComponent<B>().enabled = false;
 
+        B b = GameObject.Find("B").GetComponent<B>();
+        if (b != null) 
+        {
+            b.enabled = false;
+        }
+        
 
+    }
+```
 
+8.3 一个对象A和一个对象B，在A上挂一个脚本，通过这个脚本可以让B对象改名，失活，延迟删除，立即删除。可以在Inspector窗口进行设置，让B实现不同的效果（提示：GameObject、枚举）
+
+```
+    public Do_Type type = Do_Type.RENAME;
+    // Start is called before the first frame update
+    void Start()
+    {
+        GameObject obj = GameObject.Find("ObjectB");
+        if (obj != null) 
+        {
+            switch (type) 
+            {
+                case Do_Type.RENAME:
+                    obj.name = "RenameB"; break;
+                case Do_Type.NOT_ACTIVE:
+                    obj.SetActive(false); break;
+                case Do_Type.DELAY_DELETE:
+                    GameObject.Destroy(obj, 5); break;
+                case Do_Type.IMMEDIATE_DELETE: 
+                    GameObject.DestroyImmediate(obj); break;
+            }
+        }
+    }
+```
 

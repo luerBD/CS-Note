@@ -9507,9 +9507,9 @@ public class Test01 {
   - 匿名内部类：编译之后，会生成一个单独的.class字节码文件。
   - Lambda表达式：编译之后，没有生成一个单独的.class字节码文件。
 
-## 25.5 Lambda表达式的使用
+## 25.2 Lambda表达式的使用
 
-### 25.5.1 Lambda表达式的语法
+### 25.2.1 Lambda表达式的语法
 
 Lambda表达式本质就是一个匿名函数，在函数的语法中包含返回值类型、方法名、形参列表和方法体等，而在Lambda表达式中我们只需要关心形参列表和方法体即可。
 在Java语言中，Lambda表达式的语法为“(形参列表) -> {方法体}”，其中“->”为 lambda操作符或箭头操作符，“形参列表”为对应接口实现类中重写方法的形参列表，“方法体”为对应接口实现类中重写方法的方法体。
@@ -9601,7 +9601,7 @@ class Student{
 
 因此Lambda本质上就是去掉了一堆没有意义的代码，只留下核心的代码逻辑，从而让代码看起来更加的简洁且优雅。
 
-### 25.5.2 Lambda表达式的基本使用
+### 25.2.2 Lambda表达式的基本使用
 
 - 无返回值函数式接口
 
@@ -9769,7 +9769,7 @@ class Student{
     
     ```
 
-### 25.5.3 Lambda表达式的语法精简
+### 25.2.3 Lambda表达式的语法精简
 
 在以上代码中，虽然Lambda表达式的语法已经很简洁了，但是Lambda表达式的语法格式还可以更加的精简，从而写出更加优雅的代码，但是相应的代码可读性也会变差。
 在以下的应用场景中，我们就可以对Lambda表达式的语法进行精简，场景如下：
@@ -9940,7 +9940,7 @@ class Student{
     
     ```
 
-### 25.5.4 jdk内置的4个基本的函数式接口
+### 25.2.4 jdk内置的4个基本的函数式接口
 
 | 名字 | 接口名         | 对应的抽象方法     |
 | ---- | -------------- | ------------------ |
@@ -9950,3 +9950,361 @@ class Student{
 | 判断 | Predicate<T>   | boolean test(T t); |
 
 以上的函数式接口都在java.util.function包中，通常函数接口出现的地方都可以使用Lambda表达式，所以不必记忆函数接口的名字，这些函数式接口及子接口在后续学习中很常用。
+
+## 25.3 Lambda表达式的方法引用
+
+### 25.3.1 方法引用的概述
+
+我们在使用Lambda表达式的时候，如果Lambda表达式的方法体中除了调用现有方法之外什么都不做，满足这样的条件就有机会使用方法引用来实现。
+在以下的代码中，在重写的apply()方法中仅仅只调用了现有Math类round()方法，也就意味着Lambda表达式中仅仅只调用了现有Math类round()方法，那么该Lambda表达式就可以升级为方法引用，案例如下：
+
+```java
+// 需求：实现小数取整的操作
+// 方式一：使用匿名对象来实现
+Function<Double, Long> function1 = new Function<Double, Long>() {
+    @Override
+    public Long apply(Double aDouble) {
+        return Math.round(aDouble);
+    }
+};
+System.out.println(function1.apply(3.14));
+
+// 方式二：使用Lambda表达式来实现
+Function<Double, Long> function2 = aDouble -> Math.round(aDouble);
+System.out.println(function2.apply(3.14));
+
+// 方式三：使用方法引用来实现
+Function<Double, Long> function3 = Math :: round;
+System.out.println(function3.apply(3.14));
+```
+
+对于方法引用，我们可以看做是Lambda表达式深层次的表达。换句话说，方法引用就是Lambda表达式，也就是函数式接口的一个实例，通过方法的名字来指向一个方法，可以认为是Lambda表达式的一个语法糖。
+在Lambda表达式的方法引用中，主要有实例方法引用、静态方法引用、特殊方法引用和构造方法引用、数组引用这五种情况，接下来我们就对这五种情况进行讲解。
+
+### 25.3.2 实例方法引用
+
+语法：对象 :: 实例方法
+特点：在Lambda表达式的方法体中，通过“对象”来调用指定的某个“实例方法”。
+要求：函数式接口中抽象方法的返回值类型和形参列表       与          内部通过对象调用某个实例方法的返回值类型和形参列表            保持一致。
+
+例1：
+
+```java
+public class MethodCiteTest01 {
+    public static void main(String[] args) {
+        Student stu = new Student("Joker");
+
+        // 匿名内部类方式
+        Supplier<String> supplier1 = new Supplier<String>() {
+            @Override
+            public String get() {
+                return stu.getName();
+            }
+        };
+        System.out.println(supplier1.get());
+
+        // Lambda表达式方式
+        Supplier<String> supplier2 = ()->stu.getName();
+        System.out.println(supplier2.get());
+
+        // 实例方法引用的方式
+        Supplier<String> supplier3 = stu::getName;
+        System.out.println(supplier3.get());
+    }
+}
+class Student{
+    private String name;
+
+    public Student(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+
+```
+
+例2：
+
+```java
+public class MethodCiteTest02 {
+    public static void main(String[] args) {
+        // 匿名内部类方式
+        Consumer<String> consumer1 = new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                System.out.println(s);
+            }
+        };
+        consumer1.accept("I will be back!");
+
+        // Lambda表达式方式
+        Consumer<String> consumer2 = s -> System.out.println(s);
+        consumer2.accept("I will be back!");
+
+        // 实例方法引用方式
+        Consumer<String> consumer3 = System.out::println;
+        consumer3.accept("I will be back!");
+    }
+}
+```
+
+
+
+### 25.3.3 静态方法引用
+
+语法：类 :: 静态方法
+特点：在Lambda表达式的方法体中，通过“类名”来调用指定的某个“静态方法”。
+要求：函数式接口中抽象方法的返回值类型和形参列表           与               内部通过类名调用某个静态方法的返回值类型和形参列表保持一致。
+
+```java
+public class MethodCiteTest03 {
+    public static void main(String[] args) {
+        // 匿名内部类方式
+        Function<Double, Long> function1 = new Function<Double, Long>() {
+            @Override
+            public Long apply(Double value) {
+                return Math.round(value);
+            }
+        };
+        System.out.println(function1.apply(3.14));
+
+        // Lambda表达式方式
+        Function<Double, Long> function2 = value -> Math.round(value);
+        System.out.println(function2.apply(3.14));
+
+        // 静态方法引用方式
+        Function<Double, Long> function3 = Math::round;
+        System.out.println(function3.apply(3.14));
+    }
+}
+```
+
+### 25.3.4 特殊方法引用
+
+- 语法：类名 :: 实例方法
+- 特点：在Lambda表达式的方法体中，通过方法的第一个形参来调用指定的某个“实例方法”。
+- 要求：把函数式接口中抽象方法的第一个形参作为方法的调用者对象，并且从第二个形参开始（或无参）可以对应到被调用实例方法的参数列表中，并且返回值类型保持一致。
+
+- 例1：使用Comparator比较器，来判断两个小数的大小
+
+  ```java
+  public class MethodCiteTest04 {
+      public static void main(String[] args) {
+          // 匿名内部类方式
+          Comparator<Double> comparator1 = new Comparator<Double>() {
+              @Override
+              public int compare(Double o1, Double o2) {
+                  return o1.compareTo(o2);
+              }
+          };
+  
+          System.out.println(comparator1.compare(3.14, 2.14));
+  
+          // Lambda表达式方式
+          Comparator<Double> comparator2 = (o1, o2) -> o1.compareTo(o2);
+          System.out.println(comparator2.compare(3.14, 2.14));
+  
+          // 特殊方法引用方式
+          Comparator<Double> comparator3 = Double::compareTo;
+          System.out.println(comparator3.compare(3.14, 2.14));
+      }
+  }
+  ```
+
+- 例2：实例化Function接口的实现类对象，然后获得传入Vip对象的姓名。
+
+  ```java
+  
+  public class MethodCiteTest05 {
+      public static void main(String[] args) {
+          // 匿名内部类方式
+          Vip vip = new Vip("Joker");
+          Function<Vip, String> function1 = new Function<Vip, String>() {
+              @Override
+              public String apply(Vip v) {
+                  return v.getName();
+              }
+          };
+          System.out.println(function1.apply(vip));
+  
+          // Lambda表达式方式
+          Function<Vip, String> function2 = v -> vip.getName();
+          System.out.println(function2.apply(vip));
+  
+          // 特殊方法引用方式
+          Function<Vip, String> function3 = Vip::getName;
+          System.out.println(function3.apply(vip));
+      }
+  }
+  
+  class Vip{
+      private String name;
+  
+      public Vip(String name) {
+          this.name = name;
+      }
+  
+      public String getName() {
+          return name;
+      }
+  
+      public void setName(String name) {
+          this.name = name;
+      }
+  
+      @Override
+      public String toString() {
+          return "Vip{" +
+                  "name='" + name + '\'' +
+                  '}';
+      }
+  }
+  
+  
+  ```
+
+### 25.3.5 构造方法引用
+
+- 语法：类名 :: new
+- 特点：在Lambda表达式的方法体中，返回指定“类名”来创建出来的对象。
+- 要求：创建对象所调用构造方法形参列表      和      函数式接口中的方法的形参列表       保持一致，并且方法的返回值类型和创建对象的类型保持一致。
+
+- 例1：实例化Supplier接口的实现类对象，然后调用重写方法返回Teacher对象
+
+  ```
+  // 方式一：使用匿名内部类来实现
+  Supplier<Teacher> supplier1 = new Supplier<Teacher>() {
+      @Override
+      public Teacher get() {
+          return new Teacher();
+      }
+  };
+  System.out.println(supplier1.get());
+  
+  // 方式二：使用Lambda表达式来实现
+  Supplier<Teacher> supplier2 = () -> new Teacher();
+  System.out.println(supplier2.get());
+  
+  // 方式二：使用构造方法引用来实现
+  // 注意：根据重写方法的形参列表，那么此处调用了Teacher类的无参构造方法
+  Supplier<Teacher> supplier3 = Teacher :: new;
+  System.out.println(supplier3.get());
+  ```
+
+- 例2：实例化Function接口的实现类对象，然后调用重写方法返回Teacher对象
+
+  ```
+  // 方式一：使用匿名内部类来实现
+  Function<String, Teacher> function1 = new Function<String, Teacher>() {
+      @Override
+      public Teacher apply(String name) {
+          return new Teacher(name);
+      }
+  };
+  System.out.println(function1.apply("ande"));
+  
+  // 方式二：使用Lambda表达式来实现
+  Function<String, Teacher> function2 = name -> new Teacher(name);
+  System.out.println(function2.apply("ande"));
+  
+  // 方式二：使用构造方法引用来实现
+  // 注意：根据重写方法的形参列表，那么此处调用了Teacher类name参数的构造方法
+  Function<String, Teacher> function3 = Teacher :: new;
+  System.out.println(function3.apply("ande"));
+  ```
+
+  
+
+## 25.4 Lambda在集合当中的使用
+
+为了能够让Lambda和Java的集合类集更好的一起使用，集合当中也新增了部分方法，以便与Lambda表达式对接，要用Lambda操作集合就一定要看懂源码。
+
+### 25.4.1 forEach()方法
+
+在Collection集合和Map集合中，都提供了forEach()方法用于遍历集合。
+在Collection集合中，提供的forEach()方法的形参为Consumer接口（消费型接口），通过该方法再配合Lambda表达式就可以遍历List和Set集合中的元素。
+【示例】遍历List集合中的元素
+
+```java
+List<Integer> list = Arrays.asList(11, 22, 33, 44, 55);
+// 方式一：使用匿名内部类来实现
+list.forEach(new Consumer<Integer>() {
+    /**
+     * 获得遍历出来的元素
+     * @param element 遍历出来的元素
+     */
+    @Override
+    public void accept(Integer element) {
+        System.out.println(element);
+    }
+});
+
+// 方式二：使用Lambda表达式来实现
+list.forEach(element -> System.out.println(element));
+
+// 方式三：使用方法引用来实现
+list.forEach(System.out :: println);
+```
+
+【示例】遍历Set集合中的元素
+
+```java
+List<String> list = Arrays.asList("aa", "bb", "cc", "dd");
+HashSet<String> hashSet = new HashSet<>(list);
+// 方式一：使用匿名内部类来实现
+hashSet.forEach(new Consumer<String>() {
+    /**
+     * 获得遍历出来的元素
+     * @param element 遍历出来的元素
+     */
+    @Override
+    public void accept(String element) {
+        System.out.println(element);
+    }
+});
+// 方式二：使用Lambda表达式来实现
+hashSet.forEach(element -> System.out.println(element));
+
+// 方式三：使用方法引用来实现
+hashSet.forEach(System.out :: println);
+```
+
+在Map集合中，提供的forEach()方法的形参为BiConsumer接口，而BiConsumer接口属于两个参数的消费型接口，通过该方法再配合Lambda表达式就可以遍历Map集合中的元素。
+【示例】遍历Map集合中的元素
+
+```java
+// 实例化Map集合并添加键值对
+HashMap<String, String> map = new HashMap<>();
+map.put("张三", "成都");
+map.put("李四", "重庆");
+map.put("王五", "西安");
+// 方式一：使用匿名内部类来实现
+map.forEach(new BiConsumer<String, String>() {
+    /**
+     * 获得遍历出来的key和value
+     * @param key 键
+     * @param value 值
+     */
+    @Override
+    public void accept(String key, String value) {
+        System.out.println("key：" + key + "，value：" + value);
+    }
+});
+// 方式二：使用Lambda表达式来实现
+map.forEach((k, v) -> System.out.println("key：" + k + "，value：" + v));
+```
+

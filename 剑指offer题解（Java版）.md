@@ -661,6 +661,101 @@ void ReplaceBlank(char str[], int length)
 
   <img src="assets/image-20240711175819623.png" alt="image-20240711175819623" style="zoom:33%;" />
 
+  
+
+- 代码
+
+  ```
+  public class TreeNodeWithParent {
+      public int val;
+      public TreeNodeWithParent left;
+      public TreeNodeWithParent right;
+      public TreeNodeWithParent father;
+  
+      public TreeNodeWithParent(int val) {
+          this.val = val;
+          this.left = null;
+          this.right = null;
+          this.father = null;
+      }
+  }
+  
+  ```
+
+  ```
+  public class NextNodeInBinaryTrees {
+      public static TreeNodeWithParent getNext(TreeNodeWithParent node) {
+          if (node == null) {
+              return null;
+          }
+  
+          // 当前节点有右孩子
+          if (node.right != null) {
+              TreeNodeWithParent next_node = node.right;
+              while (next_node.left != null) {
+                  next_node = next_node.left;
+              }
+              return next_node;
+          }
+  
+          // 没有右孩子，分为几种情况
+          while (true) {
+              // 没有父节点
+              if (node.father == null) {
+                  return null;
+              }
+              // 当前节点是父节点的左节点
+              if (node.father.left == node) {
+                  return node.father;
+              }
+              // 当前节点是父节点的右节点
+              if (node.father.right == node) {
+                  node = node.father;
+              }
+          }
+      }
+  
+      public static void main(String[] args) {
+          TreeNodeWithParent root = new TreeNodeWithParent(1);
+  
+          root.left = new TreeNodeWithParent(2);
+          root.left.father = root;
+  
+          root.right = new TreeNodeWithParent(3);
+          root.right.father = root;
+  
+          root.left.left = new TreeNodeWithParent(4);
+          root.left.left.father = root.left;
+  
+          root.left.right = new TreeNodeWithParent(5);
+          root.left.right.father = root.left;
+  
+          root.right.left = new TreeNodeWithParent(6);
+          root.right.left.father = root.right;
+  
+          root.right.right = new TreeNodeWithParent(7);
+          root.right.right.father = root.right;
+  
+          root.left.right.left = new TreeNodeWithParent(8);
+          root.left.right.left.father = root.left.right;
+  
+          root.left.right.right = new TreeNodeWithParent(9);
+          root.left.right.right.father = root.left.right;
+  
+          System.out.println(root.left.val + "->" + getNext(root.left).val); // 2->8
+  
+          System.out.println(root.val + "->" + getNext(root).val); // 1->6
+  
+          System.out.println(root.left.right.right.val + "->" + getNext(root.left.right.right).val); // 9->1
+  
+          System.out.println(root.right.right.val + "->" + getNext(root.right.right)); // 7->nullW
+      }
+  }
+  
+  ```
+
+  
+
 ## 1.5 栈和队列
 
 ### 1.5.1 用两个栈实现队列
@@ -668,6 +763,143 @@ void ReplaceBlank(char str[], int length)
 - 题目描述
   - 用两个栈，实现队列的从队尾插入元素offer()和从队头抛出元素poll()。
   - ***leetcode链接：** [用两个栈实现队列](https://leetcode-cn.com/problems/yong-liang-ge-zhan-shi-xian-dui-lie-lcof/)（以下代码已测试，提交通过）*
+- 思路
+  - 将元素依次压入栈1；
+  - 将栈1中的每个元素依次出栈并依次压入栈2；
+  - 将栈2中的每个元素依次出栈；
+
+- 代码
+
+  ```
+  import java.util.Stack;
+  
+  public class MyQueue {
+      private Stack<Integer> stack1 = new Stack<>();
+      private Stack<Integer> stack2 = new Stack<>();
+  
+      public void offer(Integer data) {
+          stack1.push(data);
+      }
+  
+      public Integer poll() {
+          if (!stack2.isEmpty()) {
+              return stack2.pop();
+          } else {
+              if (!stack1.isEmpty()) {
+                  while (!stack1.isEmpty()) {
+                      Integer data = stack1.pop();
+                      stack2.push(data);
+                  }
+                  return stack2.pop();
+              } else {
+                  return null;
+              }
+          }
+      }
+  
+      public static void main(String[] args) {
+          MyQueue myQueue = new MyQueue();
+          System.out.println(myQueue.poll());
+          myQueue.offer(1);
+          myQueue.offer(2);
+          myQueue.offer(3);
+          System.out.println(myQueue.poll());
+          System.out.println(myQueue.poll());
+          myQueue.offer(4);
+          System.out.println(myQueue.poll());
+          System.out.println(myQueue.poll());
+          System.out.println(myQueue.poll());
+      }
+  }
+  
+  ```
+
+  
+
+# 2.算法和数据操作
+
+## 2.1 递归和循环
+
+### 2.1.1 斐波那契数列
+
+***leetcode链接：** [斐波那契数列](https://leetcode-cn.com/problems/fei-bo-na-qi-shu-lie-lcof/)（以下代码已测试，提交通过）*
+
+- 题目描述
+
+  ```
+  写一个函数，输入 n ，求斐波那契（Fibonacci）数列的第 n 项（即 F(N)）。斐波那契数列的定义如下：
+      F(0) = 0,   F(1) = 1
+      F(N) = F(N - 1) + F(N - 2), 其中 N > 1.
+  斐波那契数列由 0 和 1 开始，之后的斐波那契数就是由之前的两数相加而得出。
+  ```
 
 - 思路
-- 
+  - 递归：会出现大量重复计算，效率不好（如计算f(6)与f(7)时，最后都会重复计算f(6)、f(5)等），因此可以把计算的中间项保存下来，避免重复计算；
+  - 循环：可以使用循环实现，从下往上计算，因此需要两个临时变量记录前面计算过的结果。
+
+- 代码：
+
+  ```
+  public class Fibonacci {
+      // 递归解法，由于重复计算导致效率低，复杂度为O(n^2)
+      public static int fibonacciRecursionly(int n) {
+          if (n < 0) {
+              return -1;
+          }
+          if (n == 0 || n == 1) {
+              return n;
+          } else {
+              return (fibonacciRecursionly(n - 1) + fibonacciRecursionly(n - 2)) % 1000000007;
+          }
+      }
+  
+      // 循环解法，从下往上计算，避免重复计算，复杂度为O(n)
+      public static int fibonacciCyclely(int n) {
+          int fibonacci = 0;
+          if (n < 0) {
+              return -1;
+          }
+          if (n == 0 || n == 1) {
+              return n;
+          } else {
+              int n_2 = 0;
+              int n_1 = 1;
+              for (int i = 2; i <= n; i++) {
+                  int temp = n_2 % 1000000007;
+                  n_2 = n_1 % 1000000007;
+                  n_1 = (temp + n_1) % 1000000007;
+              }
+              fibonacci = n_1;
+          }
+          return fibonacci;
+      }
+  
+      public static void main(String[] args) {
+          System.out.println("递归实现");
+          System.out.println(fibonacciRecursionly(13));
+  
+          System.out.println("循环实现");
+          System.out.println(fibonacciCyclely(13));
+      }
+  }
+  ```
+
+
+## 2.2 查找和排序
+
+### 2.2.1 旋转数组的最小数字
+
+***leetcode链接：** [旋转数组的最小数字](https://leetcode-cn.com/problems/xuan-zhuan-shu-zu-de-zui-xiao-shu-zi-lcof/)（以下代码已测试，提交通过）*
+
+- 题目描述
+
+  ```
+  把一个数组最开始的若干个元素搬到末尾成为数组的旋转，如
+      1,2,3,4,5=>3,4,5,1,2；
+      0,1,1,1,1=>1,1,1,0,1；
+      0,1,1,1,1=>1,0,1,1,1。
+  求一个原本递增的数组旋转后的最小数字。
+  ```
+
+- 思路
+  - 
