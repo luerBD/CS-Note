@@ -10389,3 +10389,75 @@ Stream API：是跟集合相关的计算操作，强调的是计算。
 2. Stream不会改变数据对象，反而可能会返回一个持有结果的新Stream。
 3. Stream上的操作属于延迟执行，只有等到用户真正需要结果的时候才会执行。
 4. Stream一旦执行了终止操作，则就不能再调用其它中间操作或终止操作了。
+
+## 26.2 创建 Stream的方式
+
+### 26.2.1 通过Collection接口提供的方法
+
+通过Collection接口提供的stream()方法来创建Stream流。
+
+```java
+List<String> list = Arrays.asList("aa", "bb", "cc");
+Stream<String> stream = list.stream();
+```
+
+### 26.2.2 通过Arrays类提供的方法
+
+通过Arrays类提供的stream()静态方法来创建Stream流。
+
+```java
+String[] arr1 = {"aa", "bb", "cc"};
+Stream<String> stream = Arrays.stream(arr1);
+
+int[] arr2 = {11, 22, 33, 44};
+IntStream intStream = Arrays.stream(arr2);
+
+long[] arr3 = {11, 22, 33, 44};
+LongStream longStream = Arrays.stream(arr3);
+
+double[] arr4 = {1.0, 2.0, 3.0};
+DoubleStream doubleStream = Arrays.stream(arr4);
+```
+
+注意：Stream、IntStream、LongStream和DoubleStream都继承于BaseStream接口。
+
+## 使用Stream接口提供的方法
+
+通过Stream接口提供的of(T... values)静态方法来创建Stream流。
+
+```java
+Stream<String> stringStream = Stream.of("aa", "bb", "cc");
+Stream<Integer> integerStream = Stream.of(11, 22, 33, 44);
+```
+
+## 顺序流和并行流的理解
+
+在前面获得Stream对象的方式，我们都称之为“顺序流”，顺序流对Stream元素的处理是单线程的，即一个一个元素进行处理，处理数据的效率较低。
+如果Stream流中的数据处理没有顺序要求，并且还希望可以并行处理Stream的元素，那么就可以使用“并行流”来实现，从而提高处理数据的效率。
+一个普通Stream转换为可以并行处理的Stream非常简单，只需要用调用Stream提供的parallel()方法进行转换即可，这样就可以并行的处理Stream的元素。那么，我们不需要编写任何多线程代码就可以享受到并行处理带来的执行效率的提升。
+【示例】把顺序流转化为并行流
+
+```java
+// 创建一个“顺序流”Stream对象
+Stream<String> stream = Stream.of("aa", "bb", "cc");
+// 验证：stream是否为并行流
+System.out.println(stream.isParallel());         // 输出：false
+// 将Stream对象转化为“并行流”
+// 注意：parallel()方法返回的就是“方法的调用者对象”
+Stream<String> parallelStream = stream.parallel();
+System.out.println(stream == parallelStream);    // 输出：true
+// 验证：stream是否为并行流
+System.out.println(stream.isParallel());         // 输出：true
+```
+
+在Collection接口中，还专门提供了一个parallelStream()方法，用于获得一个并行流。
+【示例】使用parallelStream()方法获得一个并行流
+
+```java
+List<String> list = Arrays.asList("aa", "bb", "cc");
+// 创建一个“并行流”Stream对象
+Stream<String> stream = list.parallelStream();
+// 验证：stream是否为并行流
+System.out.println(stream.isParallel()); // 输出：true
+```
+
