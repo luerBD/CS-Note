@@ -10308,3 +10308,84 @@ map.forEach(new BiConsumer<String, String>() {
 map.forEach((k, v) -> System.out.println("key：" + k + "，value：" + v));
 ```
 
+### 25.4.2 removeIf()方法
+
+在Collection集合中，提供的removeIf()方法的形参为Predicate接口（判断型接口），通过该方法再配合Lambda表达式就可以遍历List和Set集合中的元素。
+【示例】删除List集合中的某个元素
+
+```java
+// 创建List集合并添加元素
+List<String> list = new ArrayList<>(Arrays.asList("aa", "bb", "cc", "dd"));
+// 方式一：使用匿名内部类来实现
+list.removeIf(new Predicate<String>() {
+    /**
+     * 删除指定的某个元素
+     * @param element 用于保存遍历出来的某个元素
+     * @return 返回true，代表删除；返回false，代表不删除
+     */
+    @Override
+    public boolean test(String element) {
+        return "bb".equals(element);
+    }
+});
+System.out.println(list); // 输出：[aa, cc, dd]
+
+// 方式二：使用Lambda表达式来实现
+list.removeIf("cc" :: equals);
+System.out.println(list); // 输出：[aa, dd]
+```
+
+【示例】删除Set集合中的某个元素
+
+```java
+List<String> list = Arrays.asList("aa", "bb", "cc", "dd");
+HashSet<String> hashSet = new HashSet<>(list);
+// 方式一：使用匿名内部类来实现
+hashSet.removeIf(new Predicate<String>() {
+    /**
+     * 删除指定的某个元素
+     * @param element 用于保存遍历出来的某个元素
+     * @return 返回true，代表删除；返回false，代表不删除
+     */
+    @Override
+    public boolean test(String element) {
+        return "bb".equals(element);
+    }
+});
+System.out.println(hashSet); // 输出：[aa, cc, dd]
+
+// 方式二：使用Lambda表达式来实现
+hashSet.removeIf("cc" :: equals);
+System.out.println(hashSet); // 输出：[aa, dd]
+```
+
+# 26.Stream API
+
+## 26.1 Stream API概述
+
+### 26.1.1 什么是StreamAPI呢？
+
+从JDK1.8开始，Java语言引入了一个全新的流式Stream API，StreamAPI把真正的函数式编程风格运用到Java语言中，使用StreamAPI可以帮我们更方便地操作集合，允许开发人员在不改变原始数据源的情况下对集合进行操作，这使得代码更加简洁、易读和可维护。
+使用Stream API对集合数据进行操作，就类似于使用SQL执行的数据库查询，也可以使用Stream API来并行执行的操作。简而言之，Stream API提供了一种高效且易于使用的处理数据的方式。
+
+### 26.1.2 Stream和Collection的区别
+
+Collection：是静态的内存数据结构，强调的是数据。
+Stream API：是跟集合相关的计算操作，强调的是计算。
+总结：Collection面向的是内存，存储在内存中；StreamAPI面向的是CPU，通过CPU来计算。
+
+### 26.1.3 Stream API的操作步骤
+
+1. 第一步：创建Stream
+   1. 通过数据源（如：集合、数组等）来获取一个Stream对象 。
+2. 第二步：中间操作
+   1. 对数据源的数据进行处理，该操作会返回一个Stream对象，因此可以进行链式操作。
+3. 第三步：终止操作
+   1. 执行终止操作时，则才会真正执行中间操作，并且并返回一个计算完毕后的结果。
+
+### 26.1.4 Stream API的重要特点
+
+1. Stream自己不会存储元素，只能对元素进行计算。
+2. Stream不会改变数据对象，反而可能会返回一个持有结果的新Stream。
+3. Stream上的操作属于延迟执行，只有等到用户真正需要结果的时候才会执行。
+4. Stream一旦执行了终止操作，则就不能再调用其它中间操作或终止操作了。
