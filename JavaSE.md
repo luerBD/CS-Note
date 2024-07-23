@@ -10421,7 +10421,7 @@ DoubleStream doubleStream = Arrays.stream(arr4);
 
 注意：Stream、IntStream、LongStream和DoubleStream都继承于BaseStream接口。
 
-## 使用Stream接口提供的方法
+### 26.2.3 使用Stream接口提供的方法
 
 通过Stream接口提供的of(T... values)静态方法来创建Stream流。
 
@@ -10430,7 +10430,7 @@ Stream<String> stringStream = Stream.of("aa", "bb", "cc");
 Stream<Integer> integerStream = Stream.of(11, 22, 33, 44);
 ```
 
-## 顺序流和并行流的理解
+## 26.3 顺序流和并行流的理解
 
 在前面获得Stream对象的方式，我们都称之为“顺序流”，顺序流对Stream元素的处理是单线程的，即一个一个元素进行处理，处理数据的效率较低。
 如果Stream流中的数据处理没有顺序要求，并且还希望可以并行处理Stream的元素，那么就可以使用“并行流”来实现，从而提高处理数据的效率。
@@ -10459,5 +10459,108 @@ List<String> list = Arrays.asList("aa", "bb", "cc");
 Stream<String> stream = list.parallelStream();
 // 验证：stream是否为并行流
 System.out.println(stream.isParallel()); // 输出：true
+```
+
+## 26.4 Stream API的中间操作
+
+中间操作属于惰式执行，直到执行终止操作才会真正的进行数据的计算，此处调用中间操作只会返回一个标记了该操作的新Stream对象，因此可以进行链式操作。
+在后续的操作中，我们调用StudentData类的getStudentList()静态方法，则就能获得一个存储Student对象的List集合，其代码实现如下：
+
+```java
+public class Student {
+    private String name;
+    private int age;
+    private String sex;
+    private String city;
+
+    public Student() {}
+    public Student(String name, int age, String sex, String city) {
+        this.name = name;
+        this.age = age;
+        this.sex = sex;
+        this.city = city;
+    }
+    /*setter和getter方法省略*/
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                ", sex='" + sex + '\'' +
+                ", city='" + city + '\'' +
+                '}';
+    }
+}
+public class StudentData {
+    /**
+     * 获得一个存储Student对象的List集合
+     */
+    public static List<Student> getStudentList() {
+        ArrayList<Student> list = new ArrayList<>();
+        list.add(new Student("张三", 21, "男", "武汉"));
+        list.add(new Student("李四", 18, "女", "重庆"));
+        list.add(new Student("王五", 25, "女", "成都"));
+        list.add(new Student("赵六", 22, "男", "武汉"));
+        list.add(new Student("王麻子", 16, "女", "成都"));
+        return list;
+    }
+}
+```
+
+![](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&from=url&id=dHsjx&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&status=done&style=none&title=)
+
+### 26.4.1 筛选（filter）
+
+筛选（filter），按照一定的规则校验流中的元素，将符合条件的元素提取到新的流中的操作。该操作使用了Stream接口提供的“Stream<T> filter(Predicate<? super T> predicate);”方法来实现。
+【示例】使用筛选的案例
+
+```java
+// 需求：筛选出年龄大于20的学生对象
+Stream<Student> stream1 = StudentData.getStudentList().stream();
+stream1.filter(stu -> stu.getAge() > 20).forEach(System.out :: println);
+// 需求：筛选出字符串长度大于3的元素
+Stream<String> stream2 = Stream.of("hello", "too", "like", "ande");
+stream2.filter(str -> str.length() > 3).forEach(System.out :: println);
+```
+
+### 26.4.2 映射（map）
+
+映射（map），将一个流的元素按照一定的映射规则映射到另一个流中。该操作使用了Stream接口提供的“<R> Stream<R> map(Function<? super T, ? extends R> mapper);”方法来实现。
+【示例】使用映射的案例
+
+```java
+// 需求：把字符串中的字母全部转化为大写
+Stream<String> stream1 = Stream.of("hello", "too", "like", "ande");
+// stream1.map(str -> str.toUpperCase()).forEach(System.out :: println);
+stream1.map(String :: toUpperCase).forEach(System.out :: println);
+
+// 需求：获得集合中所有学生的名字
+Stream<Student> stream2 = StudentData.getStudentList().stream();
+// stream2.map(stu -> stu.getName()).forEach(System.out :: println);
+stream2.map(Student :: getName).forEach(System.out :: println);
+
+// 需求：获得集合中性别为男的学生名字
+// 思路：先筛选，后映射
+Stream<Student> stream3 = StudentData.getStudentList().stream();
+stream3.filter(stu -> stu.getSex().equals("男")).map(Student :: getName).forEach(System.out :: println);
+```
+
+在Stream接口中，可以实现“将多个集合中的元素映射到同一个流中”，该操作使用了Stream接口提供的“<R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper);”方法来实现。
+【示例】将多个集合中的元素映射到同一个流中
+
+```java
+// 需求：将两个集合中的元素映射到同一个流中
+List<String> list1 = new ArrayList<>();
+list1.add("aa");
+list1.add("bb");
+list1.add("cc");
+
+List<String> list2 = new ArrayList<>();
+list2.add("dd");
+list2.add("ee");
+list2.add("ff");
+
+Stream<List<String>> stream = Stream.of(list1, list2);
+stream.flatMap(List<String>::stream).forEach(System.out::println);
 ```
 

@@ -833,3 +833,166 @@ obj3.SetActive(false);
     }
 ```
 
+# 9.Time
+
+Time相关内容，主要用于游戏中参与位移、计时、时间暂停等
+
+## 9.1时间缩放比例
+
+- 时间停止
+
+  ```
+  Time.timeScale = 0;
+  ```
+
+- 时间恢复正常
+
+  ```
+  Time.timeScale = 1;
+  ```
+
+- 时间设置为两倍速
+
+  ```
+  Time.timeScale = 2;
+  ```
+
+## 9.2 帧间隔时间
+
+帧间隔时间指的是在显示动画或视频时，从一帧画面显示完到下一帧画面开始显示所经过的时间。
+
+在视频和游戏中，帧间隔时间一般以毫秒（ms）为单位，常用的显示频率是每秒显示30帧（FPS）或者60帧（FPS），这意味着帧间隔时间分别约为33毫秒和16毫秒。简单来说，帧间隔时间越短，画面就越流畅。
+
+- 帧间隔时间，表示最近的一帧用了多长时间（秒）
+
+- 帧间隔时间，主要是用来计算位移。
+- 路程 = 时间 * 速度；
+- 根据需求，选择参与计算的间隔时间；
+- 如果希望游戏暂停时就不动的，那就使用deltaTime
+- 如果希望不受暂停影响，那就使用unscaledDeltaTime
+
+```
+void Update()
+{
+    Time.timeScale = 0;
+    print("受scale影响的帧时间间隔：" + Time.deltaTime);
+    print("不受scale影响的帧时间间隔：" + Time.unscaledDeltaTime);
+}
+```
+
+
+
+## 9.3 游戏开始到现在的时间
+
+它主要用来计时 单机游戏中计时
+
+- 受scale影响
+
+  ```
+  print("游戏开始到现在的时间:" + Time.time);
+  ```
+
+- 不受scale影响
+
+  ```
+  print("不受scale影响的游戏开始到现在的时间:" + Time.unscaledTime);
+  ```
+
+## 9.4 物理帧间隔时间，FixedUpdate
+
+```
+private void FixedUpdate()
+{
+    #region 知识点四 物理帧间隔时间 FixedUpdate
+    //受scale影响
+    //print(Time.fixedDeltaTime);
+    //不受scale影响
+    //print(Time.fixedUnscaledDeltaTime);
+    #endregion
+}
+```
+
+## 9.5 帧数
+
+```
+void Update()
+{
+    #region 知识点五 帧数
+    //从开始到现在游戏跑了多少帧(次循环)
+    print(Time.frameCount);
+    #endregion
+}
+```
+
+# 10.Vector3基础和位置相关
+
+## 10.1 Vector3基础
+
+Vector3主要是用来表示三维坐标系中的一个点或者一个向量。
+
+- 声明
+
+  ```
+  Vector3 v = new Vector3();
+  v.x = 10;
+  v.y = 10;
+  v.z = 10
+  
+  //只传xy，默认z是0
+  Vector3 v2 = new Vector3(10, 10);
+  
+  //一步到位
+  Vector3 v3 = new Vector3(10, 10, 10);
+  ```
+
+- Vector3的基本计算+-*/
+
+  ```
+  Vector3 v1 = new Vector3(1, 1, 1);
+  Vector3 v2 = new Vector3(2, 2, 2);
+  Vector3 v3 = new Vector3(3, 3, 3);
+  print(v1 + v2);
+  print(v1 - v2);
+  print(v1 * 10);
+  print(v2 / 10);
+  ```
+
+- 常用的坐标
+
+  ```
+  print(Vector3.zero); // 源点
+  print(Vector3.up); // 上移动
+  print(Vector3.down); // 下移动
+  print(Vector3.left); // 左移动
+  print(Vector3.right); // 右移动
+  print(Vector3.forward); // 前进
+  print(Vector3.back); // 后退
+  ```
+
+- 计算两个点之间的距离的方法
+
+  ```
+  Vector3 v1 = new Vector3(1, 1, 1);
+  Vector3 v2 = new Vector3(2, 2, 2);
+  print(Vector3.Distance(v1, v2));
+  ```
+
+## 10.2 位置
+
+- 相对于世界坐标系，this.gameObject.transform
+
+  - 通过position得到的位置，是相对于世界坐标系的原点的位置；
+  - 可能和面板上显示的是不一样的；
+  - 因为如果对象有父子关系，并且父对象位置不在原点，那么和面板上就是不一样的。
+
+  ```
+  print(this.transform.position);
+  ```
+
+- 相对于父对象的坐标系
+
+  ```
+  print(this.transform.localPosition);
+  ```
+
+- 注意：这两个坐标系对我们来说很重要，如果你想以面板坐标为准来进行位置设置，那一定是通过localPosition来进行设置的
