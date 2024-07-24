@@ -995,4 +995,106 @@ Vector3主要是用来表示三维坐标系中的一个点或者一个向量。
   print(this.transform.localPosition);
   ```
 
-- 注意：这两个坐标系对我们来说很重要，如果你想以面板坐标为准来进行位置设置，那一定是通过localPosition来进行设置的
+- 注意：
+
+  - 这两个坐标系对我们来说很重要，如果你想以面板坐标为准来进行位置设置，那一定是通过localPosition来进行设置的。
+
+  - 这两个坐标系，可能出现一样的情况：
+
+    - 父对象的坐标，就是世界坐标系的原点(0,0,0)。
+    - 对象没有父对象，即两个对象处于平级。
+
+  - 位置的赋值不能直接改变x,y,z（不能单独改x,y,z某一个值），只能整体改变。
+
+    ```
+    // 错误的写法
+    this.transform.position.x = 10;
+    
+    // 正确写法
+    this.transform.position = new Vector3(10, 10, 10);
+    this.transform.localPosition = Vector3.up * 10;
+    ```
+
+  - 如果只想改变xyz其中一个值，xyz中剩下两个值要保持原来的值不变，依然是整体赋值
+
+    - 只修改x的整体直接赋值
+
+      ```
+      this.transform.position = new Vector3(19, this.transform.position.y, this.transform.position.z);
+      ```
+
+    - 先把x取出来，再赋值
+
+      ```
+      Vector3 vPos = this.transform.localPosition;
+      vPos.x = 10;
+      this.transform.localPosition = vPos;
+      ```
+
+      
+
+- 如果想得到对象当前的一个朝向，那么就是通过transform.出来的
+
+  ```
+  // 对象当前的面朝向
+  this.transform.forward
+  // 对象当前的头顶朝向
+  this.transform.up
+  // 对象当前的右手边
+  this.transform.right
+  ```
+
+## 10.3 位移
+
+理解坐标系下的位移计算公式：路程 = 方向 * 速度 * 时间。
+
+- 方式1：自己计算
+
+  - 想要变化的，就是position
+  - 用当前的位置 + 我要移动多长距离，得出最终所在的位置
+
+  ```
+  void Update()
+  {
+      
+  this.transform.position += Vector3.forward * 1 * Time.deltaTime;
+  }
+  ```
+
+  - 因为我用的是this.transform.forward，所以它始终会朝向相对于自己的面朝向去动。
+  - 方向非常重要，因为它决定了你的前进方向。
+
+- 方式2：API，this.transform.Translate(参数1，[参数2]);
+
+  - 参数
+
+    - 参数1：表示位移多少，路程 = 方向 * 速度 * 时间
+    - 参数2：表示相对于哪个坐标系进行位移，默认该参数是相对于自己的坐标系的。
+
+  - 相对于世界坐标系的Z轴动，始终是朝世界坐标系的z轴正方向移动。
+
+    ```
+    
+    ```
+
+  - 相对于世界坐标的自己的面朝向去动，始终朝自己的面朝向移动
+
+    ```
+    
+    ```
+
+    
+
+  - 相对于自己的坐标系下的自己的面朝向向量移动（一定不会这样让物体移动）××××××
+
+    ```
+    
+    ```
+
+  - 相对于自己的坐标系下的z轴正方向移动，始终朝自己的面朝向移动。
+
+    ```
+    
+    ```
+
+    
