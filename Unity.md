@@ -1056,12 +1056,21 @@ Vector3主要是用来表示三维坐标系中的一个点或者一个向量。
   ```
   void Update()
   {
-      
-  this.transform.position += Vector3.forward * 1 * Time.deltaTime;
+  	this.transform.position += this.transform.forward * 1 * Time.deltaTime;
   }
   ```
 
-  - 因为我用的是this.transform.forward，所以它始终会朝向相对于自己的面朝向去动。
+  - 上段代码中，因为我用的是this.transform.forward，所以它始终会朝向相对于自己的面朝向去动（即上、下、左、右、前、后，这六个面，我把方向设置为哪个面，游戏对象就朝着哪个面移动）。
+
+  ```
+  void Update()
+  {
+  	this.transform.position += Vector3.forward * 1 * Time.deltaTime;
+  }
+  ```
+
+  - 上段代码中，因为我用的是Vector3.forward，所以它始终会朝向相对于世界坐标系的方向去动（可以把世界坐标系想象成一个巨大的立方体，它也有上、下、左、右、前、后，这六个面）
+
   - 方向非常重要，因为它决定了你的前进方向。
 
 - 方式2：API，this.transform.Translate(参数1，[参数2]);
@@ -1074,27 +1083,27 @@ Vector3主要是用来表示三维坐标系中的一个点或者一个向量。
   - 相对于世界坐标系的Z轴动，始终是朝世界坐标系的z轴正方向移动。
 
     ```
-    
+    this.transform.Translate(Vector3.forward * 1 * Time.deltaTime, Space.World)
     ```
 
   - 相对于世界坐标的自己的面朝向去动，始终朝自己的面朝向移动
 
     ```
-    
+    this.transform.Translate(Vector3.forward * 1 * Time.deltaTime, Space.World)
     ```
-
-    
 
   - 相对于自己的坐标系下的自己的面朝向向量移动（一定不会这样让物体移动）××××××
 
     ```
-    
+  
     ```
-
+  
   - 相对于自己的坐标系下的z轴正方向移动，始终朝自己的面朝向移动。
 
     ```
-    
+  this.transform.Translate(Vector3.forward * 1 * Time.deltaTime, Space.Self)
     ```
+  
+  
 
-    
+
