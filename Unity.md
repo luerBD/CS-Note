@@ -1101,9 +1101,268 @@ Vector3主要是用来表示三维坐标系中的一个点或者一个向量。
   - 相对于自己的坐标系下的z轴正方向移动，始终朝自己的面朝向移动。
 
     ```
-  this.transform.Translate(Vector3.forward * 1 * Time.deltaTime, Space.Self)
+    this.transform.Translate(Vector3.forward * 1 * Time.deltaTime, Space.Self)
     ```
   
   
 
+## 10.4 角度和旋转
 
+### 10.4.1 角度相关
+
+- 相对于世界坐标角度
+
+  ```
+  this.transform.eulerAngles
+  ```
+
+- 相对父对象角度
+
+  ```
+  this.transform.localEulerAngles
+  ```
+
+- 注意：
+
+  - 设置角度和设置位置一样，不能单独设置xyz，要一起设置。
+
+  - 如果我们希望改变的角度是面板上显示的内容，那一定是改变相对于父对象的角度。
+
+    ```
+    this.transform.localEulerAngles = new Vector3(10, 10, 10);
+    ```
+
+### 10.4.2 角度相关
+
+- 自己计算（省略不讲，和位置一样，不停的改变角度即可）
+
+- API计算，主要功能是让对象自转动
+
+  - Rotate重载1
+
+    - 参数1：相当于是旋转的角度，每一帧
+
+    - 参数2：默认不填的话就是相对于自己的坐标系进行的旋转
+
+    - 例1：相对于自己的坐标系进行的旋转
+
+      ```
+      this.transform.Rotate(new Vector3(0, 10, 0) * Time.deltaTime);
+      // x = 0,  y = 10, z = 0,  会沿着y轴转，每一帧转的角度为10，角度越大，转的越快
+      // x = 10, y = 0,  z = 0,  会沿着x轴转，每一帧转的角度为10，角度越大，转的越快
+      // x = 0,  y = 0,  z = 10, 会沿着z轴转，每一帧转的角度为10，角度越大，转的越快
+      ```
+
+    - 例2：相对于世界坐标系进行旋转
+
+      ```
+      this.transform.Rotate(new Vector3(0, 10, 0) * Time.deltaTime, Space.World);
+      ```
+
+  - Rotate重载2
+
+    - 参数1：相对于哪个轴，进行转动
+
+    - 参数2：是转动的角度是多少
+
+    - 参数3：默认不填，就是相对于自己的坐标系进行旋转；如果填，可以填写相对于世界坐标系进行旋转。
+
+    - 例1：相对于自己的坐标系进行的旋转
+
+      ```
+      this.transform.Rotate(Vector3.right, 10 * Time.deltaTime);
+      ```
+
+    - 例2：相对于世界坐标系进行的旋转
+
+      ```
+      this.transform.Rotate(Vector3.right, 10 * Time.deltaTime， Space.World);
+      ```
+
+  - 相对于某一个点转
+
+    - 参数1：相对于哪一个点转，转圆圈
+
+    - 参数2：相对于哪一个点的哪一个轴转圆圈
+
+    - 参数3：转的度数，旋转的速度 * 时间
+
+      ```
+      this.transform.RotateAround(Vector3.zero, Vector3.up, 100 * Time.deltaTime);
+      ```
+
+      
+
+
+## 练习
+
+1.使用你之前创建的坦克预设体，在坦克下面加一个底座（用自带几何体即可）让其可以原地旋转，类似一个展览台
+
+2.在第一题的基础上，让坦克的炮台可以自动左右来回旋转，炮管可以自动上下抬起
+
+<img src="assets/image-20240726113246536.png" alt="image-20240726113246536" style="zoom:33%;" />
+
+```
+	public float rotateSpeed = 10;
+    public float headRotateSpeed = 10;
+    public float pkPosRotateSpeed = 10;
+
+    // 头部位置信息
+    public Transform head;
+    public Transform pkPos;
+   void Update()
+   {
+       /*******************练习题1：代码*******************/
+       this.transform.Rotate(Vector3.up, rotateSpeed * Time.deltaTime);
+
+
+       /*******************练习题2：代码*******************/
+       // 炮台左右来回旋转
+       head.Rotate(Vector3.up, headRotateSpeed * Time.deltaTime);
+       // 通过head.localEulerAngles得到的角度，不会出现负数的情况
+       // 虽然界面上显示的是负数，但是通过代码获取的，始终只能得到0~360之间的数字
+
+       //只能是0~360,那就只能特殊判断了
+       if (!(head.localEulerAngles.y >= 315 && head.localEulerAngles.y <= 360) && head.localEulerAngles.y >= 45 && headRotateSpeed > 0)
+       {
+           headRotateSpeed = -headRotateSpeed;
+       }
+       else if(!(head.localEulerAngles.y >= 0 && head.localEulerAngles.y <= 45) && head.localEulerAngles.y <= 315 && headRotateSpeed < 0)
+       {
+           headRotateSpeed = -headRotateSpeed;
+       }
+
+
+       pkPos.Rotate(Vector3.right, pkPosRotateSpeed * Time.deltaTime);
+       if (!(pkPos.localEulerAngles.x >= 350 && pkPos.localEulerAngles.x <= 360) && pkPos.localEulerAngles.x >= 10 && pkPosRotateSpeed > 0)
+       {
+           pkPosRotateSpeed = -pkPosRotateSpeed;
+       }
+       else if (!(pkPos.localEulerAngles.x >= 0 && pkPos.localEulerAngles.x <= 10) && pkPos.localEulerAngles.x <= 350 && pkPosRotateSpeed < 0)
+       {
+           pkPosRotateSpeed = -pkPosRotateSpeed;
+       }
+   }
+```
+
+3.请用3个球体，模拟太阳、地球、月亮之间的旋转移动
+
+## 10.5 缩放和看向
+
+### 10.5.1 缩放
+
+- 相对于世界坐标系
+
+  ```
+  this.transform.lossyScale
+  ```
+
+- 相对于本地坐标系
+
+  ```
+  this.transform.localScale
+  ```
+
+- 注意
+
+  - 同样，缩放不能单独改x、y、z，只能整体改；
+
+  - 相对于世界坐标系得缩放大小只能获取，不能修改
+
+  - 我们一般要修改缩放大小，都是改得相对于父对象得缩放大小。
+
+    ```
+    this.transform.localScale = new Vector3(3, 3, 3);
+    ```
+
+  - Unity没有提供关于缩放得API，之前得旋转，位移，都提供了对应得API，但是缩放并没有提供。如果想要让缩放发生变化，只能自己写相应得缩放算法。
+
+### 10.5.2 看向
+
+- 让一个对象的面可以一直看向某一个点
+
+  ```
+  this.transform.LookAt(Vector3.zero);
+  ```
+
+- 让一个对象的面可以一直看向某个对象，看向一个对象，就传入一个对象的Transform信息
+
+  ```
+  Transform lookAtObj = null; // unity中拖一个对象过来关联这个lookAtObj
+  this.transform.LookAt(lookAtObj);
+  ```
+
+## 10.6 父子关系
+
+### 10.6.1 获取和设置父对象
+
+- 获取父对象
+
+  ```
+  this.transform.parent.name;
+  ```
+
+- 设置父对象——断绝父子关系
+
+  ```
+  this.transform.parent.name = null;
+  ```
+
+- 设置父对象——认爸爸
+
+  ```
+  this.transform.parent = GameObject.Find("Father2").transform;
+  ```
+
+- 通过API来进行父子关系的设置
+
+  - 设置父对象——断绝父子关系
+
+    ```
+    this.transform.SetParent(null);
+    ```
+
+  - 设置父对象——认爸爸
+
+    ```
+    this.transform.SetParent(GameObject.Fine("Father2").transform);
+    ```
+
+  - 参数
+
+    - 参数1：我的父亲
+
+    - 参数2：是否保留世界坐标的位置、角度、缩放信息
+
+      - true：会保留世界坐标下的状态和父对象进行计算，得到本地坐标系的信息
+      - false：不会保留世界坐标下的状态，会直接把世界坐标系下的位置角度缩放信息直接赋值到本地坐标系下
+
+      ```
+      this.transform.setParent(GameObject.Find("Father3").transform, false);
+      ```
+
+### 10.6.2 抛妻弃子
+
+就是和自己的所有儿子断绝关系，没有父子关系了。
+
+```
+this.transform.DetachChildren();
+```
+
+### 10.6.3 获取子对象
+
+按名字查找儿子，找到儿子的transform信息。Find()方法是能够找到失活对象的，GameObject.Find()相关的查找是不能找到失活对象的。
+
+```
+this.transform.Find("Cube(1)").name;
+```
+
+该方法只能找到自己的儿子，不能找到自己的孙子！
+
+```
+this.transform.Find("GrandSon").name;
+```
+
+
+
+### 10.6.4 儿子的操作
