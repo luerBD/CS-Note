@@ -1351,18 +1351,78 @@ this.transform.DetachChildren();
 
 ### 10.6.3 获取子对象
 
-按名字查找儿子，找到儿子的transform信息。Find()方法是能够找到失活对象的，GameObject.Find()相关的查找是不能找到失活对象的。
+- 按名字查找儿子
 
-```
-this.transform.Find("Cube(1)").name;
-```
+  - 找到儿子的transform信息。Find()方法是能够找到失活对象的，GameObject.Find()相关的查找是不能找到失活对象的。
 
-该方法只能找到自己的儿子，不能找到自己的孙子！
+    ```
+    this.transform.Find("Cube(1)").name;
+    ```
 
-```
-this.transform.Find("GrandSon").name;
-```
+  - 该方法只能找到自己的儿子，不能找到自己的孙子！
 
+    ```
+    this.transform.Find("GrandSon").name;
+    ```
 
+  - 虽然它的效率比GameObject.Find要搞一点，但是前提是你必须知道父亲是谁，才能找。
+
+- 遍历儿子
+
+  - 失活的儿子也会算数量，但是找不到孙子，所以孙子不会算数量
+
+    ```
+    this.transform.childCount // 获取儿子数量
+    ```
+
+  - 通过索引号去得到自己对应的儿子，如果编号超出了儿子数量的范围，会直接报错的。返回值是transform，可以得到对应儿子的位置相关信息。
+
+    ```
+    this.transform.GetChild(index);
+    ```
+
+    ```
+    for (int i = 0; i < this.transform.childCount; i++) 
+    {
+        print("孩子名字：" + this.transform.GetChild(i).name);
+    }
+    ```
 
 ### 10.6.4 儿子的操作
+
+- 判断自己的爸爸是谁
+
+  ```
+  // 一个对象，判断自己是不是另一个对象的儿子
+  if(son.IsChildOf(this.transform))
+  {
+  	print("是我的儿子");
+  }
+  ```
+
+- 得到自己作为儿子的编号
+
+  ```
+  print(son.GetSiblingIndex());
+  ```
+
+- 把自己设置为第一个儿子
+
+  ```
+  son.SetAsFirstSibling();
+  ```
+
+- 把自己设置为第一个儿子
+
+  ```
+  son.SetAsLastSibling();
+  ```
+
+- 把自己设置为指定个儿子
+
+  ```
+  // 就算你填的数量，超出了范围（负数或者更大的数），也不会报错，而且会直接设置成最后一个编号
+  son.SetSiblingIndex(1);
+  ```
+
+  
