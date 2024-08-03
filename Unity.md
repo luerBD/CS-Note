@@ -1426,3 +1426,353 @@ this.transform.DetachChildren();
   ```
 
   
+
+## 10.7 坐标转换
+
+### 10.7.1 世界坐标转本地坐标
+
+- 世界坐标系的点转换为相对本地坐标系的点
+
+  - 世界坐标系转本地坐标系可以帮助我们大概判断一个相对位置
+
+  ```
+  print(Vector3.forward);//打印世界坐标系的向前的坐标
+  print("转换后的点：" + this.transform.InverseTransformPoint(Vector3.forward));//把世界坐标系的点转换为本地坐标系的点
+  
+  //注意：坐标受到缩放大小影响
+  ```
+
+- 世界坐标系的方向转换为相对本地坐标系的方向
+
+  - 不受缩放影响
+
+    ```
+    print("转换后的方向" + this.transform.InverseTransformDirection(Vector3.forward));
+    ```
+
+    
+
+  - 受缩放影响
+
+    ```
+    print("转换后的方向" + this.transform.InverseTransformVector(Vector3.forward));
+    ```
+
+### 10.7.2 本地坐标转世界坐标
+
+- 本地坐标系的点转为相对世界坐标系的点
+
+  ```
+  print("本地转世界点：" + this.transform.TransformPoint(Vector3.forward));
+  ```
+
+  
+
+- 本地坐标系的方向转为相对世界坐标系的方向
+
+  - 不受缩放影响
+
+    ```
+    print("本地转世界方向：" + this.transform.TransformDirection(Vector3.forward));
+    ```
+
+  - 受缩放影响
+
+    ```
+    print("本地转世界方向：" + this.transform.TransformVector(Vector3.forward));
+    ```
+
+
+### 练习
+
+1.一个物体A，不管它在什么位置，写一个方法，只要执行这个方法就可以在它的左前方（-1,0,1）处创建一个空物体
+
+```
+void CreateObject() 
+{
+    GameObject obj = new GameObject("新物体！");
+    obj.transform.position = this.transform.TransformPoint(-1, 0, 1);
+}
+```
+
+2.一个物体A，不管它在什么位置，写一个方法，只要执行这个方法就可以在它的前方创建出3个球体，位置分别是（0,0,1）,（0,0,2）,（0,0,3）
+
+```
+void CreateNewObj() 
+{
+    for (int i = 1; i <= 3; i++) 
+    {
+        GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        obj.transform.position = this.transform.TransformPoint(Vector3.forward * i);  
+    }
+}
+```
+
+# 11.Input鼠标键盘输入
+
+## 11.1 鼠标在屏幕的位置
+
+屏幕坐标的原点，是在屏幕左下角，往右是x轴正方向，往上是y轴正方向。
+
+```
+print(Input.mousePosition);
+```
+
+返回值是Vector3，但是只有x和y有值，z一直是0，是因为屏幕本来就是2D的，不存在3D。
+
+## 11.2 检测鼠标输入
+
+0左键、1右键、2中键
+
+### 11.2.1 鼠标按下一瞬间进入
+
+只有按下的这一瞬间进入一次。
+
+```
+if(Input.GetMouseButtonDown(0))
+{
+	print("鼠标左键按下了！");
+}
+```
+
+### 11.2.2 鼠标抬起一瞬间进入
+
+```
+if(Input.GetMouseButtonUp(0))
+{
+	print("鼠标左键按下了！");
+}
+```
+
+### 11.2.3 鼠标长按按下抬起都会进入
+
+当按住按键不放时，会一直进入这个判断
+
+```
+if(Input.GetMouseButton(1))
+{
+	print("右键按下！");
+}
+```
+
+### 11.2.4 鼠标中键滚动
+
+- 返回值：
+  - y = -1 表示往下滚动
+  - y = 0  表示没有滚动
+  - y = 1  表示往上滚动
+  - 他的返回值是Vector，我们鼠标中键滚动，会改变其中的y值。
+
+```
+print(Input.mouseScrollDelta);
+```
+
+## 11.3 检测键盘输入
+
+### 11.3.1 键盘按下
+
+```
+if(Input.GetKeyDown(KeyCode.W))
+{
+	print("w键按下");
+}
+```
+
+### 11.3.2 传入字符串的重载
+
+这里传入的字符串，不能是大写的，不然会报错
+
+只能传入小写字符串
+
+```
+if(Input.GetKeyDown("q"))
+{
+	print("q键被按下了！");
+}
+```
+
+### 11.3.3 键盘抬起
+
+```
+if(Input.GetKeyUp(KeyCode.w))
+{
+	print("w键抬起");
+}
+```
+
+
+
+### 11.3.4 键盘长按
+
+```
+if(Input.GetKey(KeyCode.W))
+{
+	print("W键长按");
+}
+```
+
+
+
+## 11.4 检测默认轴输入
+
+我们学习鼠标，键盘输入主要是用来控制玩家，比如旋转，位移等等。所以unity提供了更方便的方法，来帮助我们控制对象的位移和旋转。
+
+- 键盘AD按下时，返回-1到1之间的变换
+
+  相当于得到这个值就是我们的左右方向，我们可以通过它来控制对象左右移动或者左右旋转；
+
+  ```
+  print(Input.GetAxis("Horizontal"));
+  ```
+
+- 键盘SW按下时，返回-1到1之间的变换
+
+  得到的这个值，就是我们的上下方向，我们可以通过它来控制对象上下移动，或者上下旋转。
+
+  ```
+  print(Input.GetAxis("Vertical"));
+  ```
+
+- 鼠标横向移动时，返回-1到1左右之间的变换
+
+  ```
+  print(Input.GetAxis("Mouse X"));
+  ```
+
+- 鼠标竖向移动时，返回-1到1下上之间的变换
+
+  ```
+  print(Input.GetAxis("Mouse Y"));
+  ```
+
+  
+
+## 11.5 其他
+
+### 11.5.1 是否有任意键或鼠标长按
+
+```
+if(Input.anyKey)
+{
+	print("有一个键长按");
+}
+```
+
+
+
+### 11.5.2 是否有任意键或鼠标按下
+
+```
+if(Input.anyKeyDown)
+{
+	print("有一个键按下");
+	print(Input.inputString);
+}
+```
+
+## 练习
+
+1.使用之前的坦克预设体，用WASD键控制坦克的前景后退，左右转向
+
+- 知识点：
+
+  - Transform当中的位移、自转
+
+  - 键盘输入
+
+    ```
+    Input.GetAxis("Horizontal") //水平方向，-1到1之间的值，0就是没有按下
+    Input.GetAxis("Vertical") //竖直方向，-1到1之间的值，0就是没有按下
+    ```
+
+- ws键控制位移，公式：
+
+  - 前进方向 * 速度 * 时间 * 当前是否移动（-1~1相当于正向还是反向的，不按就不动 0）
+
+    ```
+    this.transform.Translate(Vector3.forward * moveSpeed * Time.daltaTime * Input.GetAxis("Vertical"));
+    ```
+
+- ad键控制左右转向，公式：
+
+  - 转动的轴 * 速度 * 时间 * 当前是否移动（-1~1相当于正向还是反向的，不按就不动 0）
+
+    ```
+    this.transform.Rotate(Vector3.up * rotateSpeed * Time.daltaTime * Input.GetAxis("Horizontal"));
+    ```
+
+2.在上一题的基础上，鼠标左右移动控制炮台的转向
+
+- 知识点：鼠标输入
+
+  ```
+  Input.GetAxis("Mouse X");
+  ```
+
+  ```
+  head.Rotate(Vector3.up * headTotateSpeed * Time.deltaTime * Input.GetAxis("Mouse x"));
+  ```
+
+  
+
+# 12.屏幕相关
+
+## 12.1 当前屏幕分辨率（显示器的分辨率）
+
+```
+Resolution r = Screen.currentResolution;
+print("当前屏幕分辨率的宽：" + r.with);
+print("当前屏幕分辨率的高：" + r.height);
+```
+
+## 12.2 屏幕窗口当前宽高（游戏窗口宽高）
+
+```
+print(Screen.width);
+print(Screen.height);
+```
+
+## 12.3 屏幕休眠模式
+
+```
+Screen.sleepTimeout = SleepTimeout.NeverSleep;
+```
+
+## 12.4 设置分辨率
+
+一般移动设备不使用
+
+```
+Screen.SetResolution(1920, 1080, false); // 第三个参数为true表示全屏，false表示非全屏
+
+```
+
+## 练习
+
+1.在输入习题的基础上，鼠标滚轮控制控制炮管的抬起放下
+
+```
+Input.mouseScrollDelta.y
+```
+
+```
+pkPos.Rotate(Vector3.right * pkRotateSpeed * Time.deltaTime * Input.mouseScrollDelta.y);
+```
+
+2.在上一题的基础上，加入长按鼠标右键移动鼠标可以让摄像机围着坦克旋转，改变观察坦克的视角
+
+- 知识点：
+  - 绕着某一个点的某一个轴旋转
+  - 鼠标右键按下
+
+```
+ void Update()
+ {
+     this.transform.LookAt(target);
+     if (Input.GetMouseButton(1)) 
+     {
+         this.transform.RotateAround(target.position, Vector3.up, roundSpeed * Time.deltaTime * Input.GetAxis("Mouse X"));
+     }
+ }
+```
+
