@@ -1776,3 +1776,68 @@ pkPos.Rotate(Vector3.right * pkRotateSpeed * Time.deltaTime * Input.mouseScrollD
  }
 ```
 
+
+
+# 13.Camera代码相关
+
+## 13.1 获取摄像机
+
+### 13.1.1 主摄像机的获取
+
+```
+string name = Camera.main.name;
+print(name);
+```
+
+注意：如果想通过这种方式快速获取摄像机，那么场景上必须有一个tag为MainCamera的摄像机；
+
+### 13.1.2 获取所有摄像机
+
+- 获取所有摄像机
+
+  ```
+  Camera[] allCamera = Camera.allCameras;
+  print(allCamera.Length);
+  ```
+
+- 获取所有摄像机的数量、
+
+  ```
+  print("摄像机的数量：" + Camera.allCamerasCount);
+  ```
+
+## 13.2 摄像机的重要参数
+
+### 13.2.1 界面上的参数，都可以在Camera中获取到
+
+比如，下面这句代码，就是得到主摄像机对象上的深度，进行设置。
+
+```
+Camera.main.depth = 10;
+```
+
+### 13.2.2 世界坐标转屏幕坐标
+
+转换过后，x和y对应的就是屏幕坐标，z对应的是这个3d物体离我们的摄像机有多远；
+
+我们会用这个来做的最多的功能就是头顶血条相关的功能；
+
+```
+Vector3 v = Camera.main.WorldToScreenPoint(this.transform.position);
+print(v);
+```
+
+### 13.2.3 屏幕坐标转世界坐标
+
+之所以改变Z轴，是因为如果不改，Z轴默认为0；
+
+转换过去的世界坐标系的点，永远都是一个点，可以理解为视口相交的焦点；
+
+如果改变了Z，那么转换过去的世界坐标的点，就是相对于摄像机前方多少的单位的横截面上的世界坐标；
+
+```
+Vector3 v = Input.mousePosition;
+v.z = 5;
+obj.position = Camera.main.ScreenToWorldPoint(v);
+```
+

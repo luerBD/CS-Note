@@ -314,3 +314,276 @@ select 字段名1, 字段名2, 字段名n from 表名;
 - 别名是中文，用单引号括起来
 
   ![image-20240803114729820](assets/image-20240803114729820.png)
+
+## 6.6 条件查询
+
+条件查询：查询出来符合条件的数据。
+
+### 6.6.1 语法格式
+
+```
+select
+        字段1,字段2,字段3....
+from 
+        表名
+where
+        条件;
+```
+
+### 6.6.2 都有哪些条件
+
+| 条件             | 含义                                                         |
+| :--------------- | :----------------------------------------------------------- |
+| =                | 等于                                                         |
+| <>或!=           | 不等于                                                       |
+| <                | 小于                                                         |
+| <=               | 小于等于                                                     |
+| >                | 大于                                                         |
+| \>=              | 大于等于                                                     |
+| between … and …. | 两个值之间, 等同于 >= and <=<br />使用between and的时候，必须遵循左小右大。<br/>between and是闭区间，包括两端的值。 |
+| is null          | 为空<br />在数据库当中null不能使用等号进行衡量。需要使用is null，因为数据库中的null代表什么也没有，它不是一个值，所以不能使用等号衡量。 |
+| is not null      | 不为空                                                       |
+| and              | 并且                                                         |
+| or               | 或者<br />and和or同时出现，and优先级较高。如果想让or先执行，需要加“小括号”，以后在开发中，如果不确定优先级，就加小括号就行了。 |
+| in               | 在这个范围中，相当于多个 or<br />注意：in不是一个区间。in后面跟的是具体的值。 |
+| not in           | 不在这个范围中，相当于多个 or                                |
+| like             | 称为模糊查询，支持%或下划线匹配<br/>%：匹配任意多个字符<br/>下划线：任意一个字符。<br/>（%是一个特殊的符号，_ 也是一个特殊符号） |
+
+假设t_student学生表如下：
+
+```
+name字段
+----------------------
+zhangsan
+lisi
+wangwu
+zhaoliu
+jack_son
+```
+
+找出名字中有“_”的？
+
+```
+// 错误写法
+select name from t_student where name like '%_%'; 
+
+// 正确写法
+select name from t_student where name like '%\_%'; // \转义字符。
+```
+
+## 6.7 排序
+
+注意：不指明降序或升序的话，默认按升序；
+
+### 6.7.1 单字段排序
+
+1.查询所有员工姓名与薪资，按薪资字段排序：
+
+![image-20240804110336102](assets/image-20240804110336102.png)
+
+2.查询所有员工薪资，指定降序排序：
+
+<img src="assets/image-20240804110546419.png" alt="image-20240804110546419" style="zoom: 67%;" />
+
+3.查询所有员工薪资，指定升序排序：
+
+<img src="assets/image-20240804110707188.png" alt="image-20240804110707188" style="zoom:67%;" />
+
+### 6.7.2 多字段排序
+
+查询员工名字和薪资，要求按照薪资升序，如果薪资一样的话，再按照名字升序排列。
+
+<img src="assets/image-20240804111028925.png" alt="image-20240804111028925" style="zoom: 67%;" />
+
+## 6.8 关键字顺序不能变
+
+```
+select
+	...
+from
+	...
+where
+	...
+order by
+	...
+以上语句的执行顺序必须掌握：
+    第一步：from
+    第二步：where
+    第三步：select
+    第四步：order by（排序总是在最后执行！）
+```
+
+## 6.9 数据处理函数
+
+数据处理函数又被称为单行处理函数；
+
+单行处理函数的特点：一个输入对应一个输出。
+
+和单行处理函数相对的是：多行处理函数。（多行处理函数特点：多个输入，对应1个输出！）
+
+### 6.9.1 lower(str) 转换小写
+
+<img src="assets/image-20240804111747195.png" alt="image-20240804111747195" style="zoom:67%;" />
+
+14个输入，最后还是14个输出。这是单行处理函数的特点。
+
+### 6.9.2 upper(str) 转换大写
+
+<img src="assets/image-20240804111942151.png" alt="image-20240804111942151" style="zoom:67%;" />
+
+### 6.9.3 substr(str) 取子串
+
+语法：substr( 被截取的字符串, 起始下标,截取的长度)
+
+注意：起始下标从1开始，没有0.
+
+1.找出员工名字第一个字母是A的员工信息：
+
+方法一：模糊查询
+
+<img src="assets/image-20240804112544898.png" alt="image-20240804112544898" style="zoom:67%;" />
+
+方法二：取子串
+
+<img src="assets/image-20240804112845560.png" alt="image-20240804112845560" style="zoom:67%;" />
+
+2.将员工姓名首字母大写，其余字母小写来进行显示：
+
+![image-20240804113209926](assets/image-20240804113209926.png)
+
+### 6.9.4 concat(str1, str2) 进行字符串的拼接
+
+<img src="assets/image-20240804113831843.png" alt="image-20240804113831843" style="zoom:67%;" />
+
+### 6.9.5 length(str) 获取字符串长度
+
+<img src="assets/image-20240804114012160.png" alt="image-20240804114012160" style="zoom:67%;" />
+
+### 6.9.6 trim(str) 去字符串前后空格
+
+<img src="assets/image-20240804114225305.png" alt="image-20240804114225305" style="zoom:67%;" />
+
+<img src="assets/image-20240804114300654.png" alt="image-20240804114300654" style="zoom:67%;" />
+
+### 6.9.7 case..when..then..when..then..else..end
+
+当员工的工作岗位是MANAGER的时候，工资上调10%，当工作岗位是SALESMAN的时候，工资上调50%,其它正常。
+（注意：不修改数据库，只是将查询结果显示为工资上调）
+
+```sql
+select
+	empno, ename, job, sal oldsal, 
+	(
+		case job 
+			when 'MANAGER' then sal + sal * 0.1 
+			when 'SALESMAN' then sal + sal * 0.5
+ 			else sal 
+ 		end
+ 	)newsal
+from 
+	emp;
+```
+
+<img src="assets/image-20240804115927825.png" alt="image-20240804115927825" style="zoom: 67%;" />
+
+### 6.9.8 round(x,y) 四舍五入
+
+select后面可以跟某个表的字段名（可以等同看做变量名），也可以跟字面量/字面值（数据）。
+
+```
+select 1000 from emp;
+select 'abc' from emp;
+```
+
+round(x, y)四舍五入函数：
+
+当y > 0时，对x的小数部分进行四舍五入：
+
+<img src="assets/image-20240804121018959.png" alt="image-20240804121018959" style="zoom:67%;" />
+
+<img src="assets/image-20240804121044157.png" alt="image-20240804121044157" style="zoom:67%;" />
+
+<img src="assets/image-20240804121125313.png" alt="image-20240804121125313" style="zoom:67%;" />
+
+当y ≤ 0时，对x的整数部分进行四舍五入：
+
+<img src="assets/image-20240804121434149.png" alt="image-20240804121434149" style="zoom:67%;" />
+
+<img src="assets/image-20240804121521645.png" alt="image-20240804121521645" style="zoom:67%;" />
+
+<img src="assets/image-20240804121545450.png" alt="image-20240804121545450" style="zoom:67%;" />
+
+### 6.9.9 rand() 生成随机数
+
+生成100以内的随机数：
+
+<img src="assets/image-20240804121923190.png" alt="image-20240804121923190" style="zoom:67%;" />
+
+### 6.9.10 ifnull(数据, 被当做哪个值)，可以将 null 转换成一个具体值
+
+ifnull是空处理函数。专门处理空的。
+
+在所有数据库当中，只要有NULL参与的数学运算，最终结果就是NULL。
+
+<img src="assets/image-20240804123721283.png" alt="image-20240804123721283" style="zoom:67%;" />
+
+注意：NULL只要参与运算，最终结果一定是NULL。为了避免这个现象，需要使用ifnull函数。
+
+ifnull函数用法：ifnull(数据, 被当做哪个值)，如果“数据”为NULL的时候，把这个数据结构当做哪个值。
+
+计算每个员工的年薪，年薪 = (月薪 + 月补助) \* 12：
+
+<img src="assets/image-20240804124117462.png" alt="image-20240804124117462" style="zoom: 67%;" />
+
+## 6.10 分组函数
+
+分组函数又称为多行处理函数，特点是：输入多行，最终输出一行。
+
+| 函数名 | 功能   |
+| ------ | ------ |
+| count  | 计数   |
+| sum    | 求和   |
+| avg    | 平均值 |
+| max    | 最大值 |
+| min    | 最小值 |
+
+
+
+1.找出最高工资：
+
+<img src="assets/image-20240804124744279.png" alt="image-20240804124744279" style="zoom:67%;" />
+
+2.找出最低工资：
+
+<img src="assets/image-20240804124814825.png" alt="image-20240804124814825" style="zoom:67%;" />
+
+3.计算工资和：
+
+<img src="assets/image-20240804124853806.png" alt="image-20240804124853806" style="zoom:67%;" />
+
+4.计算平均工资：
+
+<img src="assets/image-20240804124941544.png" alt="image-20240804124941544" style="zoom:67%;" />
+
+5.计算员工数量：
+
+<img src="assets/image-20240804125040077.png" alt="image-20240804125040077" style="zoom:67%;" />
+
+注意：
+
+①分组函数在使用的时候必须先进行分组，然后才能用。如果你没有对数据进行分组，整张表默认为一组。
+
+②分组函数自动忽略NULL，你不需要提前对NULL进行处理。
+
+③分组函数中count(*)和count(具体字段)有什么区别？
+
+```
+count(具体字段)：表示统计该字段下所有不为NULL的元素的总数。
+count(*)：统计表当中的总行数。（只要有一行数据count则++），因为每一行记录不可能都为NULL，一行数据中有一列不为NULL，则这行数据就是有效的。
+```
+
+④分组函数不能够直接使用在where子句中。
+
+⑤所有的分组函数可以组合起来一起用。
+
+<img src="assets/image-20240804125510300.png" alt="image-20240804125510300" style="zoom: 50%;" />
