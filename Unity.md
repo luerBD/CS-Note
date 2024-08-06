@@ -1841,3 +1841,107 @@ v.z = 5;
 obj.position = Camera.main.ScreenToWorldPoint(v);
 ```
 
+# 14.物理系统碰撞检测
+
+## 14.1 物理系统碰撞检测响应函数
+
+和生命周期函数差不多。
+
+函数中的关键参数：Collision collision
+
+```
+collision.collider：碰撞到的对象碰撞器的信息
+
+collision.gameObject：碰撞对象的依附对象（GameObject）
+
+collision.transform：碰撞对象的依附对象的位置信息
+
+collision.contactCount：碰撞点数相关
+
+ContacPoint[] pos = collision.contacts; 接触点，具体的坐标
+```
+
+
+
+- 碰撞触发接触时会自动执行这个函数
+
+  ```
+  private void OnCollisionEnter(Collision collision)
+  {
+  	print(this.name + "被" + collision.gameObject.name + "撞到了！");
+  }
+  ```
+
+  
+
+- 碰撞结束分离时会自动执行的函数
+
+  ```
+  private void OnCollisionExit(Collision collision)
+  {
+  	print(this.name + "与" + collision.gameObject.name + "分离了！");
+  }
+  
+  ```
+
+  
+
+- 两个物体相互接触摩擦时，会不停的调用该函数
+
+  ```
+  private void OnCollisionStay(Collision collision)
+  {
+  	print(this.name + "与" + collision.gameObject.name + "正在相互摩擦！");
+  }
+  ```
+
+  
+
+## 14.2 触发器检测响应函数
+
+- 触发开始的函数，当第一次接触时，会自动调用
+
+  ```
+  private void OnTriggerEnter(Collider other)
+  {
+  	print(this.name + "与" + other.name + "第一次接触了！");
+  }
+  ```
+
+  
+
+- 触发结束的函数，当水乳相融的状态结束时，会调用一次
+
+  ```
+  private void OnTriggerEnter(Collider other)
+  {
+  	print(this.name + "与" + other.name + "分离了！");
+  }
+  ```
+
+  
+
+- 当两个对象水乳相融的时候，会不停的调用
+
+  ```
+  private void OnTriggerEnter(Collider other)
+  {
+  	print(this.name + "与" + other.name + "正在水乳相融！");
+  }
+  ```
+
+  
+
+## 14.3 要明确什么时候会响应函数
+
+1.只要挂载的对象能和别的物体产生碰撞或者触发那么对应的这6个函数就能够被响应
+
+2.6个函数不是说我都得写我们一般是根据需求来进行选择书写
+
+3.如果是一个异形物体，刚体在父对象上，如果你想通过子对象上挂脚本检测碰撞是不行的必须挂载到这个刚体父对象上
+
+4.要明确物理碰撞和触发器响应的区别
+
+## 14.4 碰撞和触发器函数都可以写成虚函数在子类去重写逻辑
+
+一般会把想要重写的 碰撞和触发函数写成保护类型的没有必要写成public因为不会自己手动调用都是Unity通过反射帮助我们自动调用的
