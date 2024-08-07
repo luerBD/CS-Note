@@ -1945,3 +1945,102 @@ ContacPoint[] pos = collision.contacts; 接触点，具体的坐标
 ## 14.4 碰撞和触发器函数都可以写成虚函数在子类去重写逻辑
 
 一般会把想要重写的 碰撞和触发函数写成保护类型的没有必要写成public因为不会自己手动调用都是Unity通过反射帮助我们自动调用的
+
+## 14.5 碰撞检测之刚体加力
+
+### 14.5.1 刚体自带添加力的方法
+
+给刚体加力的目标就是让其有一个速度，朝向某一个方向移动；
+
+```c#
+Rigidbody rigidBody = null;
+```
+
+- 首先应该获取刚体组件
+
+  ```
+  rigidBody = this.GetComponent<Rigidbody>();
+  ```
+
+- 添加力
+
+  - 相对世界坐标
+
+    - 世界坐标系z轴正方向加了一个力，加力过后，对象是否停止移动，是由阻力决定的
+
+    - 如果阻力为0，那给了一个力过后，始终是不会停止运动；
+
+      ```
+      rigidBody.AddForce(Vector3.forward * 10);
+      ```
+
+    - 如果想要在世界坐标系方法中，让对象相对于自己的面朝向移动
+
+      ```
+      rigidBody.AddForce(this.transform.forward * 10);
+      ```
+
+    - 如果你希望即使有阻力，也希望对象一直动，那你就一直“推”就行了
+
+      ```
+      void Update()
+      {
+      	rigidBody.AddForce(Vector3.forward * 10);
+      }
+      ```
+
+      
+
+  - 相对本地坐标
+
+    ```
+    rigidBody.AddRelativeForce(Vector3.forward * 10);
+    ```
+
+- 添加扭矩力，让其旋转
+
+  - 相对世界坐标
+
+    ```
+    rigidBody.AddTorque(Vector3.up * 10);
+    ```
+
+  - 相对本地坐标
+
+    ```
+    rigidBody.AddRelativeTorque(Vector3.up * 10);
+    ```
+
+- 直接改变速度
+
+  - 这个速度方向是相对于世界坐标系的，如果要直接通过改变速度来让其移动，一定要注意这一点；
+
+    ```
+    rigidBody.velocity = Vector3.forward * 5;
+    ```
+
+- 模拟爆炸效果
+
+  - 模拟爆炸的力，一定是所有希望产生爆炸效果影响的对象，都需要得到他们的刚体，来执行这个方法，才能都有效果；
+
+    ```
+    rigidBody.AddExplosionForce(100, Vector3.zero, 10);
+    ```
+
+### 14.5.2 力的几种模式（物理相关的游戏使用）
+
+### 14.5.3 力场脚本
+
+补充：刚体的休眠
+
+```
+void Update()
+{
+	if(rigidBody.IsSleeping())
+	{
+		// 就唤醒它
+		rigidBody.WakeUp();
+	}
+}
+```
+

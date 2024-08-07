@@ -193,7 +193,7 @@ SQL是一套标准，程序员主要学习的就是SQL语句，这个SQL语句�
   例如：授权grant、撤销权限revoke....
   ```
 
-# 6.数据查询
+# 6.单表查询
 
 ## 6.1 将sql文件中的数据导入数据库
 
@@ -1059,3 +1059,280 @@ on
 ```
 
 <img src="assets/image-20240806221600434.png" alt="image-20240806221600434" style="zoom:67%;" />
+
+# 8.子查询
+
+## 8.1 什么是子查询？
+
+select语句中嵌套select语句，被嵌套的select语句称为子查询。
+
+## 8.2 子查询都可以出现在哪里呢？
+
+```
+select
+	..(select).
+from
+	..(select).
+where
+	..(select).
+```
+
+## 8.3 where子句中的子查询
+
+- 案例：找出比最低工资高的员工姓名和工资？
+
+  - 错误思路
+
+    <img src="assets/image-20240807180627579.png" alt="image-20240807180627579" style="zoom: 67%;" />
+
+  - 正确实现思路：
+
+    ```
+    第一步：查询最低工资是多少
+    select min(sal) from emp;
+    第二步：找出>800的
+    select ename,sal from emp where sal > 800;
+    第三步：合并
+    select ename,sal from emp where sal > (select min(sal) from emp);
+    
+    ```
+
+    ![image-20240807180832504](assets/image-20240807180832504.png)
+
+## 8.4 from子句中的子查询
+
+- 注意：from后面的子查询，可以将子查询的查询结果当做一张临时表。（技巧）
+
+- 案例：找出每个岗位的平均工资的薪资等级。
+
+  ```
+  第一步：找出每个岗位的平均工资（按照岗位分组求平均值）
+  select job,avg(sal) avgsal from emp group by job; //t表
+  
+  第二步：克服心理障碍，把以上的查询结果就当做一张真实存在的表e。
+  select * from salgrade; //s表
+  t表和s表进行表连接，条件：t表avg(sal) between s.losal and s.hisal;
+  select 
+  	t.*, s.grade
+  from
+  	(select job,avg(sal) as avgsal from emp group by job) t
+  join
+  	salgrade s
+  on
+  	t.avgsal between s.losal and s.hisal;
+  
+  ```
+
+  ![image-20240807182334945](assets/image-20240807182334945.png)
+
+
+
+# 9.union合并查询结果集
+
+- 案例：查询工作岗位是MANAGER和SALESMAN的员工？
+
+  ![image-20240807183827236](assets/image-20240807183827236.png)
+
+  ```
+  union的效率要高一些。对于表连接来说，每连接一次新表，则匹配的次数满足笛卡尔积，成倍的翻。。。
+  但是union可以减少匹配的次数。在减少匹配次数的情况下，还可以完成两个结果集的拼接。
+      a 连接 b 连接 c
+      a 10条记录
+      b 10条记录
+      c 10条记录
+      匹配次数是：1000
+  
+      a 连接 b一个结果：10 * 10 --> 100次
+      a 连接 c一个结果：10 * 10 --> 100次
+      使用union的话是：100次 + 100次 = 200次。（union把乘法变成了加法运算）
+  
+  union在使用的时候有注意事项吗？
+      //错误的：union在进行结果集合并的时候，要求两个结果集的列数相同。
+      select ename,job from emp where job = 'MANAGER'
+      union
+      select ename from emp where job = 'SALESMAN';
+  
+      // MYSQL可以，oracle语法严格 ，不可以，报错。要求：结果集合并时列和列的数据类型也要一致。
+      select ename,job from emp where job = 'MANAGER'
+      union
+      select ename,sal from emp where job = 'SALESMAN';
+  ```
+
+# 10.limit关键字
+
+## 10.1 limit作用
+
+将查询结果集的一部分取出来。通常使用在分页查询当中。
+
+百度默认：一页显示10条记录。
+
+分页的作用是为了提高用户的体验，因为一次全部都查出来，用户体验差。可以一页一页翻页看。
+
+## 10.2 limit用法
+
+### 10.2.1 完整用法
+
+```
+limit startIndex, length
+// startIndex是起始下标，length是长度，起始下标从0开始。
+```
+
+### 10.2.2 缺省用法
+
+```
+limit 5;
+// 这是取前5.
+```
+
+### 10.2.3 limit用法案例
+
+- 案例1：按照薪资降序，取出排名在前5名的员工？
+
+  ```
+  select 
+  	ename,sal
+  from
+  	emp
+  order by 
+  	sal desc
+  limit 5; //取前5
+  
+  select 
+  	ename,sal
+  from
+  	emp
+  order by 
+  	sal desc
+  limit 0,5;
+  ```
+
+  <img src="assets/image-20240807193602213.png" alt="image-20240807193602213" style="zoom: 67%;" />
+
+  注意：mysql当中limit在order by之后执行！！！！！
+
+- 案例2：取出工资排名在[3-5]名的员工。
+
+  ```
+  select 
+  	ename,sal
+  from
+  	emp
+  order by
+  	sal desc
+  limit
+  	2, 3;
+  // 2表示起始位置从下标2开始，就是第三条记录。
+  // 3表示长度
+  ```
+
+  <img src="assets/image-20240807194128307.png" alt="image-20240807194128307" style="zoom:67%;" />
+
+- 案例3：取出工资排名在[5-9]名的员工。
+
+  ```
+  select 
+  	ename,sal
+  from
+  	emp
+  order by 
+  	sal desc
+  limit
+  	4, 5;
+  ```
+
+  <img src="assets/image-20240807194419277.png" alt="image-20240807194419277" style="zoom:67%;" />
+
+## 10.3 使用limit进行分页
+
+### 10.3.1 每页显示3条记录
+
+```
+第1页：limit 0,3        [0 1 2]
+第2页：limit 3,3        [3 4 5]
+第3页：limit 6,3        [6 7 8]
+第4页：limit 9,3        [9 10 11]
+```
+
+### 10.3.2 每页显示pageSize条记录
+
+```
+第pageNo页：limit (pageNo - 1) * pageSize  , pageSize
+
+    public static void main(String[] args){
+        // 用户提交过来一个页码，以及每页显示的记录条数
+        int pageNo = 5; //第5页
+        int pageSize = 10; //每页显示10条
+
+        int startIndex = (pageNo - 1) * pageSize;
+        String sql = "select ...limit " + startIndex + ", " + pageSize;
+    }
+
+记公式：
+    limit (pageNo-1)*pageSize , pageSize
+```
+
+## 10.4 关键字执行顺序第四次总结
+
+```
+select 
+	...
+from
+	...
+where
+	...
+group by
+	...
+having
+	...
+order by
+	...
+limit
+	...
+    
+执行顺序？
+    1.from
+    2.where
+    3.group by
+    4.having
+    5.select
+    6.order by
+    7.limit..
+```
+
+# 11.建表与数据的增删改
+
+## 11.1 建表
+
+### 11.1.1 建表的语法格式
+
+```
+create table 表名(
+        字段名1 数据类型, 
+        字段名2 数据类型, 
+        字段名3 数据类型
+);
+```
+
+- 表名：建议以t_ 或者 tbl_开始，可读性强。见名知意。
+- 字段名：见名知意。
+- 表名和字段名都属于标识符。
+
+### 11.1.2 MySQL中的数据类型
+
+| 数据类型         | 描述                                                         |
+| ---------------- | ------------------------------------------------------------ |
+| varchar(最长255) | 可变长度的字符串。<br />比较智能，节省空间。会根据实际的数据长度动态分配空间。<br />优点：节省空间<br/>缺点：需要动态分配空间，速度慢。 |
+| char(最长255)    | 定长字符串<br/>不管实际的数据长度是多少，分配固定长度的空间去存储数据。<br/>使用不恰当的时候，可能会导致空间的浪费。<br/>优点：不需要动态分配空间，速度快。<br/>缺点：使用不当可能会导致空间的浪费。<br/><br />varchar和char我们应该怎么选择？<br/>性别字段你选什么？因为性别是固定长度的字符串，所以选择char。<br/>姓名字段你选什么？每一个人的名字长度不同，所以选择varchar。 |
+| int(最长11)      | 数字中的整数型。等同于java的int。                            |
+| bigint           | 数字中的长整型。等同于java中的long。                         |
+| float            | 单精度浮点型数据                                             |
+| double           | 双精度浮点型数据                                             |
+| date             | 短日期类型                                                   |
+| datetime         | 长日期类型                                                   |
+| clob             | 字符大对象<br/>最多可以存储4G的字符串。<br/>比如：存储一篇文章，存储一个说明。<br/>超过255个字符的都要采用CLOB字符大对象来存储。<br/>Character Large OBject:CLOB |
+| blob             | 二进制大对象<br/>Binary Large OBject<br/>专门用来存储图片、声音、视频等流媒体数据。<br/>往BLOB类型的字段上插入数据的时候，例如插入一个图片、视频等，<br/>你需要使用IO流才行。 |
+
+
+
+
+
