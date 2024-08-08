@@ -1359,9 +1359,38 @@ drop table if exists t_student;
 
 <img src="assets/image-20240807202746856.png" alt="image-20240807202746856" style="zoom:67%;" />
 
+### 11.1.5 利用某一张表的查询结果快速创建表
+
+- 原理：将一个查询结果当做一张表新建，这个可以完成表的快速复制，表创建出来，同时表中的数据也存在了！
+
+- 练习
+
+  ```
+  create table emp2 as select * from emp;
+  ```
+
+  ![image-20240808192938436](assets/image-20240808192938436.png)
+
+  ```
+  create table mytable as select empno,ename from emp where job = 'MANAGER';
+  ```
+
+  ![image-20240808193042705](assets/image-20240808193042705.png)
+
+### 11.1.6 表结构的增删改
+
+- 什么是对表结构的修改？
+  - 添加一个字段，删除一个字段，修改一个字段！！！
+  - 对表结构的修改需要使用：alter，属于DDL语句
+  - DDL包括：create drop alter
+
+- 注意：
+  - 第一：在实际的开发中，需求一旦确定之后，表一旦设计好之后，很少的进行表结构的修改。因为开发进行中的时候，修改表结构，成本比较高。修改表的结构，对应的java代码就需要进行大量的修改。成本是比较高的。这个责任应该由设计人员来承担！
+  - 第二：由于修改表结构的操作很少，所以我们不需要掌握，如果有一天真的要修改表结构，你可以使用工具！！！！修改表结构的操作是不需要写到java程序中的。实际上也不是java程序员的范畴。
+
 ## 11.2 数据的增删改
 
-### 11.2.1 插入数据
+### 11.2.1 insert插入数据
 
 - 语法格式：
 
@@ -1571,8 +1600,281 @@ insert into t_student(no) values(3);
 
         ![image-20240807222408457](assets/image-20240807222408457.png)
 
-### 11.2.2 修改数据
+- 使用insert可以一次插入多条记录
+
+  - 语法
+
+    ```
+    insert into t_user(字段名1,字段名2) values(),(),(),();
+    ```
+
+  - 练习
+
+    ```
+    insert into t_user(id, name, birth, create_time) values
+    (1, 'zs', '1980-10-11', now()),
+    (2, 'lisi', '1981-10-11', now()),
+    (3, 'wangwu', '1982-10-11', now());
+    ```
+
+    <img src="assets/image-20240808192201110.png" alt="image-20240808192201110" style="zoom:67%;" />
+
+- 将某张表的查询结果插入到另一张表中（很少用）
+
+  - 先利用dept表的查询结果创建一张新表dept_bak
+
+    ```
+    create table dept_bak as select * from dept;
+    ```
+
+    <img src="assets/image-20240808193647088.png" alt="image-20240808193647088" style="zoom:67%;" />
+
+  - 在dept_bak表中插入我们从dept表中查询出来的结果
+
+    ```
+    insert into dept_bak select * from dept; //很少用！
+    ```
+
+    <img src="assets/image-20240808193715215.png" alt="image-20240808193715215" style="zoom:67%;" />
+
+### 11.2.2 update修改数据
+
+- 语法格式
+
+  ```
+  update 表名 set 字段名1=值1,字段名2=值2,字段名3=值3... where 条件;
+  ```
+
+- 注意：没有条件限制会导致所有数据全部更新。
+
+- 练习
+
+  ```
+  update t_user set name = 'jack', birth = '2000-10-11' where id = 2;
+  ```
+
+  <img src="assets/image-20240808190006623.png" alt="image-20240808190006623" style="zoom:67%;" />
+
+  ```
+  update t_user set name = 'jack', birth = '2000-10-11', create_time = now() where id = 2;
+  ```
+
+  <img src="assets/image-20240808190229690.png" alt="image-20240808190229690" style="zoom:67%;" />
+
+  
+
+  ```
+  // 更新所有
+  update t_user set name = 'abc';
+  ```
+
+  <img src="assets/image-20240808190354160.png" alt="image-20240808190354160" style="zoom:67%;" />
 
 
 
-### 11.2.3 删除数据
+### 11.2.3 delete删除数据
+
+- 语法格式
+
+  ```
+  delete from 表名 where 条件;
+  ```
+
+- 注意：没有条件，整张表的数据会全部删除！
+
+- 练习
+
+  ```
+  delete from t_user where id = 2;
+  ```
+
+  <img src="assets/image-20240808190742105.png" alt="image-20240808190742105" style="zoom:67%;" />
+
+  ```
+  insert into t_user(id) values(2);
+  
+  delete from t_user; // 删除所有！
+  ```
+
+  <img src="assets/image-20240808190936822.png" alt="image-20240808190936822" style="zoom:67%;" />
+
+  
+
+### 11.2.4 truncate删除数据（非常重要）
+
+- 使用delete删除数据
+
+  - 先利用dept表的查询结果创建一张新表dept_bak
+
+    ```
+    create table dept_bak as select * from dept;
+    ```
+
+    <img src="assets/image-20240808193647088.png" alt="image-20240808193647088" style="zoom:67%;" />
+
+  - 在dept_bak表中插入我们从dept表中查询出来的结果
+
+    ```
+    insert into dept_bak select * from dept; //很少用！
+    ```
+
+    <img src="assets/image-20240808193715215.png" alt="image-20240808193715215" style="zoom:67%;" />
+
+  - 删除dept_bak表中的数据
+
+    ```
+    delete from dept_bak; //这种删除数据的方式比较慢。
+    ```
+
+    <img src="assets/image-20240808194808052.png" alt="image-20240808194808052" style="zoom:67%;" />
+
+  - delete语句删除数据的原理？
+
+    - 表中的数据被删除了，但是这个数据在硬盘上的真实存储空间不会被释放！！！
+
+    - 这种删除缺点是：删除效率比较低。
+
+    - 这种删除优点是：支持回滚，后悔了可以再恢复数据！回滚举例如下：
+
+      ```
+      mysql> select * from dept_bak;
+      Empty set (0.00 sec)
+      
+      mysql> insert into dept_bak select * from dept;
+      Query OK, 4 rows affected (0.00 sec)
+      Records: 4  Duplicates: 0  Warnings: 0
+      
+      mysql> select * from dept_bak;
+      +--------+------------+----------+
+      | DEPTNO | DNAME      | LOC      |
+      +--------+------------+----------+
+      |     10 | ACCOUNTING | NEW YORK |
+      |     20 | RESEARCH   | DALLAS   |
+      |     30 | SALES      | CHICAGO  |
+      |     40 | OPERATIONS | BOSTON   |
+      +--------+------------+----------+
+      4 rows in set (0.00 sec)
+      
+      mysql> start transaction;
+      Query OK, 0 rows affected (0.00 sec)
+      
+      mysql> delete from dept_bak;
+      Query OK, 4 rows affected (0.00 sec)
+      
+      mysql> select * from dept_bak;
+      Empty set (0.00 sec)
+      
+      mysql> rollback;
+      Query OK, 0 rows affected (0.00 sec)
+      
+      mysql> select * from dept_bak;
+      +--------+------------+----------+
+      | DEPTNO | DNAME      | LOC      |
+      +--------+------------+----------+
+      |     10 | ACCOUNTING | NEW YORK |
+      |     20 | RESEARCH   | DALLAS   |
+      |     30 | SALES      | CHICAGO  |
+      |     40 | OPERATIONS | BOSTON   |
+      +--------+------------+----------+
+      4 rows in set (0.00 sec)
+      ```
+
+- 使用truncate删除数据
+
+  - truncate语句删除数据的原理：
+    - 这种删除效率比较高，表被一次截断，物理删除。
+    - 这种删除缺点：不支持回滚。
+    - 这种删除优点：快速。
+
+  - 用法
+
+    ```
+    truncate table dept_bak; 
+    //这种操作属于DDL操作
+    ```
+
+    ```mysql
+    mysql> select * from dept_bak;
+    +--------+------------+----------+
+    | DEPTNO | DNAME      | LOC      |
+    +--------+------------+----------+
+    |     10 | ACCOUNTING | NEW YORK |
+    |     20 | RESEARCH   | DALLAS   |
+    |     30 | SALES      | CHICAGO  |
+    |     40 | OPERATIONS | BOSTON   |
+    +--------+------------+----------+
+    4 rows in set (0.00 sec)
+    
+    mysql> start transaction;
+    Query OK, 0 rows affected (0.00 sec)
+    
+    mysql> truncate table dept_bak;
+    Query OK, 0 rows affected (0.00 sec)
+    
+    mysql> select * from dept_bak;
+    Empty set (0.00 sec)
+    
+    mysql> rollback;
+    Query OK, 0 rows affected (0.00 sec)
+    
+    mysql> select * from dept_bak;
+    Empty set (0.00 sec)
+    ```
+
+  - 对于上亿条记录的大表：
+
+    - 删除的时候，使用delete，也许需要执行1个小时才能删除完！效率较低。
+    - 可以选择使用truncate删除表中的数据。只需要不到1秒钟的时间就删除结束。效率较高。
+    - 但是使用truncate之前，必须仔细询问客户是否真的要删除，并警告删除之后不可恢复！
+
+  - 注：
+    - truncate是删除表中的数据，表还在！
+    - drop table 表名; // 这不是删除表中的数据，这是把表删除。
+
+# 12.约束（constraint）
+
+在创建表的时候，我们可以给表中的字段加上一些约束，来保证这个表中数据的完整性、有效性！！！
+
+## 12.1 约束类型
+
+| 约束名称   | 关键字                           |      |
+| ---------- | -------------------------------- | ---- |
+| 非空约束   | not null                         |      |
+| 唯一性约束 | unique                           |      |
+| 主键约束   | primary key （简称PK）           |      |
+| 外键约束   | foreign key（简称FK）            |      |
+| 检查约束   | check（mysql不支持，oracle支持） |      |
+
+## 12.2 非空约束 not null
+
+非空约束not null约束的字段不能为NULL。
+
+```
+drop table if exists t_vip;
+create table t_vip(
+     id int,
+     name varchar(255) not null  // not null只有列级约束，没有表级约束！
+);
+insert into t_vip(id,name) values(1,'zhangsan');
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
