@@ -1332,7 +1332,247 @@ create table 表名(
 | clob             | 字符大对象<br/>最多可以存储4G的字符串。<br/>比如：存储一篇文章，存储一个说明。<br/>超过255个字符的都要采用CLOB字符大对象来存储。<br/>Character Large OBject:CLOB |
 | blob             | 二进制大对象<br/>Binary Large OBject<br/>专门用来存储图片、声音、视频等流媒体数据。<br/>往BLOB类型的字段上插入数据的时候，例如插入一个图片、视频等，<br/>你需要使用IO流才行。 |
 
+### 11.1.3 创建一个学生表
+
+字段：学号、姓名、年龄、性别、邮箱地址
+
+```sql
+create table t_student(
+    no int,
+    name varchar(32),
+    sex char(1),
+    age int(3),
+    email varchar(255)
+);
+```
+
+<img src="assets/image-20240807202719073.png" alt="image-20240807202719073" style="zoom:67%;" />
+
+### 11.1.4 表的删除
+
+```
+drop table t_student; // 当这张表不存在的时候会报错！
+
+// 如果这张表存在的话，删除
+drop table if exists t_student;
+```
+
+<img src="assets/image-20240807202746856.png" alt="image-20240807202746856" style="zoom:67%;" />
+
+## 11.2 数据的增删改
+
+### 11.2.1 插入数据
+
+- 语法格式：
+
+  ```
+  insert into 表名(字段名1,字段名2,字段名3...) values(值1,值2,值3);
+  ```
+
+- 注意：
+  - 字段名和值要一一对应。
+  - 什么是一一对应？数量要对应。数据类型要对应。
+
+- 执行以下代码，观察
+
+```
+insert into t_student(no,name,sex,age,email) values(1,'zhangsan','m',20,'zhangsan@123.com');
+```
+
+![image-20240807203421476](assets/image-20240807203421476.png)
 
 
 
+```
+insert into t_student(email,name,sex,age,no) values('lisi@123.com','lisi','f',20,2);
+```
 
+![image-20240807203533664](assets/image-20240807203533664.png)
+
+
+
+```
+insert into t_student(no) values(3);
+```
+
+<img src="assets/image-20240807203638088.png" alt="image-20240807203638088" style="zoom:67%;" />
+
+
+
+- 注意：
+
+  - insert语句但凡是执行成功了，那么必然会多一条记录。
+  - 没有给其它字段指定值的话，默认值是NULL。
+
+- 把表t_student删除后，我们再重新插入一些数据
+
+  ```sql
+  drop table if exists t_student;
+  create table t_student(
+          no int,
+          name varchar(32),
+          sex char(1) default 'm',
+          age int(3),
+          email varchar(255)
+  );
+  ```
+
+  <img src="assets/image-20240807213451789.png" alt="image-20240807213451789" style="zoom:67%;" />
+
+  <img src="assets/image-20240807213531064.png" alt="image-20240807213531064" style="zoom: 67%;" />
+
+- insert语句中的“字段名”可以省略吗？可以
+
+  ```
+  insert into t_student values(2); //错误的
+  ```
+
+  - 注意：前面的字段名省略的话，等于都写上了！所以值也要都写上！
+
+  ```
+  insert into t_student values(2, 'lisi', 'f', 20, 'lisi@123.com');
+  ```
+
+- insert插入日期
+
+  - 格式化数字函数：format(数字, '格式')
+
+    ```
+    select ename,format(sal, '$999,999') as sal from emp;
+    ```
+
+    <img src="assets/image-20240807214212385.png" alt="image-20240807214212385" style="zoom:67%;" />
+
+  - str_to_date：将字符串varchar类型转换成date类型
+
+  - date_format：将date类型转换成具有一定格式的varchar字符串类型。
+
+  - 创建一张t_user表，我们准备插入日期数据
+
+    ```
+    drop table if exists t_user;
+    create table t_user(
+            id int,
+            name varchar(32),
+            birth date // 生日也可以使用date日期类型
+    );
+    
+    create table t_user(
+            id int,
+            name varchar(32),
+            birth char(10) // 生日可以使用字符串，没问题。
+    );
+    // 生日：1990-10-11 （10个字符）
+    ```
+
+    - 注意：数据库中的有一条命名规范：所有的标识符都是全部小写，单词和单词之间使用下划线进行衔接。
+
+    - 插入日期数据：
+
+      ```
+      insert into t_user(id,name,birth) values(1, 'zhangsan', '01-10-1990'); 
+      // 1990年10月1日
+      ```
+
+      ![image-20240807220119118](assets/image-20240807220119118.png)
+
+      - 出问题了：原因是类型不匹配。数据库birth是date类型，这里给了一个字符串varchar。
+
+      - 怎么办？可以使用str_to_date函数进行类型转换。str_to_date函数可以将字符串转换成日期类型date。
+
+      - 语法格式：
+
+        ```
+        str_to_date('字符串日期', '日期格式')
+        mysql的日期格式：
+        %Y	年
+        %m	月
+        %d	日
+        %h	时
+        %i	分
+        %s	秒
+        ```
+
+        ```
+        insert into t_user(id,name,birth) values(1, 'zhangsan', str_to_date('01-10-1990','%d-%m-%Y'));
+        ```
+
+        ![image-20240807220524970](assets/image-20240807220524970.png)
+
+      - str_to_date函数可以把字符串varchar转换成日期date类型数据，通常使用在插入insert方面，因为插入的时候需要一个日期类型的数据，需要通过该函数将字符串转换成date。
+
+      - 好消息：如果你提供的日期字符串是这个格式：%Y-%m-%d，str_to_date函数就不需要了！！！
+
+        ```
+        insert into t_user(id,name,birth) values(2, 'lisi', '1990-10-01');
+        ```
+
+        ![image-20240807220820890](assets/image-20240807220820890.png)
+
+      - 查询的时候可以以某个特定的日期格式展示吗？
+
+        - 可以，date_format函数可以将日期类型转换成特定格式的字符串。
+
+        - date_format函数怎么用？
+
+          ```
+          date_format(日期类型数据, '日期格式')
+          // 这个函数通常使用在查询日期方面。设置展示的日期格式。
+          ```
+
+          <img src="assets/image-20240807221228640.png" alt="image-20240807221228640" style="zoom:67%;" />
+
+          - 以上的SQL语句实际上是进行了默认的日期格式化，自动将数据库中的date类型转换成varchar类型。并且采用的格式是mysql默认的日期格式：'%Y-%m-%d'
+
+          ```
+          select id,name,date_format(birth,'%Y/%m/%d') as birth from t_user;
+          ```
+
+          ![image-20240807221624641](assets/image-20240807221624641.png)
+
+          - java中的日期格式？yyyy-MM-dd HH:mm:ss SSS
+
+    - date和datetime两个类型的区别？
+
+      - date是短日期：只包括年月日信息。
+      - datetime是长日期：包括年月日时分秒信息。
+
+      ```
+      drop table if exists t_user;
+      create table t_user(
+              id int,
+              name varchar(32),
+              birth date,
+              create_time datetime
+      );
+      
+              id是整数
+              name是字符串
+              birth是短日期
+              create_time是这条记录的创建时间：长日期类型
+      
+      mysql短日期默认格式：%Y-%m-%d
+      mysql长日期默认格式：%Y-%m-%d %h:%i:%s
+      ```
+
+      ```
+      insert into t_user(id,name,birth,create_time) values(1,'zhangsan','1990-10-01','2020-03-18 15:49:50');
+      ```
+
+      ![image-20240807222241412](assets/image-20240807222241412.png)
+
+    - 在mysql当中怎么获取系统当前时间？
+
+      - now() 函数，并且获取的时间带有：时分秒信息！！！！是datetime类型的。
+
+        ```
+        insert into t_user(id,name,birth,create_time) values(2,'lisi','1991-10-01',now());
+        ```
+
+        ![image-20240807222408457](assets/image-20240807222408457.png)
+
+### 11.2.2 修改数据
+
+
+
+### 11.2.3 删除数据

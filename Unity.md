@@ -2044,3 +2044,216 @@ void Update()
 }
 ```
 
+# 15.代码控制音频源
+
+## 15.1 代码控制播放停止
+
+```
+public class Lesson20 : MonoBehaviour
+{
+    // Start is called before the first frame update
+    AudioSource audioSource;
+    void Start()
+    {
+        audioSource = this.GetComponent<AudioSource>();
+       
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            // 按P键，播放音效
+            audioSource.Play();
+        }
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            // 按S键，停止播放音效
+            audioSource.Stop();
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            // 按空格键，暂停播放音效
+            audioSource.Pause();
+        }
+        if (Input.GetKeyDown(KeyCode.X)) 
+        {
+            // 按X键，继续播放刚才暂停的音效
+            audioSource.UnPause();
+        }
+    }
+}
+
+```
+
+
+
+## 15.2 如何检测音效播放完毕
+
+如果你希望某一个音效播放完毕后，想要做什么事情，那就可以再Update生命周期函数中，不停的去检测它的该属性，如果是false就代表播放完毕了。
+
+```
+void Update()
+{
+    if (audioSource.isPlaying)
+    {
+    	print("播放中");
+    }
+    else 
+    {
+    	print("播放结束");
+    }
+}
+```
+
+## 15.3 如何动态控制音效播放
+
+- 直接再要播放音效的对象上挂载脚本，控制播放
+
+  - 也就是15.1讲解的内容
+
+- 实例化挂载了音效源脚本的对象
+
+  - 这种方法其实用的比较少
+
+    ```
+    public class Lesson20 : MonoBehaviour
+    {
+        public GameObject audioTemp;
+        void Start()
+        {
+            Instantiate(audioTemp);       
+        }
+    }
+    ```
+
+    
+
+- 用一个AudioSource来控制播放不同的音效。
+
+  ```
+  public class Lesson20 : MonoBehaviour
+  {
+      public AudioClip audioClip;
+      void Start()
+      {
+          AudioSource aus = this.gameObject.AddComponent<AudioSource>();
+          aus.clip = audioClip;
+          aus.Play();
+      }
+  }
+  
+  ```
+
+# 16.坦克游戏小项目
+
+## 16.1 必备知识点
+
+### 16.1.1 场景切换和退出游戏
+
+- 场景切换
+
+  ```
+  using UnityEngine.SceneManagement;
+  
+  public class Lesson1 : MonoBehaviour
+  {
+      void Update()
+      {
+          if (Input.GetKeyDown(KeyCode.Space)) 
+          {
+              // 切换到场景2
+              // 直接写代码切换场景可能会报错
+              // 原因是没有把该场景加载到场景列表中
+              SceneManager.LoadScene("Test2");
+          }  
+      }
+  } 
+  ```
+
+- 退出游戏
+
+  ```
+  public class Lesson1 : MonoBehaviour
+  {
+      void Update()
+      {
+          if (Input.GetKeyDown(KeyCode.Escape)) 
+          {
+              Application.Quit();
+          }        
+      }
+  } 
+  ```
+
+
+### 16.1.2 鼠标隐藏锁定相关
+
+- 隐藏鼠标
+
+  ```
+  Cursor.visible = false;
+  ```
+
+- 锁定鼠标
+
+  ```
+  // Locaked表示锁定， 鼠标会被限制在屏幕的中心点，不仅会被锁定，还会被隐藏，可以通过ESC键摆脱编辑模式下的锁定
+  Cursor.lockState = CursorLockMode.Locked; 
+  
+  // None表示不锁定
+  Cursor.lockState = CursorLockMode.None;
+  
+  // 限制在窗口范围内
+  Cursor.lockState = CursorLockMode.Confined;
+  ```
+
+  
+
+- 设置鼠标图片
+
+  ```
+  public class Lesson2 : MonoBehaviour
+  {
+      // Start is called before the first frame update
+  
+      public Texture2D tex;
+  
+  
+      void Start()
+      {
+  
+          // 限制在窗口范围内
+          Cursor.lockState = CursorLockMode.Confined;
+  
+          Cursor.SetCursor(tex, Vector2.zero, CursorMode.Auto);
+  
+      }
+  
+      // Update is called once per frame
+      void Update()
+      {
+          
+      }
+  }
+  
+  ```
+
+### 16.1.3 随机数和Unity自带委托相关
+
+- 随机数
+
+  ```
+  // int 类型的随机数，范围[0, 100)
+  int randomNum = Random.Range(0, 100);
+  
+  // float 类型的随机数，范围[1.1, 99.9)
+  ```
+
+### 16.1.4 模型资源的导入
+
+- 模型由什么构成：骨肉皮
+- Unity支持的模型格式：推荐FBX
+- 学习阶段在哪里获取模型资源：Asset Store和淘宝
+
