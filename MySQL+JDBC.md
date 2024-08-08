@@ -1995,7 +1995,19 @@ insert into t_student(no) values(3);
   );
   ```
 
-  
+  <img src="assets/image-20240808221654030.png" alt="image-20240808221654030" style="zoom:67%;" />
 
+  - 在mysql当中，如果一个字段同时被not null和unique约束的话，该字段自动变成主键字段。（注意：oracle中不一样！）
 
+    ```
+    insert into t_vip(id,name) values(1,'zhangsan');
+    insert into t_vip(id,name) values(2,'zhangsan'); //错误了：name不能重复
+    ```
 
+    <img src="assets/image-20240808221847655.png" alt="image-20240808221847655" style="zoom:67%;" />
+
+    ```
+    insert into t_vip(id) values(2); //错误了：name不能为NULL。
+    ```
+
+    <img src="assets/image-20240808221950322.png" alt="image-20240808221950322" style="zoom:67%;" />
