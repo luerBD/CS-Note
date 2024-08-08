@@ -1,4 +1,4 @@
-# 1.概述
+1.概述
 
 ## 1.1 数据库（Database，DB）
 
@@ -1837,44 +1837,165 @@ insert into t_student(no) values(3);
 
 ## 12.1 约束类型
 
-| 约束名称   | 关键字                           |      |
-| ---------- | -------------------------------- | ---- |
-| 非空约束   | not null                         |      |
-| 唯一性约束 | unique                           |      |
-| 主键约束   | primary key （简称PK）           |      |
-| 外键约束   | foreign key（简称FK）            |      |
-| 检查约束   | check（mysql不支持，oracle支持） |      |
+| 约束名称   | 关键字                           |
+| ---------- | -------------------------------- |
+| 非空约束   | not null                         |
+| 唯一性约束 | unique                           |
+| 主键约束   | primary key （简称PK）           |
+| 外键约束   | foreign key（简称FK）            |
+| 检查约束   | check（mysql不支持，oracle支持） |
 
 ## 12.2 非空约束 not null
 
-非空约束not null约束的字段不能为NULL。
+- 非空约束not null约束的字段不能为NULL。
 
-```
-drop table if exists t_vip;
-create table t_vip(
-     id int,
-     name varchar(255) not null  // not null只有列级约束，没有表级约束！
-);
-insert into t_vip(id,name) values(1,'zhangsan');
-```
+  ```
+  drop table if exists t_vip;
+  create table t_vip(
+       id int,
+       name varchar(255) not null  // not null只有列级约束，没有表级约束！
+  );
+  insert into t_vip(id,name) values(1,'zhangsan');
+  ```
 
+  ```
+  mysql> insert into t_vip(id, name) values(1, 'zhangsan');
+  Query OK, 1 row affected (0.00 sec)
+  
+  mysql> select * from t_vip;
+  +------+----------+
+  | id   | name     |
+  +------+----------+
+  |    1 | zhangsan |
+  +------+----------+
+  1 row in set (0.00 sec)
+  
+  mysql> insert into t_vip(id,name) values(2,'lisi');
+  Query OK, 1 row affected (0.00 sec)
+  
+  mysql> select * from t_vip;
+  +------+----------+
+  | id   | name     |
+  +------+----------+
+  |    1 | zhangsan |
+  |    2 | lisi     |
+  +------+----------+
+  2 rows in set (0.00 sec)
+  
+  mysql> insert into t_vip(id) values(3);
+  ERROR 1364 (HY000): Field 'name' doesn't have a default value
+  ```
 
+- 小插曲：
 
+  - xxxx.sql这种文件被称为sql脚本文件。sql脚本文件中编写了大量的sql语句。我们执行sql脚本文件的时候，该文件中所有的sql语句会全部执行！批量的执行SQL语句，可以使用sql脚本文件。
 
+  - 在mysql当中怎么执行sql脚本呢？
 
+    ```
+    source sql脚本文件所在路径
+    ```
 
+    <img src="assets/image-20240808213339831.png" alt="image-20240808213339831" style="zoom:67%;" />
 
+    <img src="assets/image-20240808213424352.png" alt="image-20240808213424352" style="zoom:67%;" />
 
+  - 你在实际的工作中，第一天到了公司，项目经理会给你一个xxx.sql文件，你执行这个脚本文件，你电脑上的数据库数据就有了！ 
 
+## 12.3 唯一性约束 unique
 
+- 唯一性约束unique约束的字段不能重复，但是可以为NULL。
 
+  ```
+  drop table if exists t_vip;
+  create table t_vip(
+  id int,
+  name varchar(255) unique,
+  email varchar(255)
+  );
+  insert into t_vip(id,name,email) values(1,'zhangsan','zhangsan@123.com');
+  insert into t_vip(id,name,email) values(2,'lisi','lisi@123.com');
+  insert into t_vip(id,name,email) values(3,'wangwu','wangwu@123.com');
+  insert into t_vip(id,name,email) values(4,'wangwu','wangwu@sina.com');
+  ```
 
+  ![image-20240808214545197](assets/image-20240808214545197.png)
 
+- name字段虽然被unique约束了，但是可以为NULL。
 
+  ```
+  insert into t_vip(id) values(4);
+  insert into t_vip(id) values(5);
+  ```
 
+  <img src="assets/image-20240808214727947.png" alt="image-20240808214727947" style="zoom:67%;" />
 
+- 新需求：name和email两个字段联合起来具有唯一性！
 
+  ```
+  drop table if exists t_vip;
+  create table t_vip(
+  id int,
+  name varchar(255) unique,
+  email varchar(255) unique
+  );
+  
+  // 约束直接添加到列后面的，叫做列级约束。
+  ```
 
+  - 这张表这样创建是不符合我以上“新需求”的。
+
+  - 这样创建表示：name具有唯一性，email具有唯一性。各自唯一。
+
+  - 以下这样的数据是符合我“新需求”的。但如果采用以上方式创建表的话，肯定创建失败，因为'zhangsan'和'zhangsan'重复了。
+
+    ```
+    insert into t_vip(id,name,email) values(1,'zhangsan','zhangsan@123.com');
+    insert into t_vip(id,name,email) values(2,'zhangsan','zhangsan@sina.com');
+    ```
+
+    ![image-20240808220124690](assets/image-20240808220124690.png)
+
+  - 怎么创建这样的表，才能符合新需求呢？
+
+    ```
+    drop table if exists t_vip;
+    create table t_vip(
+            id int,
+            name varchar(255),
+            email varchar(255),
+            unique(name,email) // 约束没有添加在列的后面，这种约束被称为表级约束。
+    );
+    insert into t_vip(id,name,email) values(1,'zhangsan','zhangsan@123.com');
+    insert into t_vip(id,name,email) values(2,'zhangsan','zhangsan@sina.com');
+    select * from t_vip;
+    ```
+
+    ![image-20240808220828323](assets/image-20240808220828323.png)
+
+    name和email两个字段联合起来唯一！！！
+
+    ```
+    insert into t_vip(id,name,email) values(3,'zhangsan','zhangsan@sina.com');
+    ```
+
+    ![image-20240808221117797](assets/image-20240808221117797.png)
+
+- 什么时候使用表级约束呢？
+
+  - 需要给多个字段联合起来添加某一个约束的时候，需要使用表级约束。
+
+- unique 和not null可以联合吗？
+
+  ```
+  drop table if exists t_vip;
+  create table t_vip(
+              id int,
+              name varchar(255) not null unique
+  );
+  ```
+
+  
 
 
 
