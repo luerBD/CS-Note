@@ -2146,6 +2146,213 @@ void Update()
   
   ```
 
+# 16.GUI
+
+## 16.1 工作原理和主要作用
+
+### 16.1.1 GUI是什么
+
+- 全称：及时模式游戏用户交互界面（IMGUI）
+- 在unity中一般简称为GUI
+- 它是一个代码驱动的UI系统；
+
+### 16.1.2 GUI的主要作用
+
+- 作为程序员的调试工具，创建游戏内调试工具；
+- 为脚本组件创建自定义监视面板；
+- 创建新的编辑器窗口和工具以拓展Unity本身（一般用作内置游戏工具）
+- 注意：不要用它为玩家制作UI功能；
+
+### 16.1.3 GUI的工作原理
+
+- 在继承MonoBehaviour的脚本中的特殊函数力，调用GUI提供的方法，类似生命周期函数；
+
+  ```
+  private void OnGui()
+  {
+  	// 在其中写GUI相关代码，即可显示GUI内容
+  }
+  ```
+
+- 注意：
+
+  - 它每帧执行，相当于是用于专门绘制GUI界面的函数；
+  - 一般只在其中执行GUI相关界面绘制和操作逻辑；
+  - 该函数在OnDisable之前，LateUpdate之后执行；
+  - 只要是继承Mono的脚本，都可以在OnGUI中绘制GUI；
+
+## 16.2 重要参数及文本和按钮
+
+### 16.2.1 GUI控件绘制的共同点
+
+- 它们都是GUI公共类中提供的静态函数，直接调用即可；
+- 它们的参数都大同小异
+  - 位置参数：Rect参数中，x、y表示位置，w、h表示尺寸
+  - 显示文本：string参数
+  - 图片信息：Texture参数
+  - 综合信息：GUIContent参数
+  - 自定义样式：GUIStyle参数
+- 每一种控件都有多种重载，都是各个参数的排列组合，必备的参数内容是位置信息和显示信息；
+
+### 16.2.2 文本控件
+
+- 基本使用
+
+  ```
+  public class Lesson2 : MonoBehaviour
+  {
+      // Start is called before the first frame update
+      public Rect rect;
+      public Texture texture ;
+  
+      private void OnGUI()
+      {
+          GUI.Label(new Rect(0, 0, 100, 20), "陆老师欢迎你！"); 
+          GUI.Label(rect, texture);
+      }
+  }
+  ```
+
+- 综合使用
+
+  ```
+  public class Lesson2 : MonoBehaviour
+  {
+      public Rect rect;
+      public GUIContent content;
+   
+      private void OnGUI()
+      {
+          GUI.Label(rect, content);
+      }
+  }
+  ```
+
+- 可以获取当前鼠标或者键盘选中的GUI控件对应的tooltip信息
+
+  ```
+  Debug.Log(GUI.tooltip);
+  ```
+
+- 自定义样式
+
+  ```
+  public class Lesson2 : MonoBehaviour
+  {
+  	public GUIStyle style;
+      private void OnGUI()
+      {
+          GUI.Label(new Rect(0, 0, 100, 20), "陆老师欢迎你！", style); 
+      }
+  }
+  ```
+
+  
+
+### 16.2.3 按钮控件
+
+在按钮范围内，按下鼠标再抬起鼠标，才算一次点击，才会返回true
+
+```
+public class Lesson2 : MonoBehaviour
+{
+    // Start is called before the first frame update
+    public Rect rect;
+    public GUIContent content;
+    public GUIStyle style;
+    private void OnGUI()
+    {
+
+        if (GUI.Button(rect, content, style)) 
+        {
+            Debug.Log("按钮被点击了！");
+        }
+
+    }
+
+```
+
+## 16.3 单选按钮和复选框
+
+### 16.3.1 单选按钮
+
+- 普通样式
+
+  ```
+  public class Lesson3 : MonoBehaviour
+  {
+      // Start is called before the first frame update
+      private bool isChecked;
+      private void OnGUI()
+      {
+      	// 普通样式
+          isChecked = GUI.Toggle(new Rect(0, 0, 100, 50), isChecked, "单选按钮");
+      }
+  }
+  ```
+
+- 自定义样式
+
+  ```
+  public class Lesson3 : MonoBehaviour
+  {
+      // Start is called before the first frame update
+      private bool isChecked;
+      public GUIStyle style;
+      private void OnGUI()
+      {
+      	// 自定义样式
+          isChecked = GUI.Toggle(new Rect(0, 0, 100, 50), isChecked, "单选按钮", style);
+      }
+  }
+  ```
+
+- 实现多个选项只能选中一个
+
+  ```
+  public class Lesson3 : MonoBehaviour
+  {
+      private int checkedIndex = 1;
+      private void OnGUI()
+      {
+          if (GUI.Toggle(new Rect(0, 0, 100, 50), checkedIndex == 1, "选项1")) 
+          {
+              checkedIndex = 1;
+          }
+          if (GUI.Toggle(new Rect(0, 60, 100, 50), checkedIndex == 2, "选项2"))
+          {
+              checkedIndex = 2;
+          }
+          if (GUI.Toggle(new Rect(0, 120, 100, 50), checkedIndex == 3, "选项3"))
+          {
+              checkedIndex = 3;
+          }
+      }
+  }
+  
+  ```
+
+  
+
+
+
+### 16.3.2 复选框
+
+
+
+
+
+只要在长按按钮范围内，按下鼠标，就会一直返回true
+
+```
+if (GUI.RepeatButton(rect, content)) 
+{
+	Debug.Log("长按按钮被点击了！");
+}
+```
+
+
+
 # 16.坦克游戏小项目
 
 ## 16.1 必备知识点
