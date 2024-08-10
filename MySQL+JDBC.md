@@ -2011,3 +2011,172 @@ insert into t_student(no) values(3);
     ```
 
     <img src="assets/image-20240808221950322.png" alt="image-20240808221950322" style="zoom:67%;" />
+
+## 12.4 主键约束 primary key
+
+- 主键约束的相关术语
+  - 主键约束：就是一种约束。
+  - 主键字段：该字段上添加了主键约束，这样的字段叫做：主键字段
+  - 主键值：主键字段中的每一个值都叫做：主键值。
+
+- 什么是主键？有啥用？
+  - 主键值是每一行记录的唯一标识。
+  - 主键值是每一行记录的身份证号！！！
+  - 记住：任何一张表都应该有主键，没有主键，表无效！！
+
+- 主键的特征：
+  - not null + unique（主键值不能是NULL，同时也不能重复！）
+
+- 怎么给一张表添加主键约束呢？
+
+  ```
+  drop table if exists t_vip;
+  // 1个字段做主键，叫做：单一主键
+  create table t_vip(
+  id int primary key,  //列级约束
+  name varchar(255)
+  );
+  insert into t_vip(id,name) values(1,'zhangsan');
+  insert into t_vip(id,name) values(2,'lisi');
+  
+  
+  ```
+
+  ```
+  //错误：主键值不能重复
+  insert into t_vip(id,name) values(2,'wangwu');
+  ```
+
+  <img src="assets/image-20240809211437171.png" alt="image-20240809211437171" style="zoom:67%;" />
+
+  ```
+  //错误：主键值不能为NULL
+  insert into t_vip(name) values('zhaoliu');
+  ```
+
+  <img src="assets/image-20240809211610272.png" alt="image-20240809211610272" style="zoom:67%;" />
+
+- 可以这样添加主键吗，使用表级约束？可以
+
+  ```
+  drop table if exists t_vip;
+  create table t_vip(
+          id int,
+          name varchar(255),
+          primary key(id)  // 表级约束
+  );
+  insert into t_vip(id,name) values(1,'zhangsan');
+  
+  ```
+
+  ```
+  //错误，主键不允许重复，1和1重复了
+  insert into t_vip(id,name) values(1,'lisi');
+  ```
+
+  <img src="assets/image-20240809212040305.png" alt="image-20240809212040305" style="zoom:67%;" />
+
+- 表级约束主要是给多个字段联合起来添加约束？
+
+  ```
+    drop table if exists t_vip;
+    // id和name联合起来做主键：复合主键！！！！
+    create table t_vip(
+           id int,
+           name varchar(255),
+           email varchar(255),
+           primary key(id,name)
+    );
+    insert into t_vip(id,name,email) values(1,'zhangsan','zhangsan@123.com');
+    insert into t_vip(id,name,email) values(1,'lisi','lisi@123.com');
+  
+  ```
+
+  ```
+     //错误：不能重复
+    insert into t_vip(id,name,email) values(1,'lisi','lisi@123.com');
+  ```
+
+  ![image-20240809212733192](assets/image-20240809212733192.png)
+
+  - 在实际开发中不建议使用复合主键。建议使用单一主键！因为主键值存在的意义就是这行记录的身份证号，只要意义达到即可，单一主键可以做到。复合主键比较复杂，不建议使用！！！
+
+- 一个表中主键约束能加两个吗？
+
+  ```
+  drop table if exists t_vip;
+  create table t_vip(
+          id int primary key,
+          name varchar(255) primary key
+  );
+  ```
+
+  <img src="assets/image-20240809213145634.png" alt="image-20240809213145634" style="zoom:67%;" />
+
+  - 结论：一张表，主键约束只能添加1个。（主键只能有1个。）
+
+- 主键值建议使用int、bigint、char等类型。不建议使用varchar来做主键。主键值一般都是数字，一般都是定长的！
+- 主键除了单一主键和复合主键之外，还可以这样进行分类？
+  - 自然主键：主键值是一个自然数，和业务没关系。
+  - 业务主键：主键值和业务紧密关联，例如拿银行卡账号做主键值。这就是业务主键！
+
+- 在实际开发中使用业务主键多，还是使用自然主键多一些？
+  - 自然主键使用比较多，因为主键只要做到不重复就行，不需要有意义。
+  - 业务主键不好，因为主键一旦和业务挂钩，那么当业务发生变动的时候，可能会影响到主键值，所以业务主键不建议使用。尽量使用自然主键。
+
+- 在mysql当中，有一种机制，可以帮助我们自动维护一个主键值？
+
+  ```
+  drop table if exists t_vip;
+  create table t_vip(
+          id int primary key auto_increment, //auto_increment表示自增，从1开始，以1递增！
+          name varchar(255)
+  );
+  insert into t_vip(name) values('zhangsan');
+  insert into t_vip(name) values('zhangsan');
+  insert into t_vip(name) values('zhangsan');
+  insert into t_vip(name) values('zhangsan');
+  insert into t_vip(name) values('zhangsan');
+  insert into t_vip(name) values('zhangsan');
+  insert into t_vip(name) values('zhangsan');
+  insert into t_vip(name) values('zhangsan');
+  select * from t_vip;
+  ```
+
+  <img src="assets/image-20240809213702008.png" alt="image-20240809213702008" style="zoom:67%;" />
+
+## 12.5 外键约束 foreign key
+
+- 外键约束涉及到的相关术语：
+  - 外键约束：一种约束（foreign key）；
+  - 外键字段：该字段上添加了外键约束；
+  - 外键值：外键字段当中的每一个值。
+
+- 业务背景：请设计数据库表，来描述“班级和学生”的信息？
+
+  - 第一种方案：班级和学生存储在一张表中？
+
+    ![image-20240809214048633](assets/image-20240809214048633.png)
+
+    - 分析以上方案的缺点：数据冗余，空间浪费！这个设计是比较失败的！
+
+  - 第二种方案：班级一张表、学生一张表？
+
+    <img src="assets/image-20240809214230831.png" alt="image-20240809214230831" style="zoom: 33%;" />
+
+    ![image-20240809214333212](assets/image-20240809214333212.png)
+
+    - 当cno字段没有任何约束的时候，可能会导致数据无效。可能出现一个102，但是102班级不存在。
+    - 所以为了保证cno字段中的值都是100和101，需要给cno字段添加外键约束。
+    - 那么：cno字段就是外键字段。cno字段中的每一个值都是外键值。
+
+- 注意：
+  - t_class是父表，t_student是子表
+  - 删除表的顺序？先删子，再删父。
+  - 创建表的顺序？先创建父，再创建子。
+  - 删除数据的顺序？先删子，再删父。
+  - 插入数据的顺序？先插入父，再插入子。
+- 思考：子表中的外键引用的父表中的某个字段，被引用的这个字段必须是主键吗？
+  - 不一定是主键，但至少具有unique约束。
+- 测试：外键可以为NULL吗？
+  - 外键值可以为NULL。

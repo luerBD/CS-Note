@@ -2338,16 +2338,142 @@ public class Lesson2 : MonoBehaviour
 
 ### 16.3.2 复选框
 
-
-
-
-
 只要在长按按钮范围内，按下鼠标，就会一直返回true
 
 ```
 if (GUI.RepeatButton(rect, content)) 
 {
 	Debug.Log("长按按钮被点击了！");
+}
+```
+
+## 16.4 实现面板之间的相互控制与显示有三种方法
+
+第一种：都写在一个OnGUI中，通过bool标识去控制显示隐藏
+
+第二种：挂载在同一个对象上，通过控制脚本的失活激活，enable去控制代码是否执行，达到显示隐藏；
+
+第三种：挂载在不同对象上，通过控制对象的失活激活来达到面板的显示隐藏；
+
+关键：如何在多个面板之间相互调用显示隐藏，我们是通过静态变量和静态方法的形式，在Awake()时，初始化静态变量。如果要调用该方法，一开始，这个对象不能失活；
+
+## 16.5 输入框和拖动条
+
+### 16.5.1 输入框
+
+- 普通输入
+
+  ```
+  public class Lesson4 : MonoBehaviour
+  {
+      // Start is called before the first frame update
+      public Rect textFieldRect;
+      public GUIStyle textFieldStyle;
+      private string str = "";
+      private void OnGUI()
+      {
+          str = GUI.TextField(textFieldRect, str, 5);
+      }
+  }
+  ```
+
+- 密码输入
+
+  ```
+  public class Lesson4 : MonoBehaviour
+  {
+      public Rect pwdFieldRect;
+      private string pwd = "";
+      private char ch = '·';
+  
+      private void OnGUI()
+      {
+          str = GUI.TextField(textFieldRect, str, 5);
+          pwd = GUI.PasswordField(pwdFieldRect, pwd, ch);
+      }
+  }
+  ```
+
+  
+
+### 16.5.2 拖动条
+
+```
+public class Lesson4 : MonoBehaviour
+{
+    // Start is called before the first frame update
+
+    private float horizontalVal;
+    public Rect horizontalSliderRect;
+
+    private float verticalVal;
+    public Rect verticalSliderRect;
+
+    private void OnGUI()
+    {
+        str = GUI.TextField(textFieldRect, str, 5);
+        pwd = GUI.PasswordField(pwdFieldRect, pwd, ch);
+
+        horizontalVal = GUI.HorizontalSlider(horizontalSliderRect, horizontalVal, 0, 1);
+        Debug.Log(horizontalVal);
+
+        verticalVal = GUI.VerticalSlider(verticalSliderRect, verticalVal, 0, 1);
+        Debug.Log(verticalVal);
+    }
+}
+
+```
+
+## 16.6 图片绘制和框绘制
+
+### 16.6.1 图片绘制
+
+
+
+```
+public class Lesson5 : MonoBehaviour
+{
+    public Rect textureRect;
+    public Texture texture; 
+    
+    public ScaleMode scaleMode; 
+    /*
+    ScaleMode是缩放模式类
+    	模式1：ScaleAndCrop：会通过宽高比来计算图片，但是会影响裁剪
+    	模式2：ScaleToFit：会自动根据宽高比进行计算，不会拉变形，会一直保持图片完全显示的状态
+    	模式3：StretchToFill：始终填充满你传入的Rect范围
+    */
+    
+    public bool alphaBlend = true;
+    /*
+    	alphaBlend是用来控制图片是否开启透明通道的
+    */
+    
+    public float imageAspect = 0;
+	/*
+		imageAspect：自定义宽高比，如果不填，默认为0，就会使用图片原始宽高
+	*/
+
+    private void OnGUI()
+    {
+        GUI.DrawTexture(textureRect, texture, scaleMode， alphaBlend, imageAspect);
+
+    }
+}
+```
+
+
+
+### 16.6.2 框绘制
+
+```
+public class Lesson5 : MonoBehaviour
+{
+    public Rect textureRect;
+    private void OnGUI()
+    {
+        GUI.Box(textureRect, "LZK");
+    }
 }
 ```
 
