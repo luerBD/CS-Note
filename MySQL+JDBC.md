@@ -2509,7 +2509,7 @@ A教室和B教室中间有一道墙，这道墙可以很厚，也可以很薄。
 - 查看隔离级别
 
   ```
-  SELECT @@tx_isolation
+  SELECT @@tx_isolation;
   ```
 
   <img src="assets/image-20240810230206484.png" alt="image-20240810230206484" style="zoom:67%;" />
@@ -2518,12 +2518,79 @@ A教室和B教室中间有一道墙，这道墙可以很厚，也可以很薄。
 
 - 被测试的表t_user
 
-  - 验证：读未提交（read uncommited）
 
-    - 首先设置事务的隔离级别
+### 14.5.1 验证：读未提交（read uncommited）
 
-      ```
-      set global transaction isolation level read uncommitted;
-      ```
+- 在第一个打开的CMD窗口中设置事务的隔离级别，将其关闭后重新打开两个CMD窗口；
 
-      
+  ```
+  set global transaction isolation level read uncommitted;
+  ```
+
+  | 事务A                 | 事务B                                                        |
+  | --------------------- | ------------------------------------------------------------ |
+  | use bjpowernode;      |                                                              |
+  |                       | use bjpowernode;                                             |
+  | start transaction;    |                                                              |
+  | select * from t_user; |                                                              |
+  |                       | start transaction;                                           |
+  |                       | insert into t_user(id,name,birth) values(4,'zhangsan','1983-10-11'); |
+  | select * from t_user; |                                                              |
+
+### 14.5.2 验证：读已提交（read commited）
+
+- 在第一个打开的CMD窗口中设置事务的隔离级别，将其关闭后重新打开两个CMD窗口；
+
+  ```
+  set global transaction isolation level read committed;
+  ```
+
+  | 事务A                 | 事务B                                                        |
+  | --------------------- | ------------------------------------------------------------ |
+  | use bjpowernode;      |                                                              |
+  |                       | use bjpowernode;                                             |
+  | start transaction;    |                                                              |
+  |                       | start transaction;                                           |
+  | select * from t_user; |                                                              |
+  |                       | insert into t_user(id,name,birth) values(4,'zhangsan','1983-10-11'); |
+  | select * from t_user; |                                                              |
+  |                       | commit;                                                      |
+  | select * from t_user; |                                                              |
+
+### 14.5.3 验证：可重复读（repeatable read）
+
+- 在第一个打开的CMD窗口中设置事务的隔离级别，将其关闭后重新打开两个CMD窗口；
+
+  ```
+  set global transaction isolation level repeatable read;
+  ```
+
+  | 事务A                 | 事务B                                                        |
+  | --------------------- | ------------------------------------------------------------ |
+  | use bjpowernode;      |                                                              |
+  |                       | use bjpowernode;                                             |
+  | start transaction;    |                                                              |
+  |                       | start transaction;                                           |
+  | select * from t_user; |                                                              |
+  |                       | insert into t_user(id,name,birth) values(5,'lisi','1984-10-11'); |
+  |                       | insert into t_user(id,name,birth) values(6,'wangwu','1985-10-11'); |
+  |                       | commit;                                                      |
+  | select * from t_user; |                                                              |
+
+### 14.5.4 验证：序列化（serializable）
+
+- 在第一个打开的CMD窗口中设置事务的隔离级别，将其关闭后重新打开两个CMD窗口；
+
+  ```
+  set global transaction isolation level serializable;
+  ```
+
+  | 事务A                                                        | 事务B                 |
+  | ------------------------------------------------------------ | --------------------- |
+  | use bjpowernode;                                             |                       |
+  |                                                              | use bjpowernode;      |
+  | start transaction;                                           |                       |
+  |                                                              | start transaction;    |
+  | select * from t_user;                                        |                       |
+  | insert into t_user(id,name,birth) values(6,'abc','1985-10-11'); |                       |
+  |                                                              | select * from t_user; |
