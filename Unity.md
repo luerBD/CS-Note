@@ -2481,9 +2481,199 @@ public class Lesson5 : MonoBehaviour
 
 ### 16.7.1 工具栏
 
+```
+public class Lesson6 : MonoBehaviour
+{
+    public Rect toolBarRect;
+    private int toolBarIndex;
+    private string[] toolBarOption = new string[] {"选项1", "选项2", "选项3"};
+
+    private void OnGUI()
+    {
+        toolBarIndex = GUI.Toolbar(toolBarRect, toolBarIndex, toolBarOption);
+        switch (toolBarIndex) 
+        {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+        }
+
+    }
+}
+
+```
+
 
 
 ### 16.7.2 选择网格
+
+```
+public class Lesson6 : MonoBehaviour
+{
+    public Rect selectionGridRect;
+    private int selectionIndex = 0;
+
+    private void OnGUI()
+    {
+        selectionIndex = GUI.SelectionGrid(selectionGridRect, selectionIndex, toolBarOption, 1);
+    }
+}
+
+```
+
+## 16.8 分组和滚动列表
+
+### 16.8.1 分组
+
+```
+public class Lesson7 : MonoBehaviour
+{
+    public Rect beginGroupPos;
+
+    private void OnGUI()
+    {
+    	// 用于批量控制控件位置
+    	// 可以理解为包裹着的控件加了一个父对象
+    	// 可以通过控制分组来控制包裹控件的位置
+        GUI.BeginGroup(beginGroupPos);
+
+        GUI.Button(new Rect(0, 0, 100, 30), "submit");
+        GUI.Label(new Rect(0, 60, 100, 30), "label");
+        GUI.EndGroup();
+    }
+
+}
+
+```
+
+### 16.8.2 滚动列表
+
+```
+public class Lesson7 : MonoBehaviour
+{
+    
+    public Rect beginScrollViewPos; // 滚动可视框的大小及位置
+    private Vector2 nowPos; // 水平或垂直滚动条的位置和可视框中内容的位置，随着滚动条的拖动，可视框中的内容也在发生变化
+    public Rect showPos; // 滚动可视框的显示的内容范围，范围越大，通过滚动条拖动看到的东西就越多
+    private int index = 0;
+
+
+    private void OnGUI()
+    {
+        nowPos = GUI.BeginScrollView(beginScrollViewPos, nowPos, showPos);
+
+        index = GUI.SelectionGrid(new Rect(0, 0, 300, 300), index, new string[] {"张三","李四", "王五", "赵六", "钱七", "雷八", "吴九" }, 3);
+
+        GUI.EndScrollView();
+
+    }
+
+}
+
+```
+
+## 16.9 窗口
+
+```
+public class Lesson8 : MonoBehaviour
+{
+
+    private Rect dragWinPos = new Rect(400, 400, 200, 150);
+    private void OnGUI()
+    {
+        #region 知识点一 窗口
+        //第一个参数 id 是窗口的唯一ID 不要和别的窗口重复
+        //委托参数 是用于 绘制窗口用的函数 传入即可
+        GUI.Window(1, new Rect(100, 100, 200, 150), DrawWindow, "测试窗口");
+        //id对于我们来说 有一个重要作用 除了区分不同窗口 还可以在一个函数中去处理多个窗口的逻辑
+        //通过id去区分他们
+        GUI.Window(2, new Rect(100, 350, 200, 150), DrawWindow, "测试窗口2");
+        #endregion
+
+        #region 知识点二 模态窗口
+        //模态窗口 可以让该其它控件不在有用
+        //你可以理解该窗口在最上层 其它按钮都点击不到了
+        //只能点击该窗口上控件
+
+        //GUI.ModalWindow(3, new Rect(300, 100, 200, 150), DrawWindow, "模态窗口");
+        #endregion
+
+        #region 知识点三 拖动窗口
+        //位置赋值只是前提
+        dragWinPos = GUI.Window(4, dragWinPos, DrawWindow, "拖动窗口");
+        #endregion
+    }
+
+    private void DrawWindow(int id)
+    {
+        switch (id)
+        {
+            case 1:
+                GUI.Button(new Rect(0, 30, 30, 20), "1");
+                break;
+            case 2:
+                GUI.Button(new Rect(0, 30, 30, 20), "2");
+                break;
+            case 3:
+                GUI.Button(new Rect(0, 30, 30, 20), "3");
+                break;
+            case 4:
+                //该API 写在窗口函数中调用 可以让窗口被拖动
+                //传入Rect参数的重载 作用 
+                //是决定窗口中哪一部分位置 可以被拖动
+                //默认不填 就是无参重载 默认窗口的所有位置都能被拖动
+                GUI.DragWindow(new Rect(0,0,1000,20));
+                break;
+        }
+        
+    }
+}
+
+```
+
+## 16.10 自定义皮肤样式
+
+```
+public class Lesson9 : MonoBehaviour
+{
+    public GUIStyle style;
+
+    public GUISkin skin;
+    private void OnGUI()
+    {
+        #region 知识点一 全局颜色
+        //全局的着色颜色 影响背景和文本颜色
+        //GUI.color = Color.red;
+
+        //文本着色颜色 会和 全局颜色相乘
+        //GUI.contentColor = Color.yellow;
+        //GUI.Button(new Rect(0, 0, 100, 30), "测试按钮");
+        
+        ////背景元素着色颜色 会和 全局颜色相乘
+        //GUI.backgroundColor = Color.red;
+        //GUI.Label(new Rect(0, 50, 100, 30), "测试按钮");
+        //GUI.color = Color.white;
+        //GUI.Button(new Rect(0, 100, 100, 30), "测试按钮", style);
+
+        #endregion
+
+        #region 知识点二 整体皮肤样式
+        GUI.skin = skin;
+        //虽然设置了皮肤 但是绘制时 如果使用GUIStyle参数 皮肤就没有
+        GUI.Button(new Rect(0, 0, 100, 30), "测试按钮");
+
+        GUI.skin = null;
+        GUI.Button(new Rect(0, 50, 100, 30), "测试按钮2");
+
+        //它可以帮助我们整套的设置 自定义样式 
+        //相对单个控件设置Style要方便一些
+        #endregion
+    }
+}
+```
 
 
 
