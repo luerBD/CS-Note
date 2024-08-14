@@ -1,4 +1,4 @@
-1.概述
+# 1.概述
 
 ## 1.1 数据库（Database，DB）
 
@@ -3084,4 +3084,113 @@ as
 
   - 面试的时候把这句话说上：他就不会认为你是初级程序员了！
 
-    
+
+# 19.JDBC
+
+## 19.1 什么是JDBC?
+
+- Java DataBase Connectivity
+
+- 在java语言中编写sql语句，对mysql数据库中的数据进行CRUD操作。
+
+## 19.2 JDBC的相关类库在哪里？
+
+```
+java.sql.*;
+```
+
+## 19.3 JDBC本质上是一堆什么呢？
+
+- `java.sql.*` 这个包下都是JDBC的接口，SUN公司制定的！
+
+- JDBC是体现“接口作用”的非常经典的例子。JDBC降低了耦合度，提高了扩展力。对于java程序员来说，不需要关心数据库是哪个品牌。只要面向JDBC接口编程就行！
+
+- JDBC整个程序的结构当中有三波人：
+
+  - 第一波：SUN公司，负责制定JDBC接口。这些接口已经写好了，在java.sql.*;
+
+
+  - 第二波：java.sql.*下面的所有接口都要有实现类，这些实现类是数据库厂家编写的。
+
+    - 我们连接的是mysql数据库，mysql数据库厂家的实现类在哪里呢？
+
+      ```
+      mysql-connector-java-5.1.23-bin.jar
+      ```
+
+    - jar包中很多.class字节码文件，这是mysql数据库厂家写的接口实现！
+    - 注意：如果连接的是oracle数据库，你需要从网上下载oracle的jar包。
+    - mysql-connector-java-5.1.23-bin.jar 这个jar包有一个专业的术语，大家记住就行：mysql的驱动。如果是oracle的jar，被称为oracle的驱动。
+
+  - 第三波：我们java程序员，面向JDBC接口写代码就行！
+
+
+## 19.4 JDBC开发之前的准备工作
+
+### 19.4.1 MySQL的驱动jar包，需要配置到classpath当中吗？
+
+- mysql-connector-java-5.1.23-bin.jar里是字节码，是class文件。Java虚拟机的类加载器会去加载class文件，类加载器怎么能够找到这些class文件呢？
+
+  - classpath没有配置的情况下，默认从当前路径下加载class。
+
+  - classpath如果配置死了，例如：classpath=D:\abc，则表示固定只从d:\abc目录下找class
+
+```
+classpath=.;D:\course\04-JDBC\resources\MySql Connector Java 5.1.23\mysql-connector-java-5.1.23-bin.jar
+```
+
+- . 代表当前路径。
+- 以上的classpath什么意思？
+  - 类加载器从当前路径下加载class，如果当前路径下没找到，则去D:\course\04-JDBC\resources\MySql Connector Java 5.1.23\mysql-connector-java-5.1.23-bin.jar找class文件。
+
+### 19.4.2 jar包需要解压吗？
+
+不需要解压，java虚拟机的类加载器有这个能力找到class文件。
+
+## 19.5 JDBC编程
+
+### 19.5.1 JDBC编程六步
+
+- 注册驱动：通知java程序我们即将要连接的是那个品牌的数据库。
+
+
+- 获取数据库连接：java进程和mysql进程，两个进程之间的通道开启了。java进程可能在北京、mysql进程在上海。
+
+
+- 获取数据库操作对象：这个对象很重要，用这个对象执行SQL的。
+
+
+- 执行SQL语句：执行CRUD操作。
+
+
+- 处理查询结果集：如果第四步是select语句，才有这个第五步。
+
+
+- 释放资源：关闭所有的资源（因为JDBC毕竟是进程之间的通信，占用很多资源的，需要关闭）。
+
+### 19.5.2 使用IDEA进行JDBC编程
+
+第一步：在IDEA中创建一个新的空项目，新建一个lib文件夹
+
+第二步：将本地文件夹中的mysql的jar包复制一下，粘贴到IDEA中的lib文件夹中
+
+<img src="assets/image-20240814211538314.png" alt="image-20240814211538314" style="zoom: 50%;" />
+
+<img src="assets/image-20240814211647256.png" alt="image-20240814211647256" style="zoom:50%;" />
+
+
+
+第三步：右击复制过来的mysql jar包，选择Add as Library，相当于配置classpath环境变量。
+
+<img src="assets/image-20240814211831721.png" alt="image-20240814211831721" style="zoom:67%;" />
+
+<img src="assets/image-20240814211956394.png" alt="image-20240814211956394" style="zoom:50%;" />
+
+第四步：开始写代码
+
+```java
+
+```
+
+
+
