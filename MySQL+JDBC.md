@@ -3188,9 +3188,444 @@ classpath=.;D:\course\04-JDBC\resources\MySql Connector Java 5.1.23\mysql-connec
 
 第四步：开始写代码
 
+例1：对数据库进行增删改操作
+
 ```java
+import java.sql.*;
+
+public class JDBCTest01 {
+    public static void main(String[] args) {
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            // 1.注册驱动
+            // com.mysql.jdbc.Driver是mysql数据库厂家写的，实现了java.sql.Driver接口
+            // 如果是oracle数据库的话，类名就不一样了：oracle.jdbc.driver.OracleDriver
+            DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+
+            // 2.获取数据库连接
+            /*
+            URL是统一资源定位符。任何一个URL都包括：协议+IP地址+端口号port+资源名
+            例如：http://192.168.100.2:8888/abc
+            协议：是一个提前规定好的数据传输格式。通信协议有很多：http、https...在传送数据之前，
+            提前先商量好数据传送的格式。
+            这样对方收到数据之后，就会按照这个格式去解析，拿到有价值的数据。
+            IP地址：网络当中定位某台计算机的。
+
+            PORT端口号：定位这台计算机上某个服务的。如mysql服务、sqlserver服务
+
+            资源名：这个服务下的某个资源。如mysql中的某个数据库、sqlserver中的某个数据库
+
+            jdbc:mysql://		这是java程序和mysql通信的协议
+            localhost			这是本机IP地址，本机IP地址还可以写成：127.0.0.1
+            3306				mysql数据库端口号
+            bjpowernode			mysql数据库的名称
+
+            如果是oracle数据库的的话：
+                oracle:jdbc:thin:@localhost:1521:bjpowernode
+                oracle:jdbc:thin:@	这是oracle和java的通信协议
+                localhost			这是本机IP地址
+                1521				oracle默认端口
+                bjpowernode			oracle中数据库的名字
+
+            localhost和127.0.0.1都是本机IP地址
+            */
+            String url = "jdbc:mysql://localhost:3306/bjpowernode";
+            String user = "root";
+            String password = "123456";
+            conn = DriverManager.getConnection(url, user, password);
+
+            // 3.获取数据库操作对象
+            stmt = conn.createStatement();
+            // 通过一个连接对象Connection是可以创建多个Satement对象的
+            // Statement stmt2 = conn.createStatement();
+
+            // 4.执行SQL语句
+//            String insertSQL = "insert into dept values(50, '销售部', '北京')";
+//            System.out.println(stmt.executeUpdate(insertSQL));
+//            String updateSQL = "update dept set dname = '组织部' where deptno = 50";
+//            System.out.println(stmt.executeUpdate(updateSQL));
+            String deleteSQL = "delete from dept where deptno = 50";
+            System.out.println(stmt.executeUpdate(deleteSQL));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally{
+            // 5.释放资源
+            // 先释放Statement, 再释放Connection
+            // 分别进行try...catch处理
+            // 放到finally中关闭
+            if(stmt != null){
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(conn != null)
+            {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```
+
+例2：对数据库进行查询操作（执行SQL语句完后面的步骤与增删改有点区别）
+
+```java
+import java.sql.*;
+
+public class JDBCTest02 {
+    public static void main(String[] args) {
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            // 1.注册驱动
+            DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+
+            // 2.获取数据库连接
+            String url = "jdbc:mysql://localhost:3306/bjpowernode";
+            String user = "root";
+            String password = "123456";
+            conn = DriverManager.getConnection(url, user, password);
+
+            // 3.获取数据库操作对象、
+            stmt = conn.createStatement();
+
+            // 4.执行SQL语句
+            // JDBC当中的SQL语句不需要以分号结尾
+            String sql = "select empno, ename, sal from emp order by sal desc";
+            // 执行查询语句是这个方法：executeQuery
+            // ResultSet就是查询结果集对象，查询的结果都在这个对象当中
+            ResultSet rs = stmt.executeQuery(sql);
+
+            // 根据下标来取值，以String类型输出
+//            while(rs.next()){
+//                System.out.println(
+//                        // 注意：getString()这个方法是不管底层数据库表中是什么类型，统一都以String形式返回。
+//                        rs.getString(1) + "\t" +
+//                        rs.getString(2) + "\t" +
+//                        rs.getString(3)
+//                        );
+//            }
+            // 根据下标来取值，以特定类型来输出
+//            while (rs.next()){
+//                System.out.println(
+//                        rs.getInt(1) + "\t" +
+//                        rs.getString(2) + "\t" +
+//                        rs.getDouble(3)
+//                        );
+//            }
+            // 根据字段名来取值，以特定类型来输出，以后就用这种方法，因为健壮
+            while (rs.next()){
+                System.out.println(
+                        rs.getInt("empno") + "\t" +
+                        rs.getString("ename") + "\t" +
+                        rs.getDouble("sal")
+                        );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // 6.释放资源
+            if(stmt != null){
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(conn != null){
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
 
 ```
 
+### 19.5.3 注册驱动的第二种方式
 
+```java
+import java.sql.*;
+
+public class JDBCTest03 {
+    public static void main(String[] args) {
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            // 1.注册驱动
+            Class.forName("com.mysql.jdbc.Driver");
+
+            // 2.获取数据库连接
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/bjpowernode", "root", "123456");
+
+            // 3.获取数据库操作对象
+            stmt = conn.createStatement();
+
+            // 4.执行SQL语句
+            String sql = "select a.ename as '员工', b.ename as '领导' from emp a left join emp b on a.mgr = b.empno";
+            rs = stmt.executeQuery(sql);
+
+            // 5.处理查询结果集
+            while(rs.next()){
+                System.out.println(rs.getString("员工") + " " + rs.getString("领导"));
+            }
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally{
+            // 6.释放资源
+            if(stmt != null){
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(conn != null){
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+
+```
+
+### 19.5.4 连接数据库的信息统一写到属性配置文件中
+
+在src目录下新建一个名为resources的包，包下新建配置文件db.properties。
+
+配置文件内容：
+
+<img src="assets/image-20240816213341175.png" alt="image-20240816213341175" style="zoom:50%;" />
+
+利用资源绑定器写以下代码：
+
+```java
+import java.sql.*;
+import java.util.ResourceBundle;
+
+/*
+* 思想：
+*   将连接数据库的可变化的4条信息写到配置文件中。
+*   以后想连接其他数据库的时候，可以直接修改配置文件，不用修改java程序。
+*   四个信息是什么？
+*       driver
+*       url
+*       user
+*       password
+* */
+
+public class JDBCTest04 {
+    public static void main(String[] args) {
+        ResourceBundle bundle = ResourceBundle.getBundle("resources/db");
+        String driver = bundle.getString("driver");
+        String url = bundle.getString("url");
+        String user = bundle.getString("user");
+        String passward = bundle.getString("passward");
+
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            // 1.注册驱动
+            Class.forName(driver);
+
+            // 2.获取数据库连接
+            conn = DriverManager.getConnection(url, user, passward);
+
+            // 3.获取数据库操作对象
+            stmt = conn.createStatement();
+
+            // 4.执行SQL语句
+            String sql = "select deptno, dname, loc from dept";
+
+            // 5.处理查询结果集
+            rs = stmt.executeQuery(sql);
+            while(rs.next()){
+                System.out.println(
+                        rs.getInt("deptno") + "\t" +
+                        rs.getString("dname") + "\t" +
+                        rs.getString("loc") 
+                );
+            }
+
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // 6.释放资源
+            if(stmt != null){
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(conn != null){
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+
+```
+
+### 19.5.5 实现一个登录功能
+
+- 功能分析
+  - 第一步：提供一个输入的界面，可以让用户输入用户名和密码。
+  - 第二步：底层数据库当中需要有一张用户表，用户表中存储了用户信息。
+  - 第三步：当java程序接收到用户名和密码的时候，连接数据库验证用户名和密码。验证通过，表示登录成功，验证失败，表示登录失败。
+
+- 建表和写数据库配置文件
+
+  <img src="assets/image-20240816214227166.png" alt="image-20240816214227166" style="zoom: 67%;" />
+
+  <img src="assets/image-20240816213341175.png" alt="image-20240816213341175" style="zoom:50%;" />
+
+- 编写代码
+
+  ```java
+  import java.sql.*;
+  import java.util.HashMap;
+  import java.util.ResourceBundle;
+  import java.util.Scanner;
+  
+  public class JDBCTest05 {
+   	public static void main(String[] args) {
+          HashMap<String, String> userLoginInfo = initUI();
+          String loginName = userLoginInfo.get("loginName");
+          String loginPwd = userLoginInfo.get("loginPwd");
+          if(checkNameAndPwd(loginName, loginPwd)){
+              System.out.println("登录成功！");
+              return;
+          }
+          System.out.println("登录失败！");
+      }
+      /**
+       * 初始化界面，并且接受用户的输入
+       * @return 存储登录名和登陆密码的Map集合
+       */
+      private static Map<String, String> InitUI(){
+          System.out.println("欢迎使用该系统，请输入用户名和密码进行身份认证！");
+          Scanner sc = new Scanner(System.in);
+          System.out.print("请输入用户名：");
+          String loginName = sc.nextLine(); //接受用户输入，一次接收一行
+          System.out.print("请输入密码：");
+          String loginPwd = sc.nextLine();
+   
+          // 将用户名和密码放到Map集合中
+          Map<String, String> userLoginInfo = new HashMap<>();
+          userLoginInfo.put("loginName", loginName);
+          userLoginInfo.put("loginPwd", loginPwd);
+   
+          // 返回Map
+          return userLoginInfo;
+      }
+   
+      /**
+       * 验证用户名和密码
+       * @param loginName 登录名
+       * @param loginPwd 登陆密码
+       * @return true表示登陆成功，false表示登录失败
+       */
+      private static boolean checkNameAndPwd(String loginName, String loginPwd){
+          boolean ok = false; //默认是登陆失败的！
+          Connection conn = null;
+          Statement stmt = null;
+          ResultSet rs = null;
+   
+   
+          ResourceBundle bundle = ResourceBundle.getBundle("resources/dbconfig");
+          String driver = bundle.getString("driver");
+          String url = bundle.getString("url");
+          String user = bundle.getString("user");
+          String pwd = bundle.getString("password");
+          try {
+   
+              // 1.注册驱动
+              Class.forName(driver);
+   
+              // 2.获取数据库连接
+              conn = DriverManager.getConnection(url, user, pwd);
+   
+              // 3.获取数据库操作对象
+              stmt = conn.createStatement();
+   
+              // 4.执行SQL语句
+              String sql = "select * from t_user where login_name = '"+ loginName +"' and login_pwd = '" + loginPwd + "'";
+              System.out.println(sql);
+              // 程序执行到此处，才会将以上的SQL语句发送到DBMS上。DBMS进行sql语句的编译。
+              rs = stmt.executeQuery(sql);
+   
+              // 5.处理查询结果集
+              // 如果以上sql语句中用户名和密码是正确的，那么结果集最多也就查询出一条记录，所以以下不需要while循环，if就够了
+              if(rs.next()){
+                  ok = true;
+              }
+   
+          } catch (ClassNotFoundException e) {
+              throw new RuntimeException(e);
+          } catch (SQLException e) {
+              e.printStackTrace();
+          } finally{
+              // 6.释放资源
+              if(rs != null){
+                  try {
+                      rs.close();
+                  } catch (SQLException e) {
+                      throw new RuntimeException(e);
+                  }
+              }
+              if(stmt != null){
+                  try {
+                      stmt.close();
+                  } catch (SQLException e) {
+                      throw new RuntimeException(e);
+                  }
+              }
+              if(conn != null){
+                  try {
+                      conn.close();
+                  } catch (SQLException e) {
+                      throw new RuntimeException(e);
+                  }
+              }
+          }
+          return ok;
+      }
+  }
+  ```
+
+注：Scanner类中的next()和nextLine()区别：
+next()：它会自动地消除有效字符之前的空格，只返回输入的字符，不会得到带空格的字符串。也就是说如果输入了一串字符，到了有空格的时候就会停止录入，只录入空格前面的东西，空格后面的东西（包括分隔的空格都会保留在缓存区域）除了空格以外，Tab键和Enter键都被视为分隔符（结束符）。
+
+nextLine()：它返回的是Enter键之前的所有字符，它是可以得到带空格的字符串的。也就是说输入一串字符，它就可以接受所有字符包括空格，但是遇到回车Enter就会停止录入，只录入前面的东西。
 

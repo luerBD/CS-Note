@@ -2717,18 +2717,20 @@ public class Lesson10 : MonoBehaviour
 }
 ```
 
-## 16.12 实践小项目
+## 16.12 GUI实践小项目
 
-### 16.12.1 必备知识点
-
-编辑模式下让指定代码运行：
+编辑模式下让指定代码运行，可以在前面添加以下代码：
 
 ```
 [ExecuteAlways]
 ...
 ```
 
+GUI实践小项目导出的资源包可以直接在坦克游戏中导入使用。
+
 # 17.数据持久化
+
+## 17.1 PlayerPrefs
 
 ```
 public class Lesson1_PlayerPrefs : MonoBehaviour
@@ -2818,7 +2820,9 @@ public class Lesson1_PlayerPrefs : MonoBehaviour
 
 ```
 
+## 17.2 数据持久化实践小项目
 
+最后导出的资源包作为数据持久化的工具，在坦克游戏中直接导入使用；
 
 # 16.坦克游戏小项目
 
