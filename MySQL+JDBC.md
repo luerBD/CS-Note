@@ -3512,6 +3512,13 @@ public class JDBCTest04 {
 
 - 编写代码
 
+  ```
+  注：Scanner类中的next()和nextLine()区别：
+  next()：它会自动地消除有效字符之前的空格，只返回输入的字符，不会得到带空格的字符串。也就是说如果输入了一串字符，到了有空格的时候就会停止录入，只录入空格前面的东西，空格后面的东西（包括分隔的空格都会保留在缓存区域）除了空格以外，Tab键和Enter键都被视为分隔符（结束符）。
+  
+  nextLine()：它返回的是Enter键之前的所有字符，它是可以得到带空格的字符串的。也就是说输入一串字符，它就可以接受所有字符包括空格，但是遇到回车Enter就会停止录入，只录入前面的东西。
+  ```
+
   ```java
   import java.sql.*;
   import java.util.HashMap;
@@ -3624,8 +3631,605 @@ public class JDBCTest04 {
   }
   ```
 
-注：Scanner类中的next()和nextLine()区别：
-next()：它会自动地消除有效字符之前的空格，只返回输入的字符，不会得到带空格的字符串。也就是说如果输入了一串字符，到了有空格的时候就会停止录入，只录入空格前面的东西，空格后面的东西（包括分隔的空格都会保留在缓存区域）除了空格以外，Tab键和Enter键都被视为分隔符（结束符）。
+- 运行代码
 
-nextLine()：它返回的是Enter键之前的所有字符，它是可以得到带空格的字符串的。也就是说输入一串字符，它就可以接受所有字符包括空格，但是遇到回车Enter就会停止录入，只录入前面的东西。
+  - 输入正确的用户名和密码，登录成功！
+
+    ![image-20240817200541223](assets/image-20240817200541223.png)
+
+  
+
+  - 输入错误用户名或密码，登录失败！
+
+    ![image-20240817200622638](assets/image-20240817200622638.png)
+
+  - SQL注入的情况，也能登录成功！
+
+    ![image-20240817201639865](assets/image-20240817201639865.png)
+
+    用户表中并没有abc用户，但是当这样输入后，最后会拼接为以下的SQL语句
+
+    ```
+    select * from t_user where login_name = 'abc' and login_pwd = 'abc' or '1' = '1';
+    ```
+
+    所以攻击者利用这个漏洞，顺利进入数据库！
+
+### 19.5.6 如何避免SQL注入
+
+- SQL注入的根本原因是：先进行了字符串的拼接，然后再进行的编译。
+
+- java.sql.Statement接口的特点：先进行字符串的拼接，然后再进行SQL语句的编译。
+
+  - 优点：使用Statement可以进行SQL语句的拼接。
+
+  - 缺点：因为拼接的存在，导致可能给不法分子机会。导致SQL注入。
+
+- java.sql.PreparedStatement接口的特点：先进行SQL语句的编译，然后再进行SQL语句的传值
+
+  - 优点：避免SQL注入。
+  - 缺点：没有办法进行SQL语句的拼接，只能给SQL语句传值。PreparedStatement称为预编译的数据库操作对象，它是专门用来防止SQL注入的
+
+  ```
+  public static void main(String[] args){
+      Connection conn = null;
+      PreparedStatement stmt = null;
+      ResultSet rs = null;
+      ResourceBundle bundle = ResourceBundle.getBundle("resources/dbconfig");
+      String driver = bundle.getString("driver");
+      String url = bundle.getString("url");
+      String user = bundle.getString("user");
+      String pwd = bundle.getString("password");
+  	
+  	// 1.注册驱动
+  	Class.forName(driver);
+  	
+  	// 2.获取数据库连接
+      conn = DriverManager.getConnection(url, user, pwd);
+  	PreparedStatement stmt = null;
+      String sql = "select * from t_user where login_name = ? and login_pwd = ?";
+      
+      // 3.获取预编译的数据库操作对象
+      // 注意：一个问号？是一个占位符，一个占位符只能接收一个“值/数据”
+      // 占位符？两边不能有单引号。'?'这样是错误的。
+      stmt = conn.prepareStatement(sql); // 此时会发送sql给DBMS，进行SQL语句的编译
+      // 给占位符？传值
+      // JDBC中所有下标都是从1开始
+      // 怎么解决SQL注入的：即使用户信息中有SQL关键字，但是不参加编译就没事。
+      stmt.setString(1, loginName); // 1代表第1个问号？
+      stmt.setString(2, loginPwd); // 2代表第2个问号？
+      // 4.执行SQL语句
+      rs = stmt.executeQuery(); 
+      // 这个方法不需要将sql语句传递进去。不能是这样：rs = stmt.executeQuery(sql);
+  }
+  
+  
+  ```
+
+  从执行结果可以看出，防止了SQL注入。
+
+  ![image-20240817214928556](assets/image-20240817214928556.png)
+
+### 19.5.7 Statement和PreparedStatement如何选择？
+
+- 需求：用户在控制台上输入desc则降序，输入asc则升序
+
+  - 思考一下：这个应该选择Statement还是PreparedStatement呢？
+  - 选Statement,因为PreparedStatement只能传值，不能进行sql语句的拼接
+  - 先用PreparedStatement试一下可以不？
+
+  ```
+  package com.lzk.jdbc;
+  
+  import java.net.DatagramPacket;
+  import java.sql.*;
+  import java.util.ResourceBundle;
+  import java.util.Scanner;
+  
+  public class JDBCTest07 {
+      public static void main(String[] args) {
+          ResourceBundle bundle = ResourceBundle.getBundle("resources/db");
+          String driver = bundle.getString("driver");
+          String url = bundle.getString("url");
+          String user = bundle.getString("user");
+          String password = bundle.getString("password");
+  
+  
+  
+          Scanner sc = new Scanner(System.in);
+          System.out.print("请输入desc或asc来排序：");
+          String order = sc.next();
+          Connection conn = null;
+          PreparedStatement stmt = null;
+          ResultSet rs = null;
+  
+          try {
+              // 1.注册驱动
+              Class.forName(driver);
+  
+              // 2.获取数据库连接
+              conn = DriverManager.getConnection(url, user, password);
+  
+              // 3.获取预编译的数据库操作对象
+              String sql = "select empno, ename, sal from emp order by sal ?";
+              stmt = conn.prepareStatement(sql);
+              stmt.setString(1, order);
+              rs = stmt.executeQuery();
+              while(rs.next()){
+                  System.out.println(
+                          rs.getInt("empno") + "\t" +
+                          rs.getString("ename") + "\t" +
+                          rs.getFloat("sal")
+                          );
+              }
+  
+  
+          } catch (ClassNotFoundException e) {
+              e.printStackTrace();
+          } catch (SQLException e) {
+              e.printStackTrace();
+          } finally{
+              if(stmt != null){
+                  try {
+                      stmt.close();
+                  } catch (SQLException e) {
+                      e.printStackTrace();
+                  }
+              }
+              if(conn != null){
+                  try {
+                      conn.close();
+                  } catch (SQLException e) {
+                      e.printStackTrace();
+                  }
+              }
+          }
+  
+      }
+  }
+  ```
+
+  执行结果报错：
+
+  ![image-20240817222503849](assets/image-20240817222503849.png)
+
+  - 错误分析
+
+    - stmt.setString(1, order);给占位符的位置传入了一个字符串，原来的SQL语句最终会变成如下
+
+      ```
+      select empno, ename, sal from emp order by sal 'desc';
+      ```
+
+    - navcat中运行该SQL语句也会报告相同的错误
+
+      ![image-20240817222753836](assets/image-20240817222753836.png)
+
+  - 使用Statement就可以
+
+    ```
+    package com.lzk.jdbc;
+    
+    import java.sql.*;
+    import java.util.ResourceBundle;
+    import java.util.Scanner;
+    
+    public class JDBCTest08 {
+        public static void main(String[] args) {
+            ResourceBundle bundle = ResourceBundle.getBundle("resources/db");
+            String driver = bundle.getString("driver");
+            String url = bundle.getString("url");
+            String user = bundle.getString("user");
+            String password = bundle.getString("password");
+    
+    
+    
+            Scanner sc = new Scanner(System.in);
+            System.out.print("请输入desc或asc来排序：");
+            String order = sc.next();
+            Connection conn = null;
+            Statement stmt = null;
+            ResultSet rs = null;
+    
+            try {
+                // 1.注册驱动
+                Class.forName(driver);
+    
+                // 2.获取数据库连接
+                conn = DriverManager.getConnection(url, user, password);
+    
+                // 3.获取数据库操作对象
+                stmt = conn.createStatement();
+    
+                // 4.执行SQL语句
+                String sql = "select empno, ename, sal from emp order by sal " + order;
+                rs = stmt.executeQuery(sql);
+                while(rs.next()){
+                    System.out.println(
+                            rs.getInt("empno") + "\t" +
+                                    rs.getString("ename") + "\t" +
+                                    rs.getFloat("sal")
+                    );
+                }
+    
+    
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally{
+                if(stmt != null){
+                    try {
+                        stmt.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(conn != null){
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+    
+        }
+    }
+    
+    ```
+
+    执行结果如下：
+
+    ![image-20240817223733169](assets/image-20240817223733169.png)
+
+- 使用PreparedStatement实现增删改
+
+  ```
+  public class JDBCTest09 {
+      public static void main(String[] args) {
+          ResourceBundle bundle = ResourceBundle.getBundle("resources/db");
+          String driver = bundle.getString("driver");
+          String url= bundle.getString("url");
+          String user = bundle.getString("user");
+          String password = bundle.getString("password");
+  
+          Connection conn = null;
+          PreparedStatement stmt = null;
+          ResultSet rs = null;
+  
+          try {
+              // 1.注册驱动
+              Class.forName(driver);
+              // 2.获取数据库连接
+              conn = DriverManager.getConnection(url, user, password);
+              // 3.获取预编译的数据库操作对象
+  
+  //            String sql = "insert into dept(deptno, dname, loc) values(?, ?, ?)";
+  //            stmt = conn.prepareStatement(sql);
+  //            stmt.setInt(1, 50);
+  //            stmt.setString(2, "人事部");
+  //            stmt.setString(3, "上海");
+  
+  //            String sqlUpdate = "update dept set loc = ? where deptno = ?";
+  //            stmt = conn.prepareStatement(sqlUpdate);
+  //            stmt.setString(1, "北京");
+  //            stmt.setInt(2, 50);
+  
+              String sqlDelete = "delete from dept where deptno = ?";
+              stmt = conn.prepareStatement(sqlDelete);
+              stmt.setInt(1, 50);
+              // 4.执行sql语句
+              int count = stmt.executeUpdate();
+              System.out.println(count);
+  
+              // 5.处理查询结果集
+  
+          } catch (ClassNotFoundException e) {
+              e.printStackTrace();
+          } catch (SQLException e) {
+              e.printStackTrace();
+          } finally{
+              // 6.释放资源
+              if (stmt != null) {
+                  try {
+                      stmt.close();
+                  } catch (SQLException e) {
+                      e.printStackTrace();
+                  }
+              }
+              if(conn != null){
+                  try {
+                      conn.close();
+                  } catch (SQLException e) {
+                      e.printStackTrace();
+                  }
+              }
+          }
+      }
+  }
+  ```
+
+- 使用PreparedStatement实现模糊查询
+
+  ```
+  public class JDBCTest09 {
+      public static void main(String[] args) {
+          ResourceBundle bundle = ResourceBundle.getBundle("resources/db");
+          String driver = bundle.getString("driver");
+          String url= bundle.getString("url");
+          String user = bundle.getString("user");
+          String password = bundle.getString("password");
+  
+          Connection conn = null;
+          PreparedStatement stmt = null;
+          ResultSet rs = null;
+  
+          try {
+              // 1.注册驱动
+              Class.forName(driver);
+              // 2.获取数据库连接
+              conn = DriverManager.getConnection(url, user, password);
+              // 3.获取预编译的数据库操作对象
+              String sql = "select empno, ename, sal from emp where ename like ?";
+              stmt = conn.prepareStatement(sql);
+              stmt.setString(1, "%o%");
+              // 4.执行sql语句
+              rs = stmt.executeQuery();
+              
+  
+              // 5.处理查询结果集
+  			while(rs.next()){
+                  System.out.println(
+                          rs.getInt("empno") + "\t" +
+                          rs.getString("ename") + "\t" +
+                          rs.getFloat("sal")
+  
+                  );
+              }
+          } catch (ClassNotFoundException e) {
+              e.printStackTrace();
+          } catch (SQLException e) {
+              e.printStackTrace();
+          } finally{
+              // 6.释放资源
+              if (stmt != null) {
+                  try {
+                      stmt.close();
+                  } catch (SQLException e) {
+                      e.printStackTrace();
+                  }
+              }
+              if(conn != null){
+                  try {
+                      conn.close();
+                  } catch (SQLException e) {
+                      e.printStackTrace();
+                  }
+              }
+          }
+      }
+  }
+  ```
+
+### 19.5.8 JDBC的事务问题
+
+记住三条语句：
+
+```
+conn.setAutoCommit(false);
+conn.commit();
+conn.rollback();
+```
+
+代码如下：
+
+```
+
+package com.lzk.jdbc;
+ 
+import java.sql.*;
+ 
+/*
+    JDBC默认情况下对事务是怎么处理的？
+        模拟一下银行账户转账操作，A账户向B账户转账10000元。
+        从A账户减去10000元，向B账户加上10000.
+        必须同时成功或者同时失败！
+        转账是需要：执行两条update语句的。
+    JDBC默认情况下支持自动提交：
+        什么叫做自动提交呢？
+            只要执行一条DML语句就自动提交一次。
+    在实际开发中必须将JDBC的自动提交机制关闭掉，改成手动提交。
+    当一个完整的事务结束之后，再提交。
+        conn.setAutoCommit(false);关闭自动提交机制
+        conn.commit(); 手动提交
+        conn.rollback(); 手动回滚
+ */
+public class JDBCTest10 {
+    public static void main(String[] args) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+ 
+ 
+        try {
+            // 1.注册驱动
+            Class.forName("com.mysql.jdbc.Driver");
+ 
+            // 2.获取数据库连接
+            conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/bjpowernode", "root", "123456");
+            // 开启事务：将自动提交机制关闭掉。
+            conn.setAutoCommit(false);
+            // 3.获取预编译的数据库操作对象
+            String sql = "update t_act set balance = ? where actno = ?";
+            ps = conn.prepareStatement(sql);
+            //给?传值
+            ps.setDouble(1, 10000);
+            ps.setString(2, "A");
+ 
+            int count = ps.executeUpdate(); // 更新成功之后表示更新1条，返回1
+ 
+            Thread.sleep(1000 * 20);
+            // 模拟异常！！！！
+            String s = null;
+            s.toString();
+ 
+            // 给?传值
+            ps.setDouble(1, 10000);
+            ps.setString(2, "B");
+            count += ps.executeUpdate(); // 再次更新1条再返回1
+ 
+            System.out.printf(count == 2 ? "转账成功":"转账失败！");
+ 
+ 
+            // 代码能够执行到此处，说明上面的代码没有出现任何异常，手动提交
+            // 手动提交，事务结束
+             conn.commit();
+        } catch(Exception e){
+            // 出现异常的话，为了保险起见，这里要回滚！
+            if(conn != null){
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        } finally{
+            // 6.释放资源
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+}
+```
+
+### 19.5.9 为了便于以后的开发，封装一个JDBC工具类
+
+- JDBC工具类的封装
+
+  ```java
+  package com.lzk.jdbc.utils;
+   
+  import java.sql.*;
+  import java.util.ResourceBundle;
+   
+  /*
+      数据库工具类，便于JDBC的代码编写。
+   */
+  public class DBUtil {
+      // 工具类中的构造方法一般都是私有化的，为什么？
+      // 构造方法私有化是为了防止new对象，为什么要防止new对象？
+      // 因为工具类中的方法都是静态的，不需要new对象，直接使用“类名.”的方式调用。
+      private DBUtil(){
+   
+      }
+   
+   
+      // 类加载时绑定属性资源文件
+      private static ResourceBundle bundle = ResourceBundle.getBundle("resources/db");
+   
+      // 注册驱动
+      static{
+          try {
+              Class.forName(bundle.getString("driver"));
+          } catch (ClassNotFoundException e) {
+              throw new RuntimeException(e);
+          }
+      }
+   
+      /**
+       * 获取数据库连接对象
+       * @return 新的连接对象
+       * @throws SQLException
+       */
+   
+      public static Connection getConnection() throws SQLException {
+          String url = bundle.getString("url");
+          String user = bundle.getString("user");
+          String password = bundle.getString("password");
+          Connection conn = DriverManager.getConnection(url, user, password);
+          return conn;
+      }
+   
+      public static void close(Connection conn, Statement stmt, ResultSet rs){
+          if (rs != null) {
+              try {
+                  rs.close();
+              } catch (SQLException e) {
+                  throw new RuntimeException(e);
+              }
+          }
+          if (stmt != null) {
+              try {
+                  stmt.close();
+              } catch (SQLException e) {
+                  throw new RuntimeException(e);
+              }
+          }
+          if (conn != null) {
+              try {
+                  conn.close();
+              } catch (SQLException e) {
+                  throw new RuntimeException(e);
+              }
+          }
+      }
+  }
+  ```
+
+- JDBC工具类的使用
+
+  ```java
+  package com.lzk.jdbc;
+   
+  import com.lzk.jdbc.utils.DBUtil;
+   
+  import java.sql.Connection;
+  import java.sql.PreparedStatement;
+  import java.sql.ResultSet;
+  import java.sql.SQLException;
+   
+  public class JDBCTest11 {
+      public static void main(String[] args) {
+          Connection conn = null;
+          PreparedStatement ps = null;
+          ResultSet rs = null;
+          try {
+              conn = DBUtil.getConnection();
+              String sql = "select ename, sal from emp where ename like ?";
+              ps = conn.prepareStatement(sql);
+              ps.setString(1, "A%");
+              rs = ps.executeQuery();
+              while(rs.next()){
+                  System.out.println(rs.getString("ename") + "\t" + rs.getString("sal"));
+              }
+          } catch (SQLException e) {
+              throw new RuntimeException(e);
+          } finally {
+              DBUtil.close(conn, ps, rs);
+          }
+      }
+  }
+  ```
+
+  
 
