@@ -453,138 +453,621 @@ div{
 
 # 4.JS
 
-## 4.1 基础
+## 4.1 概述
+
+- JS是一种脚本语言（解释型语言），Java语言是一种非脚本语言，属于编译型语言。
+- 脚本语言的特点：JavaScript 的“目标程序”是以普通文本的形式保存。用记事本是可以直接打开的。浏览器打开就直接解释执行了。
+
+- JavaScript主要用来操作HTML中的节点，产生动态效果。
+- JavaScript 和Java 的区别
+  - JavaScript运行在浏览器当中，浏览器中有执行JS代码的内核。。
+  - Java运行在JVM当中。JavaScript 和Java没有任何关系。。
+  - Java语言是SUN公司开发的，JavaScript 这个名字是SUN公司给起的名。
+
+## 4.2 JavaScript包括三块: ECMAScript、 DOM、BOM
+
+- ECMAScript 是ECMA制定的262标准，JavaScript 和JScript都遵守这个标准，ECMAScript 是JavaScript核心语法
+- DOM编程是通过JavaScript对HTML中的dom节点进行操作, DOM是有规范的, DOM规范是W3C制定的。(DocumentObject Model:文档对象模型)。
+- BOM编程是对浏览器本身操作，例如:前进、后退、地址栏、关闭窗口、弹窗等。由于浏览器有不同的厂家制造，所以BOM缺少规范，一般只是有一个默认的行业规范。(Browser Object Model:浏览器对象模型)。
+
+## 4.3 在HTML中嵌入JS代码的三种方式
+
+### 4.3.1 方式1：行间事件
+
+- JavaScript是一 种事件驱动型的编程语言，通常都是在发生某:个事件的时候，去执行某段代码。其中事件包括很多，例如:鼠标单击事件click，另外还有其它事件，例如: mouseover是鼠标经过事件等。并且在JavaScript当中任何一个事件都有对应的事件句柄。例如: click对应的事件句柄是onclick，mouseover对 应的事件句柄是onmouseover。
+
+  - 所有的事件句柄都是以标签的属性形式存在。例如以下input button就有一个onclick这样属性。
+
+    ```html
+    <input type="button" onclick="注册在onclick事件句柄当中的JS代码"/>
+    ```
+
+  - 只要有用户点击了以下的这个按钮对象，此时按钮对象上发生了鼠标单击事件，那么注册在onclick事件句柄当中的JS代码会被执行! onclick后面代码实际上是浏览器负责执行的。
+
+  - onclick="后面的代码"并不是在浏览器打开的时候执行，浏览器打开的时候，只是将这个代码注册给onclick事件句柄了。等待该按钮的click事件发生，只要发生，后面代码会被事件监听器调用。
+
+- 怎么使用JS代码弹窗?
+
+  - 在JS当中有一个内置的BOM对象：window，window可以直接拿来使用，全部小写。
+
+  - 其中window对象有一个方法/函数叫做alert()，这个函数专门用来弹出对话框!
+
+  - 弹窗的JS代码
+
+    ```
+    window.lert('hello world!'); 
+    ```
+
+    - 通过这个代码可以知道: JS中的字符串可以使用单引号括起来，也可以使用双引号。
+
+      ```
+      <input type="button" value="hello1" onclick="window.alert('hello world!')">
+      <input type="button" value="hello2" onclick='window.alert("hello world!")'>
+      ```
+
+    - JS中的一条语句可以“;”结尾，也可以不以“;”结尾。
+
+      ```
+      <input type="button" value="hello1" onclick="window.alert('hello world!');">
+      <input type="button" value="hello2" onclick='window.alert("hello world!");'>
+      <input type="button" value="hello3" onclick="   window.alert('hello world1!')
+                                                      window.alert('hello world2!')
+                                                      window.alert('hello world3!')
+                                                      window.alert('hello world4!')
+      ">
+      ```
+
+      
+
+### 4.3.2 方式2：页面script标签嵌入
+
+script标签可以放在HTML页面的任意位置。
 
 ```
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>01.javascript是一门弱类型的脚本语言</title>
-    <script language="JavaScript">
-        //javascript是一门弱类型的运行在客户端的解释型的语言
-        //java:
-        /*
-        String str = "hello world";
-        Integer num = 0 ;
-        num ="hello";//编译报错，因为num是Integer类型，不能赋值字符串
-        //因此，java是强类型语言
-        */
-        var str = "hello world" ;       //var表示准备定义一个变量  variable：变量
-        alert(typeof(str));             //alert表示弹出一个对话框  , typeof表示返回变量的数据类型
-        str = 99 ;
-        alert(typeof(str));             //弹出了number，表示str又变成了数值类型
-        str=true;
-        alert(typeof(str));             //弹出了boolean,表示str又变成了布尔类型
-        //因此，我们知道，js是弱类型语言。
-        //变量的数据类型由赋的值来决定
-    </script>
-</head>
-<body>
-
-</body>
-</html>
+<script type="text/javascript">
+    alert("hello");
+    alert("world");
+</script>
 ```
 
-## 4.2 方法
+### 4.3.3 方式3：外部引入
 
-```
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>02.javascript中的方法</title>
-    <script language="JavaScript">
-        //javascript和java没有关系。一个是客户端脚本语言，一个是服务器端编译型语言
-        //但是又感觉有点关系，因为两者的API非常相似。
-
-        /*
-        //java中定义方法
-        public String sayHello(String name){
-            if("jim".equals(name)){
-                return "hello to " + name ;
-            }else{
-                System.out.println("hi");//有问题，这个路径没有return
-            }
-        }
-        访问修饰符  返回值类型  方法名(参数签名){
-            方法主体
-        }
-        方法调用时，有参数必须传参，而且要求严格：个数、类型必须匹配
-                   有返回值，那么定义时，必须有return，而且是所有的路径都必须有
-        */
-        /*
-        //js中定义方法
-        function是一个关键字，表示开始定义方法
-        sayHello是方法名,name是形参
-         */
-        function sayHello(name){
-            return "hello to " + name;
-        }
-
-        //方法调用
-        //var str = sayHello("jim")
-        //var str = sayHello();
-        //var str = sayHello("jim","tom");
-        //alert(str);
-
-        function sayHello2(num1 , num2){
-            if(num1>num2){
-                return 99;
-            }else{
-                alert("hello world!");
-            }
-        }
-
-        //sayHello2(1,2);
-        alert(sayHello2(2,1));
-
-
-    </script>
-</head>
-<body>
-
-</body>
-</html>
-```
-
-## 4.3 事件
-
-```
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>03.javascript中的事件</title>
-    <script language="JavaScript">
-        //事件：event
-        //事件源：事件发生在哪个对象上
-        //常见的事件：点击事件、鼠标悬浮事件、键盘摁下事件等等
-        function hello(){
-            alert('hello world!');
-        }
-    </script>
-</head>
-<body>
-    <input type="button" value="HELLO" onclick="hello()"/>  <!--onclick:当点击时 -->
-</body>
-</html>
-```
-
-## 4.4 JS中if条件为什么值时表示true，if条件为什么值时表示false
-
-- Java语言中，if(flag)，要求flag时布尔类型
-
-- 在JS语言中，if(flag)
-
-  - flag为null、0，表示false
-  - flag不为null、非0，表示true
+- script标签可以放在HTML页面的任意位置。
 
   ```
-  // 如果event不为null（也就是说存在），而且事件源存在，而且事件源是TD
-  if(event && event.srcElement && event.srcElement.tagName=="TD"){
+  <script type="text/javascript" src="js/1.js"></script>
+  ```
+
+- 外部引入方式中，script这对标签中间写的代码不会执行，因此也不建议这样做。
+
+  ```
+  <script type="text/javascript" src="js/1.js">
+  	//script这对标签中间写的代码不会执行，因此也不建议这样做
+  </script>
+  ```
+
+## 4.4 标识符和关键字
+
+- 标识符命名规则和规范按照java执行；
+- 关键字不需要刻意记忆。
+
+## 4.5 变量
+
+### 4.5.1 变量的声明与赋值
+
+- 声明
+
+  ```
+  var 变量名;
+  var i;
+  ```
+
+- 赋值
+
+  ```
+  变量名 = 值;
+  i = 100;
+  ```
+
+- 一行可声明多个变量
+
+  ```
+  var a, b, c = 300;
   
+  //声明3个变量，a b c,并且c赋值300，其中a和b变量没有赋值，系统默认赋值undefined
+  //undefined在JS中一个具体的值，这个值就是undefined
+  ```
+
+- 注意
+
+  - JS语言是一种弱类型语言，没有编译阶段，直接浏览器打开解释执行，在JS中声明变量时不需要指定变量的数据类型，程序在运行过程当中，赋什么类型的值，变量就是什么数据类型，并且变量的数据类型是可变的。
+
+    ```
+    var i;
+    i = 100; //到这里i是整数型
+    i = false; //到这里i就是布尔类型了
+    ```
+
+  - 变量声明了，但是没有手动赋值，系统默认赋值undefined。
+
+  - 变量没有声明，直接访问，这个时候会报错。（用F12可以查看控制台的错误信息）
+
+### 4.5.2 函数的定义与调用
+
+- 定义方式1
+
+  ```
+  // 方式1
+  function fun1(a, b){
+  	return a + b;
+  }
+  alert(fun1(3, 4));
+  ```
+
+- 定义方式2
+
+  ```
+  // 方式2
+  var fun2 = function (a, b){
+  	return a + b;
+  }
+  alert(fun2(3, 4));
+  ```
+
+- 注意：
+
+  - 以下方式也可以，因为函数声明的优先级比较高，打开网页的时候，网页中所有的函数先进行声明。
+
+    ```
+    fun();
+    var fun = function (){ // 函数声明
+    	alert("hello");
+    }
+    ```
+
+  - 在JS中的函数是不能重载的，也不存在重载机制
+
+    - JS中的函数只要出现同名函数,之前的函数就消失了。
+    - 注意在JS中编写函数名的时候，谨慎一些 ,以防将其他函数干掉!
+
+### 4.5.3 全局和局部变量
+
+- 全局变量:
+
+  - 在函数体之外声明的变量，叫做全局变量。
+
+  - 全局变量在浏览器打开的时候分配空间，直到浏览器关闭的时候才会销毁。
+
+  - 注意
+
+    在javascript当中，如果一个变量声明的时候没有使用var关键字的话，这个变量不管是在哪里声明的，都是全局变量。这种全局变量在声明的时候必须手动赋值，不能采用系统默认值。
+
+- 局部变量:
+
+  - 在函数体当中声明的变量，叫做局部变量。
+  - 局部变量在函数被调用的时候分配空间，函数执行结束之后，内存释放。
+
+### 4.5.4 数据类型
+
+- ES6之前的数据类型包括6种
+
+  ```
+  原始类型（或基本数据类型）
+      Undefined
+      Number
+      String
+      Boolean
+      Null
+      
+  引用数据类型（或对象类型）
+  	Object
+  ```
+
+- ES6之后引入了其他的类型（知道就行）
+
+  ```
+  Symbol
+  BigInt
+  ```
+
+- 注意：ES6之后是8种类型，ES6之前是6种类型；
+
+- typeof运算符：获取变量数据类型
+
+  ```
+  typeof 变量名
+  ```
+
+  - typeof的运算结果为以下6个字符串之一（都是小写）
+
+    ```
+    "undefined"
+    "number"
+    "string"
+    "boolean"
+    "object"
+    "function"
+    ```
+
+- 在JS种判断两个字符串是否相等，应该使用“==”，JS中没有equals函数；
+
+- 原始类型（或基本数据类型）
+
+  - Undefined
+
+    - 只有一个值：undefined
+    - 当一个变量声明之后没有手动赋值，系统赋默认值undefined
+
+  - Null
+
+    - 只有一个值：null
+    - 注意：`typeof null`运算结果是`object`
+
+  - Number
+
+    - 值：整数、小数、NaN、Infinity
+
+    - NaN详解
+
+      - Not a Number，表示不是一个数字。
+
+      - 但NaN是一个值，它属于Number类型
+
+      - 什么情况下结果是一个NaN？
+
+        - 当一个数学表达式的运算结果本应该返回一个数字，但是最终结果无法返回一个数字的时候，结果是NaN。
+
+      - isNaN()函数
+
+        ```
+        isNaN(数据)
+        ```
+
+        - 返回布尔类型，true表示是不是一个数字，false表示是一个数字
+        - 特点：首先尝试将“数据”转换成数字，如果转换失败，结果就是true。如果转换成功，结果就是false。
+
+    - Infinity详解
+
+      - 表示无穷大
+      - 当除数是0的时候，最终计算结果是无穷大。
+
+    - Number()函数
+
+      ```
+      Number(数据)
+      ```
+
+      - 将`不是数字类型的数据`转换成`数字类型的数据`
+
+    - parseInt()函数
+
+      ```
+      parseInt("字符串数字")
+      ```
+
+      - 将字符串数字转换成数字，并且向下取整；
+
+    - Math.ceil()函数
+
+      ```
+      Math.ceil(数字)
+      ```
+
+      - 向上取整
+
+  - Boolean
+
+    - 只有两个值：true、false；
+
+    - Boolean()函数
+
+      ```
+      Boolean(非布尔类型的数据)
+      ```
+
+      - 将非布尔类型的数据转换成布尔类型
+      - 该函数我们一般不手动调用，它会在if(`Boolean(非布尔类型的数据`))隐式调用，侧面说明if语句中只能是true或false
+  
+  - String
+  
+    - JS中定义字符串的两种方式
+  
+      ```
+      var s = "字符串";	// typeof s 为 String
+      var s = new String("字符串");	// typeof s 为 Object
+      ```
+  
+    - String当中的常用属性和方法
+  
+      - 常用属性
+  
+        ```
+        length属性：获取字符串长度
+        ```
+  
+      - 常用方法
+  
+        ```
+        charAt()：获取指定下标位置的字符
+        concat()：连接字符串
+        indexof()：获取某个字符串在当前字符串中第一次出现处的索引
+        lastIndexOf()：获取某个字符串在当前字符串中最后一次出现处的索引
+        replace()：替换
+        split()：拆分字符串
+        substr(startIndex, length)：截取字符串，从几取几
+        substring(startIndex, endIndex)：截取字符串，不包括结束下标所指向的
+        toLowerCase()：转小写
+        toUpperCase()：转大写
+        ```
+
+- 引用数据类型（或对象类型）
+  - Object
+    - 在JS当中内置了一个类型object，可以将object类型看做是所有对象的超类/基类。
+    - 在JS当中默认定义的类型，没有特殊说明的话，默认继承object.
+    - object类型中有哪些通用属性和方法呢?
+      - 属性
+        - prototype
+        - constructor
+      - 方法
+        - toLocaleString()
+        - toString()
+        - valueOf()
+      - 重点掌握：prototype属性
+        - prototype翻译为原型，该属性可以给对象动态扩展属性和方法。
+
+## 4.6 类
+
+### 4.6.1 类的定义
+
+- 方式1
+
+  ```
+  function 类名(形式参数列表){
+  	this.属性名 = 参数;
+  	this.属性名 = 参数;
+  	
+  	this.方法名 = function(){
+  	
+  	}
   }
   ```
 
+  ```
+  	// 类的定义方式1
+      // function Emp(name, age, sal){
+      //     this.name = name;
+      //     this.age = age;
+      //     this.sal = sal;
+      //     this.showInfo = function (){
+      //         console.log(this.name + ", " + this.age + ", " + this.sal);
+      //     }
+      // }
+  ```
+
   
+
+- 方式2
+
+  ```
+  类名 = function(形式参数列表){
+  	this.属性名 = 参数;
+  	this.属性名 = 参数;
+  	
+  	this.方法名 = function(){
+  	
+  	}
+  }
+  ```
+
+  ```
+      //类的定义方式2
+      Emp = function (name, age, sal){
+          this.name = name;
+          this.age = age;
+          this.sal = sal;
+          this.showInfo = function (){
+              console.log(this.name + ", " + this.age + ", " + this.sal);
+          }
+      }
+  ```
+
+  
+
+### 4.6.2 对象的创建
+
+```
+
+    
+    //对象的创建
+    var emp = new Emp("joker", 18, 2000);
+    
+    //属性的访问方式1
+    // console.log(emp.name);
+    // console.log(emp.age);
+    // console.log(emp.sal);
+
+    //属性的访问方式1
+    console.log(emp["name"]);
+    console.log(emp["age"]);
+    console.log(emp["sal"]);
+
+    //方法的调用
+    emp.showInfo();
+```
+
+## 4.7 null、undefined和NaN区别
+
+### 4.7.1 `==` 和 `===` 的区别
+
+- `==`等同运算符：只比较值是否相等。
+- `===`全等运算符：既比较值是否相等，同时又比较数据类型是否相同。
+
+### 4.7.2 null、undefined和NaN区别
+
+- 类型都是不一样的
+- null和undefined是等同关系
+
+## 4.8 JS中的事件
+
+### 4.8.1 常用事件
+
+(1) blur失去焦点
+(5) focus获得焦点
+(3) click鼠标单击
+(4) dblclick鼠标双击
+(6) keydown键盘按下
+(7) keyup键盘弹起
+(9) mousedown鼠标按下
+(10) mouseover鼠标经过
+(11) mousemove鼠标移动
+( 12) mouseout 鼠标离开
+(13) mouseup 鼠标弹起
+(16) submit表单提交
+(14) reset表单重置
+(15) select文本被选定
+(2) change下拉列表选中项改变，或文本框内容改变
+(8) 1oad页面加载完毕
+
+### 4.8.2 注册事件的两种方式
+
+在HTML中根据id获取节点
+
+```
+var v = document.getElementById("id名");
+```
+
+- 注册事件的第一种方式：在标签中使用“事件句柄”，在事件句柄后面编写JS代码
+  - 当这个事件句柄对应的事件发生之后，“注册"在事件句柄当中的这个代码被监听器调用。
+- 注册事件的第二种方式：在页面加载完毕后使用JS代码给元素绑定事件
+
+### 4.8.3 代码的执行顺序
+
+页面加载过程中，实际上是各种事件的绑定，把相应的回调函数绑定到该事件对应的事件句柄上。
+
+等这些事件一个一个发生后，回调函数统一都是由监听器来负责调用的。
+
+load事件，当页面所有元素加载完毕后触发该事件。
+
+以后代码写成以下形式：
+
+```html
+<script type="text/javascript">
+
+    window.onload = function (){
+        document.getElementById("btn1").onclick = function (){
+            console.log("按钮1的单击事件执行了！");
+        }
+        document.getElementById("btn2").onclick = function (){
+            console.log("按钮2的单击事件执行了！");
+        }
+    }
+
+</script>
+```
+
+
+
+### 4.8.4 通过keydown事件演示回车键13，ESC键27
+
+我们在匿名函数中写一个obj，obj表示事件对象（绑定了该事件的控件对象），我们通过事件对象可以获取键盘按键的ascii码；
+
+```
+    window.onload = function (){
+        document.getElementById("txt").onkeydown=function (obj){
+            if(obj.keyCode == 13){
+                console.log("登录,正在进行身份认证，请稍后！");
+            }else if(obj.keyCode == 27){
+                console.log("安全退出系统了！");
+            }
+        }
+    }
+```
+
+## 4.9 JS运算符之void
+
+如果我们想点击一个超链接，并且不希望这个超链接发生跳转，那么写如下代码：
+
+```
+<a href="javascript:void(0)">超链接</a>
+```
+
+## 4.10 JS内置对象
+
+### 4.10.1 Array
+
+- 创建数组
+
+  - 方式1
+
+    ```
+    var arr2 = [11, 22, 33, 44, true, false];
+    ```
+
+  - 方式2
+
+    ```
+    var arr3 = new Array(11, 22, 33, 44, true, false);
+    ```
+
+- 遍历数组
+
+  ```
+  for (var i = 0; i < arr3.length; i++) {
+  	console.log(arr3[i]);
+  }
+  ```
+
+- 修改数组中某个元素
+
+  ```
+  arr3[2] = 99;
+  ```
+
+- 读取数组中某个元素
+
+  ```
+  console.log(arr3[2]);
+  ```
+
+- Array对象中的常用函数
+
+  - push()
+
+  - pop()
+
+  - join("$")
+
+    ```
+    将数组中的每一个元素和“$”连接，最后返回一个字符串
+    ```
+
+  - reverse()
+
+### 4.10.2 Date
+
+```
+new Date()：获取当前系统时间
+new Date().getTime()：获取时间戳（自“1970年1月1日 00:00:00 000”到系统当前时间的总毫秒数）
+
+new Date().getFullYear()：获取年份
+new Date().getMonth()：获取月份，要加1
+new Date().getDate()：获取日
+```
+
+## 4.11 DOM
+
+### 4.11.1 DOM和BOM的关系
+
+BOM(Browser Object Model) 包含 DOM(Document Object Model)
+
+```
+document.getElementById()完整的写法是window.document.getElementById()
+```
+
+
+
+### 4.11.2 DOM编程案例
+
+- innerHTML和innerText的区别
+  - innerHTML属性会将后面的字符串当作一段HTML代码解释并执行
+  - innerText后面的字符串即使是一个HTML代码，也不会当作HTML执行，只是看作普通文本。

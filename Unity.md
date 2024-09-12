@@ -2939,3 +2939,13 @@ public class Lesson1_PlayerPrefs : MonoBehaviour
 - Unity支持的模型格式：推荐FBX
 - 学习阶段在哪里获取模型资源：Asset Store和淘宝
 
+
+
+
+
+
+
+点击变电站物体对象，显示文字信息面板：
+
+- 把每个文字信息面板作为每个变电站物体对象子对象
+- 当点击物体对象时，将该物体对象的文字信息面板作为Player的子对象
