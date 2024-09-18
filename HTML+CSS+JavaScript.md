@@ -1068,6 +1068,393 @@ document.getElementById()完整的写法是window.document.getElementById()
 
 ### 4.11.2 DOM编程案例
 
-- innerHTML和innerText的区别
-  - innerHTML属性会将后面的字符串当作一段HTML代码解释并执行
-  - innerText后面的字符串即使是一个HTML代码，也不会当作HTML执行，只是看作普通文本。
+- 案例1：操作div和span，设置div和span标签中的内容
+
+  ```
+  <script type="text/javascript">
+    window.onload = function (){
+      document.getElementById("btn").onclick = function (){
+        var div1 = document.getElementById("div1");
+        // div1.innerHTML = "<a href='http://www.baidu.com'>百度</a>";
+        div1.innerText = "<a href='http://www.baidu.com'>百度</a>";
+  
+      }
+  
+    }
+  
+  </script>
+  <div id="div1"></div>
+  <input type="button" value="操作div1" id="btn">
+  ```
+
+  - innerHTML和innerText的区别
+    - innerHTML属性会将后面的字符串当作一段HTML代码解释并执行
+    - innerText后面的字符串即使是一个HTML代码，也不会当作HTML执行，只是看作普通文本。
+
+- 案例2：复选框全选和取消全选
+
+  ```
+  <script type="text/javascript">
+      window.onload = function (){
+          var ckFirst = document.getElementById("first")
+          var hobbies = document.getElementsByName("hobbies");
+          ckFirst.onclick = function (){
+              for(var i = 0; i < hobbies.length; i++){
+                  hobbies[i].checked = ckFirst.checked;
+              }
+          }
+  
+          for (var i = 0; i < hobbies.length; i++) {
+  
+              hobbies[i].onclick = function (){
+                  var checkedCount = 0;
+                  for(var i = 0; i < hobbies.length; i++){
+                      if(hobbies[i].checked){
+                          checkedCount++;
+                      }
+                  }
+                  ckFirst.checked = (hobbies.length == checkedCount);
+              }
+          }
+      }
+  
+  </script>
+  
+  <input type="checkbox" id="first"><br>
+  <input type="checkbox" name="hobbies">抽烟 <br>
+  <input type="checkbox" name="hobbies">喝酒 <br>
+  <input type="checkbox" name="hobbies">烫头 <br>
+  ```
+
+- 案例3：获取一个文本框的value
+
+  ```
+  <script type="text/javascript">
+      window.onload = function (){
+          document.getElementById("btn").onclick = function (){
+              var txt = document.getElementById("txt");
+              alert(txt.value);
+          }
+      }
+  </script>
+  <input type="text" id="txt"><br>
+  <input type="button" value="获取value" id="btn">
+  ```
+
+- 案例4：获取下拉列表选项中的value
+
+  ```
+  <script type="text/javascript">
+      window.onload = function (){
+          var province = document.getElementById("province");
+          province.onchange = function (){
+              console.log(this.value);
+              //这里的this代表的就是当前发生change事件的这个节点对象。
+          }
+      }
+  </script>
+  <select name="" id="province">
+      <option value="">--请选择--</option>
+      <option value="001">河北省</option>
+      <option value="002">江苏省</option>
+      <option value="003">山东省</option>
+      <option value="004">甘肃省</option>
+  </select>
+  ```
+
+- 案例5：显示网页时钟
+
+  ```
+  <script type="text/javascript">
+      window.onload = function(){
+          document.getElementById("displayTimeBtn").onclick = function (){
+              // 每隔1s调用一次displayTime()函数（设置周期性调用）
+              // 返回值是一个可以取消周期性调用的value
+              v = window.setInterval("displayTime()", 1000);
+          }
+          document.getElementById("stopTimeBtn").onclick = function (){
+              // 停止周期性的调用
+              window.clearInterval(v);
+          }
+      }
+      function displayTime(){
+          var div = document.getElementById("div");
+          div.innerHTML = new Date().toLocaleString();
+      }
+  </script>
+  <input type="button" value="显示网页时钟" id="displayTimeBtn">
+  <input type="button" value="停止网页时钟" id="stopTimeBtn">
+  <div id="div"></div>
+  ```
+
+### 4.11.3 BOM编程案例
+
+- window.open()和window.close()
+
+  ```
+  <script type="text/javascript">
+      window.onload = function (){
+          document.getElementById("openBtn").onclick = function (){
+              window.open("016.test.html", "_blank")
+          }
+      }
+  </script>
+  <input type="button" value="打开窗口" id="openBtn">
+  ```
+
+  016.test.html
+
+  ```
+  <script type="text/javascript">
+    window.onload = function (){
+      document.getElementById("closeBtn").onclick = function (){
+        window.close();
+      }
+    }
+  </script>
+  
+  
+  这是一个待关闭的窗口 <br>
+  <input type="button" value="关闭窗口" id="closeBtn">
+  ```
+
+- window.alert()和window.confirm()
+
+  ```
+  <script type="text/javascript">
+    window.onload = function (){
+      document.getElementById("delBtn").onclick = function (){
+        // confirm返回一个布尔值
+        if(confirm("确认删除？")){
+          alert("正在删除中，请稍后！");
+        }
+      }
+    }
+  </script>
+  <input type="button" value="删除" id="delBtn">
+  ```
+
+- 如果当前窗口不是顶级窗口，则将当前窗口设置为顶级窗口
+
+  ```
+  if(window.top != window.self){
+  	window.top.location = window.self.location;
+  }
+  ```
+
+- 历史记录
+
+  - 后退
+
+    ```
+    window.history.back();
+    ```
+
+  - 前进
+
+    ```
+    window.history.go(1);
+    ```
+
+- 通过浏览器向服务器发送请求，通常是以上的五种方式
+
+  - 方式1：直接在浏览器地址栏上写URL（重点）
+
+  - 方式2：可以点击超链接（重点）
+
+  - 方式3：提交表单（重点）
+
+  - 方式4：window.open(url, target)（了解）
+
+  - 方式5：js代码（重点）
+
+    ```
+    window.location.href
+    window.location
+    document.location.href
+    document.location
+    ```
+
+## 4.12 JSON
+
+### 4.12.1 eval()函数
+
+可以将一个字符串当做一段JS代码解释执行
+
+```
+window.eval("var i = 100");
+```
+
+### 4.12.2 怎么创建JSON对象以及访问JSON对象的属性
+
+- 什么是JSON?
+
+  - JavaScript object Notation (JavaScript标记对象)，简称JSON。
+
+  - JSON是一种轻量级的数据交换格式。
+
+    - 什么是轻量级:
+      - 体现在JSON的体积小。 虽然一个小的体积可能表示的数据很多。
+
+    - 什么是数据交换: 
+
+      - C语言和Java语言之间交换数据，python和Java语言之间交换数据，javascript和java之间交换数据。
+
+      - 透露一下:在现代的开发中，能够做数据交换的，包括两个:
+
+        - 第一个: JSON
+
+        - 第二个: XML
+
+          ```
+          <?xml version="1.0" encoding= ="gbk"?>
+          <students>
+              <student>
+                  <name> zhangsan </name>
+                  <age>20</age>
+              </student>
+              <student>
+                  <name> lisi </name>
+                  <age>21</age>
+              </student>
+              <student>
+              	<name>wangwu<name>
+              	<age>22 </age>
+              </student>
+          </students>
+          c语言查询数据库之后，拼接了以上的-一个xM格式的字符串。
+          C语言通过网络的方式传给了Java.
+          Java语言接收到这个XM字符串之后，开始解析XML，获取xML中的数据。
+          这样c语言和Java语言就完成了数据的交换。
+          这就是数据交换。
+          而xML是一种国际上邇用的数据交换格式。
+          java和c语言之间可以使用xmL交换。
+          java和C++语言之间同样可以使用xML交换。
+          
+          XML语法严格。体积大，解析难度大。
+          JSON是-一种轻量级的数据交换格式。
+          C++查询数据库之后可以拼接一一个JSON格式的字符串,
+          然后把JSON格式的字符串传给Java, java语 言接收到
+          这个JSON格式的字符串，解析JSON取数据，这样C++
+          和Java就完成了数据的交换。
+          JSON同样也是一种国际化的标准的数据交换格式。
+          javascript和java之间交换数据就可以使用JSON格式。
+          c和Java之间交换数据同样也可以采用JSON格式。
+          JSON体积小，解析方便。
+          
+          ```
+
+- 在JavaScript当中，json是以对象的形式存在的。
+
+- JSON对象的创建和使用
+
+  - 创建
+
+    - 语法格式
+
+      ```
+      var jsonObj = {
+          "属性名" : 属性值,
+          "属性名" : 属性值,
+          "属性名" : 属性值,
+          "属性名" : 属性值, 
+          "属性名" : 属性值
+      };
+      ```
+
+      - 注意：属性值可以是任意类型。
+        - JSON是一种无类型的对象，直接一个大括号包起来就是一个JSON对象了。
+
+    - 例
+
+      ```
+      var student = {
+          "no" : "1001",
+          "name" : "张三",
+          "age" : 18,
+          "gender" : true,
+          "hobbies" : ["抽烟", "喝酒", "烫头"]
+      };
+      ```
+
+      
+
+  - 使用
+
+    - 方式1
+
+      ```
+      console.log(student.no);
+      console.log(student.name);
+      console.log(student.age);
+      console.log(student.gender);
+      ```
+
+    - 方式2
+
+      ```
+      console.log(student["no"]);
+      console.log(student["name"]);
+      console.log(student["age"]);
+      console.log(student["gender"]);
+      var hobbies = student["hobbies"];
+      for(var i = 0; i < hobbies.length; i++){
+      	console.log(hobbies[i]);
+      }
+      ```
+
+- 注意：在JS中[]和{}有什么区别？
+
+  - []是数组对象
+  - {}是JSON对象
+
+- JSON对象的属性也可以是JSON对象
+
+  ```
+  var student = {
+      "no" : "1001",
+      "name" : "joker",
+      "age" : 18,
+      "addr" : {"city" : "Beijing", "street" : "daxin"}
+  };
+  ```
+
+  - 设计一个JSON格式的数据可以表示全班人数和每个学生信息
+
+    ```
+      var studentInfo = {
+          "total" : 3,
+          "data" : [{"no" : "1001", "name" : "Tom", "age" : 18}, {"no" : "1002", "name" : "Joker", "age" : 20}, {"no" : "1003", "name" : "Peter", "age" : 12}]
+      }
+      console.log("总人数：" + studentInfo.total);
+      var data = studentInfo.data;
+      for (var i = 0; i < data.length; i++) {
+          console.log(data[i].no + "," + data[i].name + "," + data[i].age)
+      }
+    ```
+
+    
+
+### 4.12.3 JSON在开发中有什么用
+
+```
+// 双引号当中的是-个普通的不能再普通的字符串，这个字符串是java给我们浏览器的.
+var fromJavaJSON = "{\"name\" : \"zhangsan\", \"age\" : 20}"; //这个不是json对象，是一个字符串
+
+// 你需要将JSON格式的字符串转换成JSON对象
+// eval函数的作用是：将后面的字符串当做一段JS代码解释并执行
+window.eval("var stu = " + fromJavaJSON);
+
+// 上面的代码执行结束后，等同于这里创建了一个JSON对象
+/*
+var stu = {
+	"name" : "zhangsan",
+	"age" : 20
+};
+*/
+
+// 转换成JSON对象的目的是为了取数据。（这样javascript和java之间两个不同的编程语言就完成了数据的交换！）
+console.log(stu.name + "," + stu.age);
+
+```
+
