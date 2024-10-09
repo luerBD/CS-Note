@@ -2880,13 +2880,13 @@ Date: Mon, 13 Aug 2018 02:47:57 GMT  响应的时间，这可能会有8小时的
 
 
 
-## 解决Tomcat服务器在DOS命令窗口中的乱码问题（控制台乱码）
+## 8.7 解决Tomcat服务器在DOS命令窗口中的乱码问题（控制台乱码）
 
 将CATALINA_HOME/conf/logging.properties文件中的内容修改如下：
 
 java.util.logging.ConsoleHandler.encoding = GBK
 
-## 向浏览器响应一段HTML代码
+## 8.8 向浏览器响应一段HTML代码
 
 ```java
 public void service(ServletRequest request, ServletResponse response){
@@ -2896,12 +2896,12 @@ public void service(ServletRequest request, ServletResponse response){
 }
 ```
 
-## 在Servlet中连接数据库，怎么做？
+## 8.9 在Servlet中连接数据库，怎么做？
 
 - Servlet是Java程序，所以在Servlet中完全可以编写JDBC代码连接数据库。
 - 在一个webapp中去连接数据库，需要将驱动jar包放到WEB-INF/lib目录下。（com.mysql.cj.jdbc.Driver 这个类就在驱动jar包当中。）
 
-## 在集成开发环境当中开发Servlet程序
+## 8.10在集成开发环境当中开发Servlet程序
 
 - 集成开发工具很多，其中目前使用比较多的是：
 
@@ -2990,13 +2990,189 @@ public void service(ServletRequest request, ServletResponse response){
 
   - 第十二步：打开浏览器，在浏览器地址栏上输入：http://localhost:8080/xmm/student.html
 
+## 8.11 Servlet对象的生命周期
+
+- 什么是Servlet对象生命周期？
+
+  - Servlet对象什么时候被创建。
+  - Servlet对象什么时候被销毁。
+  - Servlet对象创建了几个？
+  - Servlet对象的生命周期表示：一个Servlet对象从出生在最后的死亡，整个过程是怎样的。
+
+- Servlet对象是由谁来维护的？
+
+  - Servlet对象的创建，对象上方法的调用，对象最终的销毁，Javaweb程序员是无权干预的。
+  - Servlet对象的生命周期是由Tomcat服务器（WEB Server）全权负责的。
+  - Tomcat服务器通常我们又称为：WEB容器。（这个叫法你要知道【WEB Container】）
+  - WEB容器来管理Servlet对象的死活。
+
+- 思考：我们自己new的Servlet对象受WEB容器的管理吗？
+
+  - 我们自己new的Servlet对象是不受WEB容器管理的。
+
+  - WEB容器创建的Servlet对象，这些Servlet对象都会被放到一个集合当中（HashMap），只有放到这个HashMap集合中的Servlet才能够被WEB容器管理，自己new的Servlet对象不会被WEB容器管理。（自己new的Servlet对象不在容器当中）
+
+  - web容器底层应该有一个HashMap这样的集合，在这个集合当中存储了Servlet对象和请求路径之间的关系
+
+    <img src="assets/image-20241008194106714.png" alt="image-20241008194106714" style="zoom:50%;" />
+
+- 研究：服务器在启动的Servlet对象有没有被创建出来（默认情况下）？
+
+  - 在Servlet中提供一个无参数的构造方法，启动服务器的时候看看构造方法是否执行。
+  - 经过测试得出结论：默认情况下，服务器在启动的时候Servlet对象并不会被实例化。
+  - 这个设计是合理的。用户没有发送请求之前，如果提前创建出来所有的Servlet对象，必然是耗费内存的，并且创建出来的Servlet如果一直没有用户访问，显然这个Servlet对象是一个废物，没必要先创建。
+
+- 怎么让服务器启动的时候创建Servlet对象呢？
+
+  - 在servlet标签中添加<load-on-startup>子标签，在该子标签中填写整数，越小的整数优先级越高。
+
+  - ```xml
+    <servlet>
+        <servlet-name>aservlet</servlet-name>
+        <servlet-class>com.bjpowernode.javaweb.servlet.AServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>aservlet</servlet-name>
+        <url-pattern>/a</url-pattern>
+    </servlet-mapping>
+    ```
+
+- Servlet对象生命周期
+
+  - 默认情况下服务器启动的时候AServlet对象并没有被实例化
+
+  - 用户发送第一次请求的时候，控制台输出了以下内容：
+
+    ```
+    AServlet无参数构造方法执行了
+    AServlet's init method execute!
+    AServlet's service method execute!
+    ```
+
+  - 根据以上输出内容得出结论：
+
+    - 用户在发送第一次请求的时候Servlet对象被实例化（AServlet的构造方法被执行了。并且执行的是无参数构造方法。）
+    - AServlet对象被创建出来之后，Tomcat服务器马上调用了AServlet对象的init方法。（init方法在执行的时候，AServlet对象已经存在了。已经被创建出来了。）
+    - 用户发送第一次请求的时候，init方法执行之后，Tomcat服务器马上调用AServlet对象的service方法。
+
+  - 用户继续发送第二次请求，控制台输出了以下内容：
+
+    ```
+    AServlet's service method execute!
+    ```
+
+  - 根据以上输出结果得知，用户在发送第二次，或者第三次，或者第四次请求的时候，Servlet对象并没有新建，还是使用之前创建好的Servlet对象，直接调用该Servlet对象的service方法，这说明：
+
+    - 第一：Servlet对象是单例的（单实例的。但是要注意：Servlet对象是单实例的，但是Servlet类并不符合单例模式。我们称之为假单例。之所以单例是因为Servlet对象的创建我们javaweb程序员管不着，这个对象的创建只能是Tomcat来说了算，Tomcat只创建了一个，所以导致了单例，但是属于假单例。真单例模式，构造方法是私有化的。）
+    - 第二：无参数构造方法、init方法只在第一次用户发送请求的时候执行。也就是说无参数构造方法只执行一次。init方法也只被Tomcat服务器调用一次。
+    - 第三：只要用户发送一次请求：service方法必然会被Tomcat服务器调用一次。发送100次请求，service方法会被调用100次。
+
+  - 关闭服务器的时候，控制台输出了以下内容：
+
+    ```
+    AServlet's destroy method execute!
+    ```
+
+  - 通过以上输出内容，可以得出以下结论：
+
+    - Servlet的destroy方法只被Tomcat服务器调用一次。
+    - destroy方法是在什么时候被调用的？
+      - 在服务器关闭的时候。
+      - 因为服务器关闭的时候要销毁AServlet对象的内存。
+      - 服务器在销毁AServlet对象内存之前，Tomcat服务器会自动调用AServlet对象的destroy方法。
+
+  - 请问：destroy方法调用的时候，对象销毁了还是没有销毁呢？
+
+    - destroy方法执行的时候AServlet对象还在，没有被销毁。destroy方法执行结束之后，AServlet对象的内存才会被Tomcat释放。
+
+## 8.12 GenericServlet
+
+- 我们编写一个Servlet类直接实现Servlet接口有什么缺点？
+
+  - 我们只需要service方法，其他方法大部分情况下是不需要使用的。代码很丑陋。
+
+- 适配器设计模式Adapter
+
+  - 手机直接插到220V的电压上，手机直接就报废了。怎么办？可以找一个充电器。这个充电器就是一个适配器。手机连接适配器。适配器连接220V的电压。这样问题就解决了。
+
+- 编写一个GenericServlet类，这个类是一个抽象类，其中有一个抽象方法service。
+
+  - GenericServlet实现Servlet接口。
+  - GenericServlet是一个适配器。
+  - 以后编写的所有Servlet类继承GenericServlet，重写service方法即可。
+
+- 思考：GenericServlet类是否需要改造一下？怎么改造？更利于子类程序的编写？
+
+  - 思考第一个问题：我提供了一个GenericServlet之后，init方法还会执行吗？
+
+    - 还会执行。会执行GenericServlet类中的init方法。
+
+  - 思考第二个问题：init方法是谁调用的？
+
+    - Tomcat服务器调用的。
+
+  - 思考第三个问题：init方法中的ServletConfig对象是谁创建的？是谁传过来的？
+
+    - 都是Tomcat干的。
+    - Tomcat服务器先创建了ServletConfig对象，然后调用init方法，将ServletConfig对象传给了init方法。
+
+  - 思考一下Tomcat服务器伪代码：
+
+    - ```java
+      public class Tomcat {
+          public static void main(String[] args){
+              // .....
+              // Tomcat服务器伪代码
+              // 创建LoginServlet对象（通过反射机制，调用无参数构造方法来实例化LoginServlet对象）
+              Class clazz = Class.forName("com.bjpowernode.javaweb.servlet.LoginServlet");
+              Object obj = clazz.newInstance();
+              
+              // 向下转型
+              Servlet servlet = (Servlet)obj;
+              
+              // 创建ServletConfig对象
+              // Tomcat服务器负责将ServletConfig对象实例化出来。
+              // 多态（Tomcat服务器完全实现了Servlet规范）
+              ServletConfig servletConfig = new org.apache.catalina.core.StandardWrapperFacade();
+              
+              // 调用Servlet的init方法
+              servlet.init(servletConfig);
+              
+              // 调用Servlet的service方法
+              // ....
+              
+          }
+      }
+      ```
 
 
 
+## 8.13 ServletConfig
 
+- 什么是ServletConfig？
 
+  - Servlet对象的配置信息对象。
+  - ServletConfig对象中封装了<servlet></servlet>标签中的配置信息。（web.xml文件中servlet的配置信息）
 
+- 一个Servlet对应一个ServletConfig对象。
 
+- Servlet对象是Tomcat服务器创建，并且ServletConfig对象也是Tomcat服务器创建。并且默认情况下，他们都是在用户发送第一次请求的时候创建。
+
+- Tomcat服务器调用Servlet对象的init方法的时候需要传一个ServletConfig对象的参数给init方法。
+
+- ServletConfig接口的实现类是Tomcat服务器给实现的。（Tomcat服务器说的就是WEB服务器。）
+
+- ServletConfig接口有哪些常用的方法？
+
+  - ```java
+    public String getInitParameter(String name); // 通过初始化参数的name获取value
+    public Enumeration<String> getInitParameterNames(); // 获取所有的初始化参数的name
+    public ServletContext getServletContext(); // 获取ServletContext对象
+    public String getServletName(); // 获取Servlet的name
+    ```
+
+  - 以上方法在Servlet类当中，都可以使用this去调用。因为GenericServlet实现了ServletConfig接口。
 
 
 
