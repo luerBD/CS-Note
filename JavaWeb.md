@@ -2164,330 +2164,7 @@ String value = element.attributeValue("属性名");
 
 
 
-# 7.HTTP协议
-
-## 7.1 HTTP简介
-
-<img src="assets/1681522638617.png" alt="1681522638617" style="zoom: 67%;" />
-
-<img src="assets/1681522600239.png" alt="1681522600239" style="zoom:67%;" />
-
-
-
-> **HTTP 超文本传输协议** (HTTP-Hyper Text transfer protocol)，是一个属于应用层的面向对象的协议，由于其简捷、快速的方式，适用于分布式超媒体信息系统。它于1990年提出，经过十几年的使用与发展，得到不断地完善和扩展。**它是一种详细规定了浏览器和万维网服务器之间互相通信的规则**，通过因特网传送万维网文档的数据传送协议。客户端与服务端通信时传输的内容我们称之为**报文**。**HTTP协议就是规定报文的格式。**HTTP就是一个通信规则，这个规则规定了客户端发送给服务器的报文格式，也规定了服务器发送给客户端的报文格式。实际我们要学习的就是这两种报文**。客户端发送给服务器的称为"请求报文**"，**服务器发送给客户端的称为"响应报文"**。
-
-
-
-### 7.1.1 发展历程
-
-> HTTP/0.9 
-
-+ 蒂姆伯纳斯李是一位英国计算机科学家，也是万维网的发明者。他在 1989 年创建了单行 HTTP 协议。它只是返回一个网页。这个协议在 1991 年被命名为 HTTP/0.9。 
-
->  HTTP/1.0
-
-+  1996 年，HTTP/1.0 发布。该规范是显著扩大，并且支持三种请求方法：GET，Head，和POST。 
-+  HTTP/1.0 相对于 HTTP/0.9 的改进如下：
-   + 每个请求都附加了 HTTP 版本。
-   + 在响应开始时发送状态代码。
-   + 请求和响应都包含 HTTP 报文头。
-   + 内容类型能够传输 HTML 文件以外的文档。
-+  但是，HTTP/1.0 不是官方标准。
-
-> HTTP/1.1
-
-+ HTTP 的第一个标准化版本 HTTP/1.1 ( RFC 2068 ) 于 1997 年初发布，支持七种请求方法：OPTIONS，GET，HEAD，POST，PUT，DELETE，和TRACE 
-
-+ HTTP/1.1 是 HTTP 1.0 的增强：
-
-  + 虚拟主机允许从单个 IP 地址提供多个域。
-
-  + 持久连接和流水线连接允许 Web 浏览器通过单个持久连接发送多个请求。
-
-  + 缓存支持节省了带宽并使响应速度更快。
-
-+ HTTP/1.1 在接下来的 15 年左右将非常稳定。 
-
-+ 在此期间，出现了 HTTPS（安全超文本传输协议）。它是使用 SSL/TLS 进行安全加密通信的 HTTP 的安全版本。 
-
-> HTTP/2
-
-+  由IETF在2015年发布。HTTP/2旨在提高Web性能，减少延迟，增加安全性，使Web应用更加快速、高效和可靠。 
-
-- 多路复用：HTTP/2 允许同时发送多个请求和响应，而不是像 HTTP/1.1 一样只能一个一个地处理。这样可以减少延迟，提高效率，提高网络吞吐量。
-- 二进制传输：HTTP/2 使用二进制协议，与 HTTP/1.1 使用的文本协议不同。二进制协议可以更快地解析，更有效地传输数据，减少了传输过程中的开销和延迟。
-- 头部压缩：HTTP/2 使用 HPACK 算法对 HTTP 头部进行压缩，减少了头部传输的数据量，从而减少了网络延迟。
-- 服务器推送：HTTP/2 支持服务器推送，允许服务器在客户端请求之前推送资源，以提高性能。
-- 改进的安全性：HTTP/2 默认使用 TLS（Transport Layer Security）加密传输数据，提高了安全性。
-- 兼容 HTTP/1.1：HTTP/2 可以与 HTTP/1.1 共存，服务器可以同时支持 HTTP/1.1 和 HTTP/2。如果客户端不支持 HTTP/2，服务器可以回退到 HTTP/1.1。
-
-> HTTP/3
-
-+ 于 2021 年 5 月 27 日发布 , HTTP/3 是一种新的、快速、可靠且安全的协议，适用于所有形式的设备。 HTTP/3 没有使用 TCP，而是使用谷歌在 2012 年开发的新协议 QUIC 
-+ HTTP/3 是继 HTTP/1.1 和 HTTP/2之后的第三次重大修订。 
-
-+ HTTP/3 带来了革命性的变化，以提高 Web 性能和安全性。设置 HTTP/3 网站需要服务器和浏览器支持。
-
-+ 目前，谷歌云、Cloudflare和Fastly支持 HTTP/3。Chrome、Firefox、Edge、Opera 和一些移动浏览器支持 HTTP/3。
-
-### 7.1.2 HTTP协议的会话方式
-
-> 浏览器与服务器之间的通信过程要经历四个步骤
-
-![](assets/1557672342250_1H8nt17MNz.png)
-
--   浏览器与WEB服务器的连接过程是短暂的，每次连接只处理一个请求和响应。对每一个页面的访问，浏览器与WEB服务器都要建立一次单独的连接。
--   浏览器到WEB服务器之间的所有通讯都是完全独立分开的请求和响应对。
-
-### 7.1.3 HTTP1.0和HTTP1.1的区别
-
-> 在HTTP1.0版本中，浏览器请求一个带有图片的网页，会由于下载图片而与服务器之间开启一个新的连接；但在HTTP1.1版本中，允许浏览器在拿到当前请求对应的全部资源后再断开连接，提高了效率。
-
-![](assets/1557672415271_EgyN-GdbWY.png)
-
-
-
-### 7.1.4 在浏览器中通过F12工具抓取请求响应报文包
-
-> 几乎所有的PC端浏览器都支持了F12开发者工具,只不过不同的浏览器工具显示的窗口有差异
-
-<img src="assets/1681522138051.png" alt="1681522138051" style="zoom:80%;" />
-
-
-
-## 7.2 请求和响应报文
-
-### 7.2.1 报文的格式
-
-> 主体上分为报文部首和报文主体,中间空行隔开
-
-<img src="assets/1681522962846.png" alt="1681522962846" style="zoom: 62%;" />
-
-
-
-> 报文部首可以继续细分为  "行" 和 "头"
-
-![1681522998417](assets/1681522998417.png)
-
-### 7.2.2 请求报文
-
-> 客户端发给服务端的报文
-
-+ 请求报文格式
-  -   请求首行（**请求行**）；    GET/POST   资源路径?参数   HTTP/1.1
-  -   请求头信息（**请求头**）；
-  -   空行；
-  -   请求体；POST请求才有请求体
-
-> 浏览器 f12 网络下查看请求数据包
-
-![1681524200024](assets/1681524200024.png)
-
-> GET请求特点
-
-1、由于请求参数在请求首行中已经携带了，所以没有请求体，也没有请求空行
-2、请求参数拼接在url地址中，地址栏可见\[url?name1=value1\&name2=value2]，不安全
-3、由于参数在地址栏中携带，所以由大小限制\[地址栏数据大小一般限制为4k]，只能携带纯文本
-4、get请求参数只能上传文本数据
-5、没有请求体。所以封装和解析都快，效率高， 浏览器默认提交的请求都是get请求比如：地址栏输入回车,超链接,表单默认的提交方式
-
-> 查看GET请求行,请求头,请求体
-
-+ 请求行组成部分
-  + 请求方式  GET
-  + 访问服务器的资源路径?参数1=值1&参数2=值2 ... ...
-  + 协议及版本 HTTP/1.1
-
-``` http
-GET /05_web_tomcat/login_success.html?username=admin&password=123213 HTTP/1.1
-```
-
-+ 请求头
-
-```  http
-Host: localhost:8080   主机虚拟地址
-Connection: keep-alive 长连接
-Upgrade-Insecure-Requests: 1  请求协议的自动升级[http的请求，服务器却是https的，浏览器自动会将请求协议升级为https的]
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36
-- 用户系统信息
-Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
-- 浏览器支持的文件类型
-Referer: http://localhost:8080/05_web_tomcat/login.html
-- 当前页面的上一个页面的路径[当前页面通过哪个页面跳转过来的]：   可以通过此路径跳转回上一个页面， 广告计费，防止盗链
-Accept-Encoding: gzip, deflate, br
-- 浏览器支持的压缩格式
-Accept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7
-- 浏览器支持的语言
-```
-
-+ 请求空行
-
-+ 请求体
-  + GET请求数据不放在请求体
-
-> post请求特点
-
-1、POST请求有请求体，而GET请求没有请求体。
-2、post请求数据在请求体中携带，请求体数据大小没有限制，可以用来上传所有内容\[文件、文本]
-3、只能使用post请求上传文件
-4、post请求报文多了和请求体相关的配置\[请求头]
-5、地址栏参数不可见，相对安全
-6、post效率比get低
-
-+ POST请求要求将form标签的method的属性设置为post
-
-![1681525012046](assets/1681525012046.png)
-
-> 查看post的请求行 请求头 请求体
-
-+ 请求行组成部分
-  + 请求方式 POST
-  + 访问服务器的资源路径?参数1=值1&参数2=值2 ... ...
-  + 协议及版本 HTTP/1.1
-
-``` http
-POST /05_web_tomcat/login_success.html HTTP/1.1
-```
-
-+ 请求头
-
-```  http
-Host: localhost:8080
-Connection: keep-alive
-Content-Length: 31     -请求体内容的长度
-Cache-Control: max-age=0  -无缓存
-Origin: http://localhost:8080
-Upgrade-Insecure-Requests: 1  -协议的自动升级
-Content-Type: application/x-www-form-urlencoded   -请求体内容类型[服务器根据类型解析请求体参数]
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36
-Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
-Referer: http://localhost:8080/05_web_tomcat/login.html
-Accept-Encoding: gzip, deflate, br
-Accept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7
-Cookie:JSESSIONID-
-```
-
-+ 请求空行
-
-+ 请求体:浏览器提交给服务器的数据
-
-``` http
-username=admin&password=1232131
-```
-
-### 7.2.3 响应报文
-
-> 响应报文格式
-
--   响应首行（**响应行**）； 
--   响应头信息（**响应头**）；
--   空行；
--   响应体；
-
-![1681525347456](assets/1681525347456.png)
-
-
-
-![1681525384347](assets/1681525384347.png)
-
-+ 响应行组成部分
-  + 协议及版本 HTTP/1.1
-  + 响应状态码 200
-  + 状态描述   OK  (缺省)
-
-``` http
-HTTP/1.1 200 OK
-说明：响应协议为HTTP1.1，响应状态码为200，表示请求成功； 
-```
-
-+ 响应头
-
-``` http
-Server: Apache-Coyote/1.1   服务器的版本信息
-Accept-Ranges: bytes
-ETag: W/"157-1534126125811"
-Last-Modified: Mon, 13 Aug 2018 02:08:45 GMT
-Content-Type: text/html    响应体数据的类型[浏览器根据类型解析响应体数据]
-Content-Length: 157   响应体内容的字节数
-Date: Mon, 13 Aug 2018 02:47:57 GMT  响应的时间，这可能会有8小时的时区差
-```
-
-+ 响应体
-
-``` html
-<!--需要浏览器解析使用的内容[如果响应的是html页面，最终响应体内容会被浏览器显示到页面中]-->
-
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Insert title here</title>
-  </head>
-  <body>
-    恭喜你，登录成功了...
-  </body>
-</html>
-```
-
-> 响应状态码:响应码对浏览器来说很重要，它告诉浏览器响应的结果。比较有代表性的响应码如下：
-
-+ **200：** 请求成功，浏览器会把响应体内容（通常是html）显示在浏览器中；
-+ **404：** 请求的资源没有找到，说明客户端错误的请求了不存在的资源；
-+ **405：** 请求的方式不允许
-+ **500：** 请求资源找到了，但服务器内部出现了错误；
-+ **302：** 重定向，当响应码为302时，表示服务器要求浏览器重新再发一个请求，服务器会发送一个响应头Location指定新请求的URL地址；
-+ **304：** 使用了本地缓存
-
-> 更多的响应状态码
-
-| 状态码 | 状态码英文描述                  | 中文含义                                                     |
-| :----- | :------------------------------ | :----------------------------------------------------------- |
-| 1**    |                                 |                                                              |
-| 100    | Continue                        | 继续。客户端应继续其请求                                     |
-| 101    | Switching Protocols             | 切换协议。服务器根据客户端的请求切换协议。只能切换到更高级的协议，例如，切换到HTTP的新版本协议 |
-| 2**    |                                 |                                                              |
-| 200    | OK                              | 请求成功。一般用于GET与POST请求                              |
-| 201    | Created                         | 已创建。成功请求并创建了新的资源                             |
-| 202    | Accepted                        | 已接受。已经接受请求，但未处理完成                           |
-| 203    | Non-Authoritative Information   | 非授权信息。请求成功。但返回的meta信息不在原始的服务器，而是一个副本 |
-| 204    | No Content                      | 无内容。服务器成功处理，但未返回内容。在未更新网页的情况下，可确保浏览器继续显示当前文档 |
-| 205    | Reset Content                   | 重置内容。服务器处理成功，用户终端（例如：浏览器）应重置文档视图。可通过此返回码清除浏览器的表单域 |
-| 206    | Partial Content                 | 部分内容。服务器成功处理了部分GET请求                        |
-| 3**    |                                 |                                                              |
-| 300    | Multiple Choices                | 多种选择。请求的资源可包括多个位置，相应可返回一个资源特征与地址的列表用于用户终端（例如：浏览器）选择 |
-| 301    | Moved Permanently               | 永久移动。请求的资源已被永久的移动到新URI，返回信息会包括新的URI，浏览器会自动定向到新URI。今后任何新的请求都应使用新的URI代替 |
-| 302    | Found                           | 临时移动。与301类似。但资源只是临时被移动。客户端应继续使用原有URI |
-| 303    | See Other                       | 查看其它地址。与301类似。使用GET和POST请求查看               |
-| 304    | Not Modified                    | 未修改。所请求的资源未修改，服务器返回此状态码时，不会返回任何资源。客户端通常会缓存访问过的资源，通过提供一个头信息指出客户端希望只返回在指定日期之后修改的资源 |
-| 305    | Use Proxy                       | 使用代理。所请求的资源必须通过代理访问                       |
-| 306    | Unused                          | 已经被废弃的HTTP状态码                                       |
-| 307    | Temporary Redirect              | 临时重定向。与302类似。使用GET请求重定向                     |
-| 4**    |                                 |                                                              |
-| 400    | Bad Request                     | 客户端请求的语法错误，服务器无法理解                         |
-| 401    | Unauthorized                    | 请求要求用户的身份认证                                       |
-| 402    | Payment Required                | 保留，将来使用                                               |
-| 403    | Forbidden                       | 服务器理解请求客户端的请求，但是拒绝执行此请求               |
-| 404    | Not Found                       | 服务器无法根据客户端的请求找到资源（网页）。通过此代码，网站设计人员可设置"您所请求的资源无法找到"的个性页面 |
-| 405    | Method Not Allowed              | 客户端请求中的方法被禁止                                     |
-| 406    | Not Acceptable                  | 服务器无法根据客户端请求的内容特性完成请求                   |
-| 407    | Proxy Authentication Required   | 请求要求代理的身份认证，与401类似，但请求者应当使用代理进行授权 |
-| 408    | Request Time-out                | 服务器等待客户端发送的请求时间过长，超时                     |
-| 409    | Conflict                        | 服务器完成客户端的 PUT 请求时可能返回此代码，服务器处理请求时发生了冲突 |
-| 410    | Gone                            | 客户端请求的资源已经不存在。410不同于404，如果资源以前有现在被永久删除了可使用410代码，网站设计人员可通过301代码指定资源的新位置 |
-| 411    | Length Required                 | 服务器无法处理客户端发送的不带Content-Length的请求信息       |
-| 412    | Precondition Failed             | 客户端请求信息的先决条件错误                                 |
-| 413    | Request Entity Too Large        | 由于请求的实体过大，服务器无法处理，因此拒绝请求。为防止客户端的连续请求，服务器可能会关闭连接。如果只是服务器暂时无法处理，则会包含一个Retry-After的响应信息 |
-| 414    | Request-URI Too Large           | 请求的URI过长（URI通常为网址），服务器无法处理               |
-| 415    | Unsupported Media Type          | 服务器无法处理请求附带的媒体格式                             |
-| 416    | Requested range not satisfiable | 客户端请求的范围无效                                         |
-| 417    | Expectation Failed              | 服务器无法满足Expect的请求头信息                             |
-| 5**    |                                 |                                                              |
-| 500    | Internal Server Error           | 服务器内部错误，无法完成请求                                 |
-| 501    | Not Implemented                 | 服务器不支持请求的功能，无法完成请求                         |
-| 502    | Bad Gateway                     | 作为网关或者代理工作的服务器尝试执行请求时，从远程服务器接收到了一个无效的响应 |
-| 503    | Service Unavailable             | 由于超载或系统维护，服务器暂时的无法处理客户端的请求。延时的长度可包含在服务器的Retry-After头信息中 |
-| 504    | Gateway Time-out                | 充当网关或代理的服务器，未及时从远端服务器获取请求           |
-| 505    | HTTP Version not supported      | 服务器不支持请求的HTTP协议的版本，无法完成处理               |
+# 
 
 # 8.Servlet
 
@@ -3174,6 +2851,365 @@ public void service(ServletRequest request, ServletResponse response){
 
   - 以上方法在Servlet类当中，都可以使用this去调用。因为GenericServlet实现了ServletConfig接口。
 
+## 8.14 ServletContext
+
+- 一个Servlet对象对应一个ServletConfig。100个Servlet对象则对应100个ServletConfig对象。
+
+- 只要在同一个webapp当中，只要在同一个应用当中，所有的Servlet对象都是共享同一个ServletContext对象的。
+
+- ServletContext对象在服务器启动阶段创建，在服务器关闭的时候销毁。这就是ServletContext对象的生命周期。ServletContext对象是应用级对象。
+
+- Tomcat服务器中有一个webapps，这个webapps下可以存放webapp，可以存放多个webapp，假设有100个webapp，那么就有100个ServletContext对象。但是，总之，一个应用，一个webapp肯定是只有一个ServletContext对象。
+
+- ServletContext被称为Servlet上下文对象。（Servlet对象的四周环境对象。）
+
+- 一个ServletContext对象通常对应的是一个web.xml文件。
+
+- ServletContext对应显示生活中的什么例子呢？
+
+  - 一个教室里有多个学生，那么每一个学生就是一个Servlet，这些学生都在同一个教室当中，那么我们可以把这个教室叫做ServletContext对象。那么也就是说放在这个ServletContext对象（环境）当中的数据，在同一个教室当中，物品都是共享的。比如：教室中有一个空调，所有的学生都可以操作。可见，空调是共享的。因为空调放在教室当中。教室就是ServletContext对象。
+
+- ServletContext是一个接口，Tomcat服务器对ServletContext接口进行了实现。
+
+  - ServletContext对象的创建也是Tomcat服务器来完成的。启动webapp的时候创建的。
+
+- ServletContext接口中有哪些常用的方法？
+
+  - ```java
+    public String getInitParameter(String name); // 通过初始化参数的name获取value
+    public Enumeration<String> getInitParameterNames(); // 获取所有的初始化参数的name
+    ```
+
+  - ```xml
+    <!--以上两个方法是ServletContext对象的方法，这个方法获取的是什么信息？是以下的配置信息-->
+    <context-param>
+        <param-name>pageSize</param-name>
+        <param-value>10</param-value>
+    </context-param>
+    <context-param>
+        <param-name>startIndex</param-name>
+        <param-value>0</param-value>
+    </context-param>
+    <!--注意：以上的配置信息属于应用级的配置信息，一般一个项目中共享的配置信息会放到以上的标签当中。-->
+    <!--如果你的配置信息只是想给某一个servlet作为参考，那么你配置到servlet标签当中即可，使用ServletConfig对象来获取。-->
+    ```
+
+  - ```java
+    // 获取应用的根路径（非常重要），因为在java源代码当中有一些地方可能会需要应用的根路径，这个方法可以动态获取应用的根路径
+    // 在java源码当中，不要将应用的根路径写死，因为你永远都不知道这个应用在最终部署的时候，起一个什么名字。
+    public String getContextPath();
+    //String contextPath = application.getContextPath();
+    ```
+
+  - ```java
+    // 获取文件的绝对路径（真实路径）
+    public String getRealPath(String path);
+    ```
+
+  - ```java
+    // 通过ServletContext对象也是可以记录日志的
+    public void log(String message);
+    public void log(String message, Throwable t);
+    // 这些日志信息记录到哪里了？
+    // localhost.2021-11-05.log
+    
+    // Tomcat服务器的logs目录下都有哪些日志文件？
+    //catalina.2021-11-05.log 服务器端的java程序运行的控制台信息。
+    //localhost.2021-11-05.log ServletContext对象的log方法记录的日志信息存储到这个文件中。
+    //localhost_access_log.2021-11-05.txt 访问日志
+    ```
+
+  - ```java
+    // ServletContext对象还有另一个名字：应用域（后面还有其他域，例如：请求域、会话域）
+    
+    // 如果所有的用户共享一份数据，并且这个数据很少的被修改，并且这个数据量很少，可以将这些数据放到ServletContext这个应用域中
+    
+    // 为什么是所有用户共享的数据？ 不是共享的没有意义。因为ServletContext这个对象只有一个。只有共享的数据放进去才有意义。
+    
+    // 为什么数据量要小？ 因为数据量比较大的话，太占用堆内存，并且这个对象的生命周期比较长，服务器关闭的时候，这个对象才会被销毁。大数据量会影响服务器的性能。占用内存较小的数据量可以考虑放进去。
+    
+    // 为什么这些共享数据很少的修改，或者说几乎不修改？
+    // 所有用户共享的数据，如果涉及到修改操作，必然会存在线程并发所带来的安全问题。所以放在ServletContext对象中的数据一般都是只读的。
+    
+    // 数据量小、所有用户共享、又不修改，这样的数据放到ServletContext这个应用域当中，会大大提升效率。因为应用域相当于一个缓存，放到缓存中的数据，下次在用的时候，不需要从数据库中再次获取，大大提升执行效率。
+    
+    // 存（怎么向ServletContext应用域中存数据）
+    public void setAttribute(String name, Object value); // map.put(k, v)
+    // 取（怎么从ServletContext应用域中取数据）
+    public Object getAttribute(String name); // Object v = map.get(k)
+    // 删（怎么删除ServletContext应用域中的数据）
+    public void removeAttribute(String name); // map.remove(k)
+    
+    
+    ```
+
+- 注意：以后我们编写Servlet类的时候，实际上是不会去直接继承GenericServlet类的，因为我们是B/S结构的系统，这种系统是基于HTTP超文本传输协议的，在Servlet规范当中，提供了一个类叫做HttpServlet，它是专门为HTTP协议准备的一个Servlet类。我们编写的Servlet类要继承HttpServlet。（HttpServlet是HTTP协议专用的。）使用HttpServlet处理HTTP协议更便捷。但是你需要知道它的继承结构：
+
+  - ```
+    jakarta.servlet.Servlet（接口）【爷爷】
+    jakarta.servlet.GenericServlet implements Servlet（抽象类）【儿子】
+    jakarta.servlet.http.HttpServlet extends GenericServlet（抽象类）【孙子】
+    
+    我们以后编写的Servlet要继承HttpServlet类。
+    ```
+
+  
+
+## 8.15 HTTP协议
+
+- 什么是协议？
+
+  - 协议实际上是某些人，或者某些组织提前制定好的一套规范，大家都按照这个规范来，这样可以做到沟通无障碍。
+  - 协议就是一套规范，就是一套标准。由其他人或其他组织来负责制定的。
+  - 我说的话你能听懂，你说的话，我也能听懂，这说明我们之间是有一套规范的，一套协议的，这套协议就是：中国普通话协议。我们都遵守这套协议，我们之间就可以沟通无障碍。
+
+- 什么是HTTP协议？
+
+  - HTTP协议：是W3C制定的一种超文本传输协议。（通信协议：发送消息的模板提前被制定好。）
+  - W3C：
+    - 万维网联盟组织
+    - 负责制定标准的：HTTP HTML4.0 HTML5 XML DOM等规范都是W3C制定的。
+    - 万维网之父：蒂姆·伯纳斯·李
+  - 什么是超文本？
+    - 超文本说的就是：不是普通文本，比如流媒体：声音、视频、图片等。
+    - HTTP协议支持：不但可以传送普通字符串，同样支持传递声音、视频、图片等流媒体信息。
+  - 这种协议游走在B和S之间。B向S发数据要遵循HTTP协议。S向B发数据同样需要遵循HTTP协议。这样B和S才能解耦合。
+  - 什么是解耦合？
+    - B不依赖S。
+    - S也不依赖B。
+  - B/S表示：B/S结构的系统（浏览器访问WEB服务器的系统）
+  - 浏览器   向   WEB服务器发送数据，叫做：请求（request)
+  - WEB服务器   向   浏览器发送数据，叫做：响应（response）
+  - HTTP协议包括：
+    - 请求协议
+      - 浏览器  向   WEB服务器发送数据的时候，这个发送的数据需要遵循一套标准，这套标准中规定了发送的数据具体格式。
+    - 响应协议
+      - WEB服务器  向  浏览器发送数据的时候，这个发送的数据需要遵循一套标准，这套标准中规定了发送的数据具体格式。
+  - HTTP协议就是提前制定好的一种消息模板。
+    - 不管你是哪个品牌的浏览器，都是这么发。
+    - 不管你是哪个品牌的WEB服务器，都是这么发。
+    - FF浏览器  可以向 Tomcat发送请求，也可以向Jetty服务器发送请求。浏览器不依赖具体的服务器品牌。
+    - WEB服务器也不依赖具体的浏览器品牌。可以是FF浏览器，也可以是Chrome浏览器，可以是IE，都行。
+
+- HTTP的请求协议（B --> S）
+
+  - HTTP的请求协议包括：4部分
+
+    - 请求行
+    - 请求头
+    - 空白行
+    - 请求体
+
+  - HTTP请求协议的具体报文：GET请求
+
+    - ```
+      GET /servlet05/getServlet?username=lucy&userpwd=1111 HTTP/1.1                           请求行
+      Host: localhost:8080                                                                    请求头
+      Connection: keep-alive
+      sec-ch-ua: "Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"
+      sec-ch-ua-mobile: ?0
+      sec-ch-ua-platform: "Windows"
+      Upgrade-Insecure-Requests: 1
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36
+      Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+      Sec-Fetch-Site: same-origin
+      Sec-Fetch-Mode: navigate
+      Sec-Fetch-User: ?1
+      Sec-Fetch-Dest: document
+      Referer: http://localhost:8080/servlet05/index.html
+      Accept-Encoding: gzip, deflate, br
+      Accept-Language: zh-CN,zh;q=0.9
+                                                                                              空白行
+                                                                                              请求体
+      ```
+
+    
+
+  - HTTP请求协议的具体报文：POST请求
+
+    - ```
+      POST /servlet05/postServlet HTTP/1.1                                                  请求行
+      Host: localhost:8080                                                                  请求头
+      Connection: keep-alive
+      Content-Length: 25
+      Cache-Control: max-age=0
+      sec-ch-ua: "Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"
+      sec-ch-ua-mobile: ?0
+      sec-ch-ua-platform: "Windows"
+      Upgrade-Insecure-Requests: 1
+      Origin: http://localhost:8080
+      Content-Type: application/x-www-form-urlencoded
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36
+      Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+      Sec-Fetch-Site: same-origin
+      Sec-Fetch-Mode: navigate
+      Sec-Fetch-User: ?1
+      Sec-Fetch-Dest: document
+      Referer: http://localhost:8080/servlet05/index.html
+      Accept-Encoding: gzip, deflate, br
+      Accept-Language: zh-CN,zh;q=0.9
+                                                                                            空白行
+      username=lisi&userpwd=123                                                             请求体
+      ```
+
+  - 请求行
+
+    - 包括三部分：
+      - 第一部分：请求方式（7种）
+        - get（常用的）
+        - post（常用的）
+        - delete
+        - put
+        - head
+        - options
+        - trace
+      - 第二部分：URI
+        - 什么是URI？ 统一资源标识符。代表网络中某个资源的名字。但是通过URI是无法定位资源的。
+        - 什么是URL？统一资源定位符。代表网络中某个资源，同时，通过URL是可以定位到该资源的。
+        - URI和URL什么关系，有什么区别？
+          - URL包括URI
+          - http://localhost:8080/servlet05/index.html 这是URL。
+          - /servlet05/index.html 这是URI。
+      - 第三部分：HTTP协议版本号
+
+  - 请求头
+
+    - 请求的主机
+    - 主机的端口
+    - 浏览器信息
+    - 平台信息
+    - cookie等信息
+    - ....
+
+  - 空白行
+
+    - 空白行是用来区分“请求头”和“请求体”
+
+  - 请求体
+
+    - 向服务器发送的具体数据。
+
+- HTTP的响应协议（S --> B）
+
+  - HTTP的响应协议包括：4部分
+
+    - 状态行
+    - 响应头
+    - 空白行
+    - 响应体
+
+  - HTTP响应协议的具体报文：
+
+    - ```
+      HTTP/1.1 200 ok                                     状态行
+      Content-Type: text/html;charset=UTF-8               响应头
+      Content-Length: 160
+      Date: Mon, 08 Nov 2021 13:19:32 GMT
+      Keep-Alive: timeout=20
+      Connection: keep-alive
+                                                          空白行
+      <!doctype html>                                     响应体
+      <html>
+          <head>
+              <title>from get servlet</title>
+          </head>
+          <body>
+              <h1>from get servlet</h1>
+          </body>
+      </html>
+      ```
+
+  - 状态行
+
+    - 三部分组成
+      - 第一部分：协议版本号（HTTP/1.1）
+      - 第二部分：状态码（HTTP协议中规定的响应状态号。不同的响应结果对应不同的号码。）
+        - 200 表示请求响应成功，正常结束。
+        - 404表示访问的资源不存在，通常是因为要么是你路径写错了，要么是路径写对了，但是服务器中对应的资源并没有启动成功。总之404错误是前端错误。
+        - 405表示前端发送的请求方式与后端请求的处理方式不一致时发生：
+          - 比如：前端是POST请求，后端的处理方式按照get方式进行处理时，发生405
+          - 比如：前端是GET请求，后端的处理方式按照post方式进行处理时，发生405
+        - 500表示服务器端的程序出现了异常。一般会认为是服务器端的错误导致的。
+        - 以4开始的，一般是浏览器端的错误导致的。
+        - 以5开始的，一般是服务器端的错误导致的。
+      - 第三部分：状态的描述信息
+        - ok 表示正常成功结束。
+        - not found 表示资源找不到。
+
+  - 响应头：
+
+    - 响应的内容类型
+    - 响应的内容长度
+    - 响应的时间
+    - ....
+
+  - 空白行：
+
+    - 用来分隔“响应头”和“响应体”的。
+
+  - 响应体：
+
+    - 响应体就是响应的正文，这些内容是一个长的字符串，这个字符串被浏览器渲染，解释并执行，最终展示出效果。
+
+- 怎么查看的协议内容？
+
+  - 使用chrome浏览器：F12。然后找到network，通过这个面板可以查看协议的具体内容。
+
+- 怎么向服务器发送GET请求，怎么向服务器发送POST请求？
+
+  - 到目前为止，只有一种情况可以发送POST请求：使用form表单，并且form标签中的method属性值为：method="post"。
+  - 其他所有情况一律都是get请求：
+    - 在浏览器地址栏上直接输入URL，敲回车，属于get请求。
+    - 在浏览器上直接点击超链接，属于get请求。
+    - 使用form表单提交数据时，form标签中没有写method属性，默认就是get
+    - 或者使用form的时候，form标签中method属性值为：method="get"
+    - ....
+
+- GET请求和POST请求有什么区别？
+
+  - get请求发送数据的时候，数据会挂在URI的后面，并且在URI后面添加一个“?”，"?"后面是数据。这样会导致发送的数据回显在浏览器的地址栏上。（get请求在“请求行”上发送数据）
+    - http://localhost:8080/servlet05/getServlet?username=zhangsan&userpwd=1111
+  - post请求发送数据的时候，在请求体当中发送。不会回显到浏览器的地址栏上。也就是说post发送的数据，在浏览器地址栏上看不到。（post在“请求体”当中发送数据）
+  - get请求只能发送普通的字符串。并且发送的字符串长度有限制，不同的浏览器限制不同。这个没有明确的规范。
+  - get请求无法发送大数据量。
+  - post请求可以发送任何类型的数据，包括普通字符串，流媒体等信息：视频、声音、图片。
+  - post请求可以发送大数据量，理论上没有长度限制。
+  - get请求在W3C中是这样说的：get请求比较适合从服务器端获取数据。
+  - post请求在W3C中是这样说的：post请求比较适合向服务器端传送数据。
+  - get请求是安全的。get请求是绝对安全的。为什么？因为get请求只是为了从服务器上获取数据。不会对服务器造成威胁。（get本身是安全的，你不要用错了。用错了之后又冤枉人家get不安全，你这样不好（太坏了），那是你自己的问题，不是get请求的问题。）
+  - post请求是危险的。为什么？因为post请求是向服务器提交数据，如果这些数据通过后门的方式进入到服务器当中，服务器是很危险的。另外post是为了提交数据，所以一般情况下拦截请求的时候，大部分会选择拦截（监听）post请求。
+  - get请求支持缓存。
+    - https://n.sinaimg.cn/finance/590/w240h350/20211101/b40c-b425eb67cabc342ff5b9dc018b4b00cc.jpg
+    - 任何一个get请求最终的“响应结果”都会被浏览器缓存起来。在浏览器缓存当中：
+      - 一个get请求的路径a  对应  一个资源。
+      - 一个get请求的路径b  对应  一个资源。
+      - 一个get请求的路径c  对应  一个资源。
+      - ......
+    - 实际上，你只要发送get请求，浏览器做的第一件事都是先从本地浏览器缓存中找，找不到的时候才会去服务器上获取。这种缓存机制目的是为了提高用户的体验。
+    - 有没有这样一个需求：我们不希望get请求走缓存，怎么办？怎么避免走缓存？我希望每一次这个get请求都去服务器上找资源，我不想从本地浏览器的缓存中取。
+      - 只要每一次get请求的请求路径不同即可。
+      - https://n.sinaimg.cn/finance/590/w240h350/20211101/7cabc342ff5b9dc018b4b00cc.jpg?t=789789787897898
+      - https://n.sinaimg.cn/finance/590/w240h350/20211101/7cabc342ff5b9dc018b4b00cc.jpg?t=789789787897899
+      - https://n.sinaimg.cn/finance/590/w240h350/20211101/7cabc342ff5b9dc018b4b00cc.jpg?t=系统毫秒数
+      - 怎么解决？可以在路径的后面添加一个每时每刻都在变化的“时间戳”，这样，每一次的请求路径都不一样，浏览器就不走缓存了。
+  - post请求不支持缓存。（POST是用来修改服务器端的资源的。）
+    - post请求之后，服务器“响应的结果”不会被浏览器缓存起来。因为这个缓存没有意义。
+
+- GET请求和POST请求如何选择，什么时候使用GET请求，什么时候使用POST请求？
+
+  - 怎么选择GET请求和POST请求呢？衡量标准是什么呢？你这个请求是想获取服务器端的数据，还是想向服务器发送数据。如果你是想从服务器上获取资源，建议使用GET请求，如果你这个请求是为了向服务器提交数据，建议使用POST请求。
+  - 大部分的form表单提交，都是post方式，因为form表单中要填写大量的数据，这些数据是收集用户的信息，一般是需要传给服务器，服务器将这些数据保存/修改等。
+  - 如果表单中有敏感信息，还是建议适用post请求，因为get请求会回显敏感信息到浏览器地址栏上。（例如：密码信息）
+  - 做文件上传，一定是post请求。要传的数据不是普通文本。
+  - 其他情况都可以使用get请求。
+
+- 不管你是get请求还是post请求，发送的请求数据格式是完全相同的，只不过位置不同，格式都是统一的：
+
+  - name=value&name=value&name=value&name=value
+  - name是什么？
+    - 以form表单为例：form表单中input标签的name。
+  - value是什么？
+    - 以form表单为例：form表单中input标签的value。
 
 
 
@@ -3187,11 +3223,377 @@ public void service(ServletRequest request, ServletResponse response){
 
 
 
+## 8.16 模板方法设计模式
+
+- 什么是设计模式？
+  - 某个问题的固定的解决方案。(可以被重复使用。)
+- 你知道哪些设计模式？
+  - GoF设计模式：
+    - 通常我们所说的23种设计模式。（Gang of Four：4人组提出的设计模式）
+    - 单例模式
+    - 工厂模式
+    - 代理模式
+    - 门面模式
+    - 责任链设计模式
+    - 观察者模式
+    - 模板方法设计模式
+    - .....
+  - JavaEE设计模式：
+    - DAO
+    - DTO
+    - VO
+    - PO
+    - pojo
+    - ....
+  - ....
+- 什么是模板方法设计模式？
+  - 在模板类的模板方法当中定义核心算法骨架，具体的实现步骤可以延迟到子类当中完成。
+- 模板类通常是一个抽象类，模板类当中的模板方法定义核心算法，这个方法通常是final的（但也可以不是final的）
+- 模板类当中的抽象方法就是不确定实现的方法，这个不确定怎么实现的事儿交给子类去做。
 
 
 
+## 8.17 HttpServlet源码分析
+
+- HttpServlet类是专门为HTTP协议准备的。比GenericServlet更加适合HTTP协议下的开发。
+- HttpServlet在哪个包下？
+  - jakarta.servlet.http.HttpServlet
+- 到目前为止我们接触了servlet规范中哪些接口？
+  - jakarta.servlet.Servlet  核心接口（接口）
+  - jakarta.servlet.ServletConfig Servlet配置信息接口（接口）
+  - jakarta.servlet.ServletContext Servlet上下文接口（接口）
+  - jakarta.servlet.ServletRequest Servlet请求接口（接口）
+  - jakarta.servlet.ServletResponse Servlet响应接口（接口）
+  - jakarta.servlet.ServletException Servlet异常（类）
+  - jakarta.servlet.GenericServlet 标准通用的Servlet类（抽象类）
+- http包下都有哪些类和接口呢？jakarta.servlet.http.*;
+  - jakarta.servlet.http.HttpServlet （HTTP协议专用的Servlet类，抽象类）
+  - jakarta.servlet.http.HttpServletRequest （HTTP协议专用的请求对象）
+  - jakarta.servlet.http.HttpServletResponse （HTTP协议专用的响应对象）
+- HttpServletRequest对象中封装了什么信息？
+  - HttpServletRequest，简称request对象。
+  - HttpServletRequest中封装了请求协议的全部内容。
+  - Tomcat服务器（WEB服务器）将“请求协议”中的数据全部解析出来，然后将这些数据全部封装到request对象当中了。
+  - 也就是说，我们只要面向HttpServletRequest，就可以获取请求协议中的数据。
+- HttpServletResponse对象是专门用来响应HTTP协议到浏览器的。
+- 回忆Servlet生命周期？
+  - 用户第一次请求
+    - Tomcat服务器通过反射机制，调用无参数构造方法。创建Servlet对象。(web.xml文件中配置的Servlet类对应的对象。)
+    - Tomcat服务器调用Servlet对象的init方法完成初始化。
+    - Tomcat服务器调用Servlet对象的service方法处理请求。
+  - 用户第二次请求
+    - Tomcat服务器调用Servlet对象的service方法处理请求。
+  - 用户第三次请求
+    - Tomcat服务器调用Servlet对象的service方法处理请求。
+  - ....
+    - Tomcat服务器调用Servlet对象的service方法处理请求。
+  - 服务器关闭
+    - Tomcat服务器调用Servlet对象的destroy方法，做销毁之前的准备工作。
+    - Tomcat服务器销毁Servlet对象。
+- HttpServlet源码分析：
+
+```java
+public class HelloServlet extends HttpServlet {
+	// 用户第一次请求，创建HelloServlet对象的时候，会执行这个无参数构造方法。
+	public HelloServlet() {
+    }
+    
+    //override 重写 doGet方法
+    //override 重写 doPost方法
+}
+
+public abstract class GenericServlet implements Servlet, ServletConfig,
+        java.io.Serializable {
+           
+	// 用户第一次请求的时候，HelloServlet对象第一次被创建之后，这个init方法会执行。
+    public void init(ServletConfig config) throws ServletException {
+        this.config = config;
+        this.init();
+    }
+	// 用户第一次请求的时候，带有参数的init(ServletConfig config)执行之后，会执行这个没有参数的init()
+	public void init() throws ServletException {
+        // NOOP by default
+    }
+}
+
+// HttpServlet模板类。
+public abstract class HttpServlet extends GenericServlet {
+    // 用户发送第一次请求的时候这个service会执行
+    // 用户发送第N次请求的时候，这个service方法还是会执行。
+    // 用户只要发送一次请求，这个service方法就会执行一次。
+    @Override
+    public void service(ServletRequest req, ServletResponse res)
+        throws ServletException, IOException {
+
+        HttpServletRequest  request;
+        HttpServletResponse response;
+
+        try {
+            // 将ServletRequest和ServletResponse向下转型为带有Http的HttpServletRequest和HttpServletResponse
+            request = (HttpServletRequest) req;
+            response = (HttpServletResponse) res;
+        } catch (ClassCastException e) {
+            throw new ServletException(lStrings.getString("http.non_http"));
+        }
+        // 调用重载的service方法。
+        service(request, response);
+    }
+    
+    // 这个service方法的两个参数都是带有Http的。
+    // 这个service是一个模板方法。
+    // 在该方法中定义核心算法骨架，具体的实现步骤延迟到子类中去完成。
+    protected void service(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException {
+        // 获取请求方式
+        // 这个请求方式最终可能是：""
+        // 注意：request.getMethod()方法获取的是请求方式，可能是七种之一：
+        // GET POST PUT DELETE HEAD OPTIONS TRACE
+        String method = req.getMethod();
+
+        // 如果请求方式是GET请求，则执行doGet方法。
+        if (method.equals(METHOD_GET)) {
+            long lastModified = getLastModified(req);
+            if (lastModified == -1) {
+                // servlet doesn't support if-modified-since, no reason
+                // to go through further expensive logic
+                doGet(req, resp);
+            } else {
+                long ifModifiedSince;
+                try {
+                    ifModifiedSince = req.getDateHeader(HEADER_IFMODSINCE);
+                } catch (IllegalArgumentException iae) {
+                    // Invalid date header - proceed as if none was set
+                    ifModifiedSince = -1;
+                }
+                if (ifModifiedSince < (lastModified / 1000 * 1000)) {
+                    // If the servlet mod time is later, call doGet()
+                    // Round down to the nearest second for a proper compare
+                    // A ifModifiedSince of -1 will always be less
+                    maybeSetLastModified(resp, lastModified);
+                    doGet(req, resp);
+                } else {
+                    resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                }
+            }
+
+        } else if (method.equals(METHOD_HEAD)) {
+            long lastModified = getLastModified(req);
+            maybeSetLastModified(resp, lastModified);
+            doHead(req, resp);
+
+        } else if (method.equals(METHOD_POST)) {
+            // 如果请求方式是POST请求，则执行doPost方法。
+            doPost(req, resp);
+
+        } else if (method.equals(METHOD_PUT)) {
+            doPut(req, resp);
+
+        } else if (method.equals(METHOD_DELETE)) {
+            doDelete(req, resp);
+
+        } else if (method.equals(METHOD_OPTIONS)) {
+            doOptions(req,resp);
+
+        } else if (method.equals(METHOD_TRACE)) {
+            doTrace(req,resp);
+
+        } else {
+            //
+            // Note that this means NO servlet supports whatever
+            // method was requested, anywhere on this server.
+            //
+
+            String errMsg = lStrings.getString("http.method_not_implemented");
+            Object[] errArgs = new Object[1];
+            errArgs[0] = method;
+            errMsg = MessageFormat.format(errMsg, errArgs);
+
+            resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, errMsg);
+        }
+    }
+    
+    
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException{
+        // 报405错误
+        String msg = lStrings.getString("http.method_get_not_supported");
+        sendMethodNotAllowed(req, resp, msg);
+    }
+    
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException {
+        // 报405错误
+        String msg = lStrings.getString("http.method_post_not_supported");
+        sendMethodNotAllowed(req, resp, msg);
+    }
+    
+}
+
+/*
+通过以上源代码分析：
+	假设前端发送的请求是get请求，后端程序员重写的方法是doPost
+	假设前端发送的请求是post请求，后端程序员重写的方法是doGet
+	会发生什么呢？
+		发生405这样的一个错误。
+		405表示前端的错误，发送的请求方式不对。和服务器不一致。不是服务器需要的请求方式。
+	
+	通过以上源代码可以知道：只要HttpServlet类中的doGet方法或doPost方法执行了，必然405.
+
+怎么避免405的错误呢？
+	后端重写了doGet方法，前端一定要发get请求。
+	后端重写了doPost方法，前端一定要发post请求。
+	这样可以避免405错误。
+	
+	这种前端到底需要发什么样的请求，其实应该后端说了算。后端让发什么方式，前端就得发什么方式。
+	
+有的人，你会看到为了避免405错误，在Servlet类当中，将doGet和doPost方法都进行了重写。
+这样，确实可以避免405的发生，但是不建议，405错误还是有用的。该报错的时候就应该让他报错。
+如果你要是同时重写了doGet和doPost，那还不如你直接重写service方法好了。这样代码还能
+少写一点。
+*/
+
+
+```
+
+- 我们编写的HelloServlet直接继承HttpServlet，直接重写HttpServlet类中的service()方法行吗？
+  - 可以，只不过你享受不到405错误。享受不到HTTP协议专属的东西。
+
+- 到今天我们终于得到了最终的一个Servlet类的开发步骤：
+  - 第一步：编写一个Servlet类，直接继承HttpServlet
+  - 第二步：重写doGet方法或者重写doPost方法，到底重写谁，javaweb程序员说了算。
+  - 第三步：将Servlet类配置到web.xml文件当中。
+  - 第四步：准备前端的页面（form表单），form表单中指定请求路径即可。
+
+## 8.18 关于一个web站点的欢迎页面
+
+- 什么是一个web站点的欢迎页面？
+
+  - 对于一个webapp来说，我们是可以设置它的欢迎页面的。
+  - 设置了欢迎页面之后，当你访问这个webapp的时候，或者访问这个web站点的时候，没有指定任何“资源路径”，这个时候会默认访问你的欢迎页面。
+  - 我们一般的访问方式是：
+    - http://localhost:8080/servlet06/login.html 这种方式是指定了要访问的就是login.html资源。
+  - 如果我们访问的方式是：
+    - http://localhost:8080/servlet06 如果我们访问的就是这个站点，没有指定具体的资源路径。它默认会访问谁呢？
+    - 默认会访问你设置的欢迎页面。
+
+- 怎么设置欢迎页面呢？
+
+  - 第一步：我在IDEA工具的web目录下新建了一个文件login.html
+
+  - 第二步：在web.xml文件中进行了以下的配置
+
+    - ```xml
+      <welcome-file-list>
+              <welcome-file>login.html</welcome-file>
+          </welcome-file-list>
+      ```
+
+    - 注意：设置欢迎页面的时候，这个路径不需要以“/”开始。并且这个路径默认是从webapp的根下开始查找。
+
+  - 第三步：启动服务器，浏览器地址栏输入地址
+
+    - http://localhost:8080/servlet07
+
+- 如果在webapp的根下新建一个目录，目录中再给一个文件，那么这个欢迎页该如何设置呢？
+
+  - 在webapp根下新建page1
+
+  - 在page1下新建page2目录
+
+  - 在page2目录下新建page.html页面
+
+  - 在web.xml文件中应该这样配置
+
+    - ```
+      <welcome-file-list>
+          <welcome-file>page1/page2/page.html</welcome-file>
+      </welcome-file-list>
+      ```
+
+    - 注意：路径不需要以“/”开始，并且路径默认从webapp的根下开始找。
+
+- 一个webapp是可以设置多个欢迎页面的
+
+  - ```xml
+    <welcome-file-list>
+        <welcome-file>page1/page2/page.html</welcome-file>
+        <welcome-file>login.html</welcome-file>
+    </welcome-file-list>
+    ```
+
+  - 注意：越靠上的优先级越高。找不到的继续向下找。
+
+- 你有没有注意一件事：当我的文件名设置为index.html的时候，不需要在web.xml文件中进行配置欢迎页面。这是为什么？
+
+  - 这是因为小猫咪Tomcat服务器已经提前配置好了。
+
+  - 实际上配置欢迎页面有两个地方可以配置：
+
+    - 一个是在webapp内部的web.xml文件中。（在这个地方配置的属于局部配置）
+
+    - 一个是在CATALINA_HOME/conf/web.xml文件中进行配置。（在这个地方配置的属于全局配置）
+
+      - ```xml
+        <welcome-file-list>
+            <welcome-file>index.html</welcome-file>
+            <welcome-file>index.htm</welcome-file>
+            <welcome-file>index.jsp</welcome-file>
+        </welcome-file-list>
+        ```
+
+      - Tomcat服务器的全局欢迎页面是：index.html index.htm index.jsp。如果你一个web站点没有设置局部的欢迎页面，Tomcat服务器就会以index.html index.htm index.jsp作为一个web站点的欢迎页面。
+
+    - 注意原则：局部优先原则。（就近原则）
+
+- 欢迎页可以是一个Servlet吗？
+
+  - 当然可以。
+
+  - 你不要多想，欢迎页就是一个资源，既然是一个资源，那么可以是静态资源，也可以是动态资源。
+
+  - 静态资源：index.html welcome.html .....
+
+  - 动态资源：Servlet类。
+
+  - 步骤：
+
+    - 第一步：写一个Servlet
+
+      - ```java
+        public class WelcomeServlet extends HttpServlet {
+            @Override
+            protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+                response.setContentType("text/html");
+                PrintWriter out = response.getWriter();
+                out.print("<h1>welcome to bjpowernode!</h1>");
+            }
+        }
+        ```
+
+        
+
+    - 第二步：在web.xml文件中配置servlet
+
+      - ```xml
+            <servlet>
+                <servlet-name>welcomeServlet</servlet-name>
+                <servlet-class>com.bjpowernode.javaweb.servlet.WelcomeServlet</servlet-class>
+            </servlet>
+            <servlet-mapping>
+                <servlet-name>welcomeServlet</servlet-name>
+                <url-pattern>/fdsa/fds/a/fds/af/ds/af/dsafdsafdsa</url-pattern>
+            </servlet-mapping>
+        ```
+
+    - 第三步：在web.xml文件中配置欢迎页
+
+      - ```xml
+            <welcome-file-list>
+                <welcome-file>fdsa/fds/a/fds/af/ds/af/dsafdsafdsa</welcome-file>
+            </welcome-file-list>
+        ```
+
+        
 
 
 
-
-5. 
