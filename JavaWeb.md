@@ -2201,7 +2201,7 @@ String value = element.attributeValue("属性名");
        - 不需要安装特定的客户端软件，用户操作极其方便。只需要打开浏览器，输入网址即可。
      - 缺点：
        - 速度慢（不是因为带宽低的问题，是因为所有的数据都是在服务器上，用户发送的每一个请求都是需要服务器全身心的响应数据，所以B/S结构的系统在网络中传送的数据量比较大。）
-       - 体验差（界面不是那么酷炫，因为浏览器只支持三个语言HTML CSS JavaScript。在加上速度慢。）
+       - 体验差（界面不是那么酷炫，因为浏览器只支持三个语言HTML CSS JavaScript。再加上速度慢。）
        - 不安全（所有的数据都在服务器上，只要服务器发生火灾，地震等不可抗力，最终数据全部丢失。）
        - ....
 4. C/S和B/S结构的系统，哪个好，哪个不好？
@@ -2544,7 +2544,7 @@ String value = element.attributeValue("属性名");
     - Tomcat服务器通过反射机制，创建com.bjpowernode.servlet.HelloServlet的对象。
     - Tomcat服务器调用com.bjpowernode.servlet.HelloServlet对象的service方法。
 
-## 关于JavaEE的版本
+## 8.7 关于JavaEE的版本
 
 - JavaEE目前最高版本是 JavaEE8
 - JavaEE被Oracle捐献了，Oracle将JavaEE规范捐献给Apache了。
@@ -3485,7 +3485,7 @@ public abstract class HttpServlet extends GenericServlet {
     - ```xml
       <welcome-file-list>
               <welcome-file>login.html</welcome-file>
-          </welcome-file-list>
+      </welcome-file-list>
       ```
 
     - 注意：设置欢迎页面的时候，这个路径不需要以“/”开始。并且这个路径默认是从webapp的根下开始查找。
@@ -3597,3 +3597,913 @@ public abstract class HttpServlet extends GenericServlet {
 
 
 
+## 8.19 关于WEB-INF目录
+
+- 在WEB-INF目录下新建了一个文件：welcome.html
+- 打开浏览器访问：http://localhost:8080/servlet07/WEB-INF/welcome.html 出现了404错误。
+- 注意：放在WEB-INF目录下的资源是受保护的。在浏览器上不能够通过路径直接访问。所以像HTML、CSS、JS、image等静态资源一定要放到WEB-INF目录之外。
+
+## 8.20 HttpServletRequest接口详解
+
+- HttpServletRequest是一个接口，全限定名称：jakarta.servlet.http.HttpServletRequest
+
+- HttpServletRequest接口是Servlet规范中的一员。
+
+- HttpServletRequest接口的父接口：ServletRequest
+
+  - ```java
+    public interface HttpServletRequest extends ServletRequest {}
+    ```
+
+- HttpServletRequest接口的实现类谁写的? HttpServletRequest对象是谁给创建的？
+
+  - 通过测试：org.apache.catalina.connector.RequestFacade 实现了 HttpServletRequest接口
+
+    - ```java
+      public class RequestFacade implements HttpServletRequest {}
+      ```
+
+  - 测试结果说明：Tomcat服务器（WEB服务器、WEB容器）实现了HttpServletRequest接口，还是说明了Tomcat服务器实现了Servlet规范。而对于我们javaweb程序员来说，实际上不需要关心这个，我们只需要面向接口编程即可。我们关心的是HttpServletRequest接口中有哪些方法，这些方法可以完成什么功能！！！！
+
+- HttpServletRequest对象中都有什么信息？都包装了什么信息？
+
+  - HttpServletRequest对象是Tomcat服务器负责创建的。这个对象中封装了什么信息？封装了HTTP的请求协议。
+  - 实际上是用户发送请求的时候，遵循了HTTP协议，发送的是HTTP的请求协议，Tomcat服务器将HTTP协议中的信息以及数据全部解析出来，然后Tomcat服务器把这些信息封装到HttpServletRequest对象当中，传给了我们javaweb程序员。
+  - javaweb程序员面向HttpServletRequest接口编程，调用方法就可以获取到请求的信息了。
+
+- request和response对象的生命周期？
+
+  - request对象和response对象，一个是请求对象，一个是响应对象。这两个对象只在当前请求中有效。
+  - 一次请求对应一个request。
+  - 两次请求则对应两个request。
+  - .....
+
+- HttpServletRequest接口中有哪些常用的方法？
+
+  - 怎么获取前端浏览器用户提交的数据？
+
+    - ```java
+      Map<String,String[]> getParameterMap() 这个是获取Map
+      Enumeration<String> getParameterNames() 这个是获取Map集合中所有的key
+      String[] getParameterValues(String name) 根据key获取Map集合的value
+      String getParameter(String name)  获取value这个一维数组当中的第一个元素。这个方法最常用。
+      // 以上的4个方法，和获取用户提交的数据有关系。
+      ```
+
+    - 思考：如果是你，前端的form表单提交了数据之后，你准备怎么存储这些数据，你准备采用什么样的数据结构去存储这些数据呢？
+
+      - 前端提交的数据格式：username=abc&userpwd=111&aihao=s&aihao=d&aihao=tt
+
+      - 我会采用Map集合来存储：
+
+        - ```java
+          Map<String,String>
+              key存储String
+              value存储String
+              这种想法对吗？不对。
+              如果采用以上的数据结构存储会发现key重复的时候value覆盖。
+              key         value
+              ---------------------
+              username    abc
+              userpwd     111
+              aihao       s
+              aihao       d
+              aihao       tt
+              这样是不行的，因为map的key不能重复。
+          Map<String, String[]>
+              key存储String
+              value存储String[]
+              key				value
+              -------------------------------
+              username		{"abc"}
+              userpwd			{"111"}
+              aihao			{"s","d","tt"}
+          ```
+
+      - 注意：前端表单提交数据的时候，假设提交了120这样的“数字”，其实是以字符串"120"的方式提交的，所以服务器端获取到的一定是一个字符串的"120"，而不是一个数字。（前端永远提交的是字符串，后端获取的也永远是字符串。）
+
+  - 手工开发一个webapp。测试HttpServletRequest接口中的相关方法。
+
+    - 先测试了4个常用的方法，获取请求参数的四个方法。
+
+      - ```java
+        	Map<String,String[]> parameterMap = request.getParameterMap();
+        	Enumeration<String> names = request.getParameterNames();
+        	String[] values = request.getParameterValues("name");
+        	String value = request.getParameter("name");
+        ```
+
+    
+    - request对象实际上又称为“请求域”对象。
+    
+      - 应用域对象是什么？
+    
+        - ServletContext （Servlet上下文对象。）
+    
+        - 什么情况下会考虑向ServletContext这个应用域当中绑定数据呢？
+    
+          - 第一：所有用户共享的数据。
+          - 第二：这个共享的数据量很小。
+          - 第三：这个共享的数据很少的修改操作。
+          - 在以上三个条件都满足的情况下，使用这个应用域对象，可以大大提高我们程序执行效率。
+          - 实际上向应用域当中绑定数据，就相当于把数据放到了缓存（Cache）当中，然后用户访问的时候直接从缓存中取，减少IO的操作，大大提升系统的性能，所以缓存技术是提高系统性能的重要手段。
+    
+        - 你见过哪些缓存技术呢？
+    
+          - 字符串常量池
+          - 整数型常量池 [-128~127]，但凡是在这个范围当中的Integer对象不再创建新对象，直接从这个整数型常量池中获取。大大提升系统性能。
+          - 数据库连接池（提前创建好N个连接对象，将连接对象放到集合当中，使用连接对象的时候，直接从缓存中拿。省去了连接对象的创建过程。效率提升。）
+          - 线程池（Tomcat服务器就是支持多线程的。所谓的线程池就是提前先创建好N个线程对象，将线程对象存储到集合中，然后用户请求过来之后，直接从线程池中获取线程对象，直接拿来用。提升系统性能）
+          - 后期你还会学习更多的缓存技术，例如：redis、mongoDB.....
+    
+        - ServletContext当中有三个操作域的方法：
+    
+          - ```java
+            void setAttribute(String name, Object obj); // 向域当中绑定数据。
+            Object getAttribute(String name); // 从域当中根据name获取数据。
+            void removeAttribute(String name); // 将域当中绑定的数据移除
+            
+            // 以上的操作类似于Map集合的操作。
+            Map<String, Object> map;
+            map.put("name", obj); // 向map集合中放key和value
+            Object obj = map.get("name"); // 通过map集合的key获取value
+            map.remove("name"); // 通过Map集合的key删除key和value这个键值对。
+            ```
+    
+      - “请求域”对象
+    
+        - “请求域”对象要比“应用域”对象范围小很多。生命周期短很多。请求域只在一次请求内有效。
+    
+        - 一个请求对象request对应一个请求域对象。一次请求结束之后，这个请求域就销毁了。
+    
+        - 请求域对象也有这三个方法：
+    
+          - ```java
+            void setAttribute(String name, Object obj); // 向域当中绑定数据。
+            Object getAttribute(String name); // 从域当中根据name获取数据。
+            void removeAttribute(String name); // 将域当中绑定的数据移除
+            ```
+    
+        - 请求域和应用域的选用原则？
+    
+          - 尽量使用小的域对象，因为小的域对象占用的资源较少。
+    
+      - 跳转
+    
+        - 转发（一次请求）
+    
+          - ```java
+            // 第一步：获取请求转发器对象
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/b");
+            // 第二步：调用转发器的forward方法完成跳转/转发
+            dispatcher.forward(request,response);
+            
+            // 第一步和第二步代码可以联合在一起。
+            request.getRequestDispatcher("/b").forward(request,response);
+            
+            ```
+    
+      - 两个Servlet怎么共享数据？
+    
+        - 将数据放到ServletContext应用域当中，当然是可以的，但是应用域范围太大，占用资源太多。不建议使用。
+        - 可以将数据放到request域当中，然后AServlet转发到BServlet，保证AServlet和BServlet在同一次请求当中，这样就可以做到两个Servlet，或者多个Servlet共享同一份数据。
+    
+      - 转发的下一个资源必须是一个Servlet吗？
+    
+        - 不一定，只要是Tomcat服务器当中的合法资源，都是可以转发的。例如：html....
+        - 注意：转发的时候，路径的写法要注意，转发的路径以“/”开始，不加项目名。
+    
+      - 关于request对象中两个非常容易混淆的方法：
+    
+        - ```java
+          // uri?username=zhangsan&userpwd=123&sex=1
+          String username = request.getParameter("username");
+          
+          // 之前一定是执行过：request.setAttribute("name", new Object())
+          Object obj = request.getAttribute("name");
+          
+          // 以上两个方法的区别是什么？
+          // 第一个方法：获取的是用户在浏览器上提交的数据。
+          // 第二个方法：获取的是请求域当中绑定的数据。
+          ```
+    
+      - HttpServletRequest接口的其他常用方法：
+    
+        - ```java
+          // 获取客户端的IP地址
+          String remoteAddr = request.getRemoteAddr();
+          
+          // get请求在请求行上提交数据。
+          // post请求在请求体中提交数据。
+          // 设置请求体的字符集。（显然这个方法是处理POST请求的乱码问题。这种方式并不能解决get请求的乱码问题。）
+          // Tomcat10之后，request请求体当中的字符集默认就是UTF-8，不需要设置字符集，不会出现乱码问题。
+          // Tomcat9前（包括9在内），如果前端请求体提交的是中文，后端获取之后出现乱码，怎么解决这个乱码？执行以下代码。
+          request.setCharacterEncoding("UTF-8");
+          
+          // 在Tomcat9之前（包括9），响应中文也是有乱码的，怎么解决这个响应的乱码？
+          response.setContentType("text/html;charset=UTF-8");
+          // 在Tomcat10之后，包括10在内，响应中文的时候就不在出现乱码问题了。以上代码就不需要设置UTF-8了。
+          
+          // 注意一个细节
+          // 在Tomcat10包括10在内之后的版本，中文将不再出现乱码。（这也体现了中文地位的提升。）
+          
+          // get请求乱码问题怎么解决？
+          // get请求发送的时候，数据是在请求行上提交的，不是在请求体当中提交的。
+          // get请求乱码怎么解决
+          // 方案：修改CATALINA_HOME/conf/server.xml配置文件
+          <Connector URIEncoding="UTF-8" />
+          // 注意：从Tomcat8之后，URIEncoding的默认值就是UTF-8，所以GET请求也没有乱码问题了。
+              
+          // 获取应用的根路径
+          String contextPath = request.getContextPath();
+          
+          // 获取请求方式
+          String method = request.getMethod();
+          
+          // 获取请求的URI
+          String uri = request.getRequestURI();  // /aaa/testRequest
+          
+          // 获取servlet path
+          String servletPath = request.getServletPath(); //   /testRequest
+          
+          ```
+    
+    ## 使用纯Servlet做一个单表的CRUD操作
+    
+    - 使用纯粹的Servlet完成单表【对部门的】的增删改查操作。（B/S结构的。）
+    
+    - 实现步骤
+    
+      - 第一步：准备一张数据库表。（sql脚本）
+    
+        - ```sql
+          # 部门表
+          drop table if exists dept;
+          create table dept(
+          	deptno int primary key,
+              dname varchar(255),
+              loc varchar(255)
+          );
+          insert into dept(deptno, dname, loc) values(10, 'XiaoShouBu', 'BEIJING');
+          insert into dept(deptno, dname, loc) values(20, 'YanFaBu', 'SHANGHAI');
+          insert into dept(deptno, dname, loc) values(30, 'JiShuBu', 'GUANGZHOU');
+          insert into dept(deptno, dname, loc) values(40, 'MeiTiBu', 'SHENZHEN');
+          commit;
+          select * from dept;
+          ```
+    
+      - 第二步：准备一套HTML页面（项目原型）【前端开发工具使用HBuilder】
+    
+        - 把HTML页面准备好
+        - 然后将HTML页面中的链接都能够跑通。（页面流转没问题。）
+        - 应该设计哪些页面呢？
+          - 欢迎页面：index.html
+          - 列表页面：list.html（以列表页面为核心，展开其他操作。）
+          - 新增页面：add.html
+          - 修改页面：edit.html
+          - 详情页面：detail.html
+    
+      - 第三步：分析我们这个系统包括哪些功能？
+    
+        - 什么叫做一个功能呢？
+          - 只要 这个操作连接了数据库，就表示一个独立的功能。
+        - 包括哪些功能？
+          - 查看部门列表
+          - 新增部门
+          - 删除部门
+          - 查看部门详细信息
+          - 跳转到修改页面
+          - 修改部门
+    
+      - 第四步：在IDEA当中搭建开发环境
+    
+        - 创建一个webapp（给这个webapp添加servlet-api.jar和jsp-api.jar到classpath当中。）
+        - 向webapp中添加连接数据库的jar包（mysql驱动）
+          - 必须在WEB-INF目录下新建lib目录，然后将mysql的驱动jar包拷贝到这个lib目录下。这个目录名必须叫做lib，全部小写的。
+        - JDBC的工具类
+        - 将所有HTML页面拷贝到web目录下。
+    
+      - 第五步：实现第一个功能：查看部门列表
+    
+        - 我们应该怎么去实现一个功能呢？
+    
+          - 建议：你可以从后端往前端一步一步写。也可以从前端一步一步往后端写。都可以。但是千万要记住不要想起来什么写什么。你写代码的过程最好是程序的执行过程。也就是说：程序执行到哪里，你就写哪里。这样一个顺序流下来之后，基本上不会出现什么错误、意外。
+          - 从哪里开始？
+            - 假设从前端开始，那么一定是从用户点击按钮那里开始的。
+    
+        - 第一：先修改前端页面的超链接，因为用户先点击的就是这个超链接。
+    
+          - ```html
+            <a href="/oa/dept/list">查看部门列表</a>
+            ```
+    
+        - 第二：编写web.xml文件
+    
+          - ```xml
+            <servlet>
+                <servlet-name>list</servlet-name>
+                <servlet-class>com.bjpowernode.oa.web.action.DeptListServlet</servlet-class>
+            </servlet>
+            <servlet-mapping>
+                <servlet-name>list</servlet-name>
+                <!--web.xml文件中的这个路径也是以“/”开始的，但是不需要加项目名-->
+                <url-pattern>/dept/list</url-pattern>
+            </servlet-mapping>
+            ```
+    
+        - 第三：编写DeptListServlet类继承HttpServlet类。然后重写doGet方法。
+    
+          - ```java
+            package com.bjpowernode.oa.web.action;
+            
+            import jakarta.servlet.ServletException;
+            import jakarta.servlet.http.HttpServlet;
+            import jakarta.servlet.http.HttpServletRequest;
+            import jakarta.servlet.http.HttpServletResponse;
+            
+            import java.io.IOException;
+            
+            public class DeptListServlet extends HttpServlet {
+                @Override
+                protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                        throws ServletException, IOException {
+                }
+            }
+            ```
+    
+        - 第四：在DeptListServlet类的doGet方法中连接数据库，查询所有的部门，动态的展示部门列表页面.
+    
+          - 分析list.html页面中哪部分是固定死的，哪部分是需要动态展示的。
+    
+          - list.html页面中的内容所有的双引号要替换成单引号，因为out.print("")这里有一个双引号，容易冲突。
+    
+          - 现在写完这个功能之后，你会有一种感觉，感觉开发很繁琐，只使用servlet写代码太繁琐了。
+    
+          - ```java
+            while(rs.next()){
+                String deptno = rs.getString("a");
+                String dname = rs.getString("dname");
+                String loc = rs.getString("loc");
+            
+                out.print("			<tr>");
+                out.print("				<td>"+(++i)+"</td>");
+                out.print("				<td>"+deptno+"</td>");
+                out.print("				<td>"+dname+"</td>");
+                out.print("				<td>");
+                out.print("					<a href=''>删除</a>");
+                out.print("					<a href='edit.html'>修改</a>");
+                out.print("					<a href='detail.html'>详情</a>");
+                out.print("				</td>");
+                out.print("			</tr>");
+            }
+            ```
+    
+      - 第六步：查看部门详情。
+    
+        - 建议：从前端往后端一步一步实现。首先要考虑的是，用户点击的是什么？用户点击的东西在哪里？
+    
+          - 一定要先找到用户点的“详情”在哪里。找了半天，终于在后端的java程序中找到了
+    
+            - ```html
+              <a href='写一个路径'>详情</a>
+              ```
+    
+            - 详情  是需要连接数据库的，所以这个超链接点击之后也是需要执行一段java代码的。所以要将这个超链接的路径修改一下。
+    
+            - 注意：修改路径之后，这个路径是需要加项目名的。"/oa/dept/detail"
+    
+          - 技巧：
+    
+            - ```java
+              out.print("<a href='"+contextPath+"/dept/detail?deptno="+deptno+"'>详情</a>");
+              ```
+    
+            - 重点：向服务器提交数据的格式：uri?name=value&name=value&name=value&name=value
+    
+            - 这里的问号，必须是英文的问号。不能中文的问号。
+    
+        - 解决404的问题。写web.xml文件。
+    
+          - ```xml
+            <servlet>
+                <servlet-name>detail</servlet-name>
+                <servlet-class>com.bjpowernode.oa.web.action.DeptDetailServlet</servlet-class>
+            </servlet>
+            <servlet-mapping>
+                <servlet-name>detail</servlet-name>
+                <url-pattern>/dept/detail</url-pattern>
+            </servlet-mapping>
+            ```
+    
+        - 编写一个类：DeptDetailServlet继承HttpServlet，重写doGet方法。
+    
+          - ```java
+            package com.bjpowernode.oa.web.action;
+            
+            import jakarta.servlet.ServletException;
+            import jakarta.servlet.http.HttpServlet;
+            import jakarta.servlet.http.HttpServletRequest;
+            import jakarta.servlet.http.HttpServletResponse;
+            
+            import java.io.IOException;
+            
+            public class DeptDetailServlet extends HttpServlet {
+                @Override
+                protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                        throws ServletException, IOException {
+                    //中文思路（思路来源于：你要做什么？目标：查看部门详细信息。）
+                    // 第一步：获取部门编号
+                    // 第二步：根据部门编号查询数据库，获取该部门编号对应的部门信息。
+                    // 第三步：将部门信息响应到浏览器上。（显示一个详情。）
+                }
+            }
+            ```
+    
+        - 在doGet方法当中：连接数据库，根据部门编号查询该部门的信息。动态展示部门详情页。
+    
+      - 第七步：删除部门
+    
+        - 怎么开始？从哪里开始？从前端页面开始，用户点击删除按钮的时候，应该提示用户是否删除。因为删除这个动作是比较危险的。任何系统在进行删除操作之前，是必须要提示用户的，因为这个删除的动作有可能是用户误操作。（在前端页面上写JS代码，来提示用户是否删除。）
+    
+          - ```html
+            <a href="javascript:void(0)" onclick="del(30)" >删除</a>
+            <script type="text/javascript">
+            	function del(dno){
+            		if(window.confirm("亲，删了不可恢复哦！")){
+            			document.location.href = "/oa/dept/delete?deptno=" + dno;
+            		}
+            	}
+            </script>
+            ```
+    
+        - 以上的前端程序要写到后端的java代码当中：
+    
+          - DeptListServlet类的doGet方法当中，使用out.print()方法，将以上的前端代码输出到浏览器上。
+    
+        - 解决404的问题：
+    
+          - http://localhost:8080/oa/dept/delete?deptno=30 
+    
+          - web.xml文件
+    
+            - ```xml
+              <servlet>
+                  <servlet-name>delete</servlet-name>
+                  <servlet-class>com.bjpowernode.oa.web.action.DeptDelServlet</servlet-class>
+              </servlet>
+              <servlet-mapping>
+                  <servlet-name>delete</servlet-name>
+                  <url-pattern>/dept/delete</url-pattern>
+              </servlet-mapping>
+              ```
+    
+          - 编写DeptDelServlet继承HttpServlet，重写doGet方法。
+    
+          - ```java
+            package com.bjpowernode.oa.web.action;
+            
+            import jakarta.servlet.ServletException;
+            import jakarta.servlet.http.HttpServlet;
+            import jakarta.servlet.http.HttpServletRequest;
+            import jakarta.servlet.http.HttpServletResponse;
+            
+            import java.io.IOException;
+            
+            public class DeptDelServlet extends HttpServlet {
+                @Override
+                protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                        throws ServletException, IOException {
+                    // 根据部门编号，删除部门。
+                    
+                }
+            }
+            ```
+    
+          - 删除成功或者失败的时候的一个处理（这里我们选择了转发，并没有使用重定向机制。）
+    
+            - ```java
+              // 判断删除成功了还是失败了。
+              if (count == 1) {
+                  //删除成功
+                  //仍然跳转到部门列表页面
+                  //部门列表页面的显示需要执行另一个Servlet。怎么办？转发。
+                  request.getRequestDispatcher("/dept/list").forward(request, response);
+              }else{
+                  // 删除失败
+                  request.getRequestDispatcher("/error.html").forward(request, response);
+              }
+              ```
+    
+      - 第八步：新增部门
+    
+        - 注意：最后保存成功之后，转发到 /dept/list 的时候，会出现405，为什么？
+          - 第一：保存用的是post请求。底层要执行doPost方法。
+          - 第二：转发是一次请求，之前是post，之后还是post，因为它是一次请求。
+          - 第三：/dept/list Servlet当中只有一个doGet方法。
+          - 怎么解决？两种方案
+            - 第一种：在/dept/list Servlet中添加doPost方法，然后在doPost方法中调用doGet。
+            - 第二种：重定向。
+    
+      - 第九步：跳转到修改部门的页面
+    
+      - 第十步：修改部门
+    
+
+## 8.21 在一个web应用中应该如何完成资源的跳转
+
+- 在一个web应用中通过两种方式，可以完成资源的跳转：
+
+  - 第一种方式：转发
+  - 第二种方式：重定向
+
+- 转发和重定向有什么区别？
+
+  - 代码上有什么区别？
+
+    - 转发
+
+      - ```java
+        // 获取请求转发器对象
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/dept/list");
+        // 调用请求转发器对象的forward方法完成转发
+        dispatcher.forward(request, response);
+        
+        // 合并一行代码
+        request.getRequestDispatcher("/dept/list").forward(request, response);
+        // 转发的时候是一次请求，不管你转发了多少次。都是一次请求。
+        // AServlet转发到BServlet，再转发到CServlet，再转发到DServlet，不管转发了多少次，都在同一个request当中。
+        // 这是因为调用forward方法的时候，会将当前的request和response对象传递给下一个Servlet。
+        ```
+
+    - 重定向
+
+      - ```java
+        // 注意：路径上要加一个项目名。为什么？
+        // 浏览器发送请求，请求路径上是需要添加项目名的。
+        // 以下这一行代码会将请求路径“/oa/dept/list”发送给浏览器
+        // 浏览器会自发的向服务器发送一次全新的请求：/oa/dept/list
+        response.sendRedirect("/oa/dept/list");
+        ```
+
+        
+
+  - 形式上有什么区别？
+
+    - 转发（一次请求）
+      - 在浏览器地址栏上发送的请求是：http://localhost:8080/servlet10/a ，最终请求结束之后，浏览器地址栏上的地址还是这个。没变。
+    - 重定向（两次请求）
+      - 在浏览器地址栏上发送的请求是：http://localhost:8080/servlet10/a ，最终在浏览器地址栏上显示的地址是：http://localhost:8080/servlet10/b
+
+  - 转发和重定向的本质区别？
+
+    - 转发：是由WEB服务器来控制的。A资源跳转到B资源，这个跳转动作是Tomcat服务器内部完成的。
+    - 重定向：是浏览器完成的。具体跳转到哪个资源，是浏览器说了算。
+
+  - 使用一个例子去描述这个转发和重定向
+
+    - 借钱（转发：发送了一次请求）
+      - 杜老师没钱了，找张三借钱，其实张三没有钱，但是张三够义气，张三自己找李四借了钱，然后张三把这个钱给了杜老师，杜老师不知道这个钱是李四的，杜老师只求了一个人。杜老师以为这个钱就是张三的。
+    - 借钱（重定向：发送了两次请求）
+      - 杜老师没钱了，找张三借钱，张三没有钱，张三有一个好哥们，叫李四，李四是个富二代，于是张三将李四的家庭住址告诉了杜老师，杜老师按照这个地址去找到李四，然后从李四那里借了钱。显然杜老师在这个过程中，求了两个人。并且杜老师知道最终这个钱是李四借给俺的。
+
+- 转发和重定向应该如何选择？什么时候使用转发，什么时候使用重定向？
+
+  - 如果在上一个Servlet当中向request域当中绑定了数据，希望从下一个Servlet当中把request域里面的数据取出来，使用转发机制。
+  - 剩下所有的请求均使用重定向。（重定向使用较多。）
+
+- 跳转的下一个资源有没有要求呢？必须是一个Servlet吗？
+
+  - 不一定，跳转的资源只要是服务器内部合法的资源即可。包括：Servlet、JSP、HTML.....
+
+- 转发会存在浏览器的刷新问题。
+
+## 8.22 将oa项目中的资源跳转修改为合适的跳转方式
+
+- 删除之后，重定向
+- 修改之后，重定向
+- 保存之后，重定向
+- 重定向：
+  - 成功
+  - 失败
+
+## 8.23 Servlet注解，简化配置
+
+- 分析oa项目中的web.xml文件
+
+  - 现在只是一个单标的CRUD，没有复杂的业务逻辑，很简单的一丢丢功能。web.xml文件中就有如此多的配置信息。如果采用这种方式，对于一个大的项目来说，这样的话web.xml文件会非常庞大，有可能最终会达到几十兆。
+  - 在web.xml文件中进行servlet信息的配置，显然开发效率比较低，每一个都需要配置一下。
+  - 而且在web.xml文件中的配置是很少被修改的，所以这种配置信息能不能直接写到java类当中呢？可以的。
+
+- Servlet3.0版本之后，推出了各种Servlet基于注解式开发。优点是什么？
+
+  - 开发效率高，不需要编写大量的配置信息。直接在java类上使用注解进行标注。
+  - web.xml文件体积变小了。
+
+- 并不是说注解有了之后，web.xml文件就不需要了：
+
+  - 有一些需要变化的信息，还是要配置到web.xml文件中。一般都是 注解+配置文件 的开发模式。
+  - 一些不会经常变化修改的配置建议使用注解。一些可能会被修改的建议写到配置文件中。
+
+- 我们的第一个注解：
+
+  - ```
+    jakarta.servlet.annotation.WebServlet
+    ```
+
+  - 在Servlet类上使用：@WebServlet，WebServlet注解中有哪些属性呢？
+
+    - name属性：用来指定Servlet的名字。等同于：<servlet-name>
+    - urlPatterns属性：用来指定Servlet的映射路径。可以指定多个字符串。<url-pattern>
+    - loadOnStartUp属性：用来指定在服务器启动阶段是否加载该Servlet。等同于：<load-on-startup>
+    - value属性：当注解的属性名是value的时候，使用注解的时候，value属性名是可以省略的。
+    - 注意：不是必须将所有属性都写上，只需要提供需要的。（需要什么用什么。）
+    - 注意：属性是一个数组，如果数组中只有一个元素，使用该注解的时候，属性值的大括号可以省略。
+
+- 注解对象的使用格式：
+
+  - @注解名称(属性名=属性值, 属性名=属性值, 属性名=属性值....)
+
+## 8.24 使用模板方法设计模式优化oa项目
+
+- 上面的注解解决了配置文件的问题。但是现在的oa项目仍然存在一个比较臃肿的问题。
+  - 一个单标的CRUD，就写了6个Servlet。如果一个复杂的业务系统，这种开发方式，显然会导致类爆炸。（类的数量太大。）
+  - 怎么解决这个类爆炸问题？可以使用模板方法设计模式。
+- 怎么解决类爆炸问题？
+  - 以前的设计是一个请求一个Servlet类。1000个请求对应1000个Servlet类。导致类爆炸。
+  - 可以这样做：一个请求对应一个方法。一个业务对应一个Servlet类。
+  - 处理部门相关业务的对应一个DeptServlet。处理用户相关业务的对应一个UserServlet。处理银行卡卡片业务对应一个CardServlet。
+
+## 8.25 分析使用纯粹Servlet开发web应用的缺陷
+
+- 在Servlet当中编写HTML/CSS/JavaScript等前端代码。存在什么问题？
+  - java程序中编写前端代码，编写难度大。麻烦。
+  - java程序中编写前端代码，显然程序的耦合度非常高。
+  - java程序中编写前端代码，代码非常不美观。
+  - java程序中编写前端代码，维护成本太高。（非常难于维护）
+    - 修改小小的一个前端代码，只要有改动，就需要重新编译java代码，生成新的class文件，打一个新的war包，重新发布。
+- 思考一下，如果是你的话，你准备怎么解决这个问题？
+  - 思路很重要。使用什么样的思路去做、去解决这个问题
+    - 上面的那个Servlet（Java程序）能不能不写了，让机器自动生成。我们程序员只需要写这个Servlet程序中的“前端的那段代码”，然后让机器将我们写的“前端代码”自动翻译生成“Servlet这种java程序”。然后机器再自动将“java”程序编译生成"class"文件。然后再使用JVM调用这个class中的方法。
+
+# 9.JSP
+
+- 我的第一个JSP程序：
+
+  - 在WEB-INF目录之外创建一个index.jsp文件，然后这个文件中没有任何内容。
+
+- 将上面的项目部署之后，启动服务器，打开浏览器，访问以下地址：
+
+  - http://localhost:8080/jsp/index.jsp 展现在大家面前的是一个空白。
+  - 实际上访问以上的这个：index.jsp，底层执行的是：index_jsp.class 这个java程序。
+  - 这个index.jsp会被tomcat翻译生成index_jsp.java文件，然后tomcat服务器又会将index_jsp.java编译生成index_jsp.class文件
+  - 访问index.jsp，实际上执行的是index_jsp.class中的方法。
+
+- JSP实际上就是一个Servlet。
+
+  - index.jsp访问的时候，会自动翻译生成index_jsp.java，会自动编译生成index_jsp.class，那么index_jsp 这就是一个类。
+  - index_jsp 类继承 HttpJspBase，而HttpJspBase类继承的是HttpServlet。所以index_jsp类就是一个Servlet类。
+  - jsp的生命周期和Servlet的生命周期完全相同。完全就是一个东西。没有任何区别。
+  - jsp和servlet一样，都是单例的。（假单例。）
+
+- jsp文件第一次访问的时候是比较慢的，为什么？
+
+  - 为什么大部分的运维人员在给客户演示项目的时候，为什么提前先把所有的jsp文件先访问一遍。
+  - 第一次比较麻烦：
+    - 要把jsp文件翻译生成java源文件
+    - java源文件要编译生成class字节码文件
+    - 然后通过class去创建servlet对象
+    - 然后调用servlet对象的init方法
+    - 最后调用servlet对象的service方法。
+  - 第二次就比较快了，为什么？
+    - 因为第二次直接调用单例servlet对象的service方法即可。
+
+- JSP是什么？
+
+  - JSP是java程序。（JSP本质还是一个Servlet）
+  - JSP是：JavaServer Pages的缩写。（基于Java语言实现的服务器端的页面。）
+  - Servlet是JavaEE的13个子规范之一，那么JSP也是JavaEE的13个子规范之一。
+  - JSP是一套规范。所有的web容器/web服务器都是遵循这套规范的，都是按照这套规范进行的“翻译”
+  - 每一个web容器/web服务器都会内置一个JSP翻译引擎。
+
+- 对JSP进行错误调试的时候，还是要直接打开JSP文件对应的java文件，检查java代码。
+
+- 开发JSP的最高境界：
+
+  - 眼前是JSP代码，但是脑袋中呈现的是java代码。
+
+- JSP既然本质上是一个Servlet，那么JSP和Servlet到底有什么区别呢？
+
+  - 职责不同：
+    - Servlet的职责是什么：收集数据。（Servlet的强项是逻辑处理，业务处理，然后链接数据库，获取/收集数据。）
+    - JSP的职责是什么：展示数据。（JSP的强项是做数据的展示）
+
+- JSP的基础语法
+
+  - 在jsp文件中直接编写文字，都会自动被翻译到哪里？
+
+    - 翻译到servlet类的service方法的out.write("翻译到这里")，直接翻译到双引号里，被java程序当做普通字符串打印输出到浏览器。
+    - 在JSP中编写的HTML CSS JS代码，这些代码对于JSP来说只是一个普通的字符串。但是JSP把这个普通的字符串一旦输出到浏览器，浏览器就会对HTML CSS JS进行解释执行。展现一个效果。
+
+  - JSP的page指令（这个指令后面再详细说，这里先解决一下中文乱码问题），解决响应时的中文乱码问题：
+
+    - 通过page指令来设置响应的内容类型，在内容类型的最后面添加：charset=UTF-8
+      - <%@page contentType="text/html;charset=UTF-8"%>，表示响应的内容类型是text/html，采用的字符集UTF-8
+      - <%@page import="java.util.List,java.util.ArrayList"%>
+
+  - 怎么在JSP中编写Java程序：
+
+    - <% java语句; %>
+      - 在这个符号当中编写的被视为java程序，被翻译到Servlet类的service方法内部。
+      - 这里你要细心点，你要思考，在<% %>这个符号里面写java代码的时候，你要时时刻刻的记住你正在“方法体”当中写代码，方法体中可以写什么，不可以写什么，你心里是否明白呢？
+      - 在service方法当中编写的代码是有顺序的，方法体当中的代码要遵循自上而下的顺序依次逐行执行。
+      - service方法当中不能写静态代码块，不能写方法，不能定义成员变量。。。。。。
+      - 在同一个JSP当中 <%%> 这个符号可以出现多个。
+    - <%! %>
+      - 在这个符号当中编写的java程序会自动翻译到service方法之外。
+      - 这个语法很少用，为什么？不建议使用，因为在service方法外面写静态变量和实例变量，都会存在线程安全问题，因为JSP就是servlet，servlet是单例的，多线程并发的环境下，这个静态变量和实例变量一旦有修改操作，必然会存在线程安全问题。
+    - JSP的输出语句
+      - 怎么向浏览器上输出一个java变量。
+      - <% String name = “jack”;  out.write("name = " + name); %>
+      - 注意：以上代码中的out是JSP的九大内置对象之一。可以直接拿来用。当然，必须只能在service方法内部使用。
+      - 如果向浏览器上输出的内容中没有“java代码”，例如输出的字符串是一个固定的字符串，可以直接在jsp中编写，不需要写到<%%> 这里。
+      - 如果输出的内容中含有“java代码”，这个时候可以使用以下语法格式：
+        - <%= %> 注意：在=的后面编写要输出的内容。
+        - <%= %> 这个符号会被翻译到哪里？最终翻译成什么？ 
+          - 翻译成了这个java代码：   out.print();
+          - 翻译到service方法当中了。
+        - 什么时候使用<%=%> 输出呢？输出的内容中含有java的变量，输出的内容是一个动态的内容，不是一个死的字符串。如果输出的是一个固定的字符串，直接在JSP文件中编写即可。
+
+  - 在JSP中如何编写JSP的专业注释
+
+    - <%--JSP的专业注释，不会被翻译到java源代码当中。--%>
+    - <!--这种注释属于HTML的注释，这个注释信息仍然会被翻译到java源代码当中，不建议。-->
+
+  - JSP基础语法总结：
+
+    - JSP中直接编写普通字符串
+      - 翻译到service方法的out.write("这里")
+    - <%%>
+      - 翻译到service方法体内部，里面是一条一条的java语句。
+    - <%! %>
+      - 翻译到service方法之外。
+    - <%= %>
+      - 翻译到service方法体内部，翻译为：out.print();
+    - <%@page  contentType="text/html;charset=UTF-8"%>
+      - page指令，通过contentType属性用来设置响应的内容类型。
+
+  - 使用Servlet + JSP完成oa项目的改造。
+
+    - 使用Servlet处理业务，收集数据。 使用JSP展示数据。
+
+    - 将之前原型中的html文件，全部修改为jsp，然后在jsp文件头部添加page指令（指定contentType防止中文乱码），将所有的JSP直接拷贝到web目录下。
+
+    - 完成所有页面的正常流转。（页面仍然能够正常的跳转。修改超链接的请求路径。）
+
+      - <%=request.getContextPath() %>  在JSP中动态的获取应用的根路径。
+
+    - Servlet中连接数据库，查询所有的部门，遍历结果集。
+
+      - 遍历结果集的过程中，取出部门编号、部门名、位置等信息，封装成java对象。
+      - 将java对象存放到List集合中。
+      - 将List集合存储到request域当中。
+      - 转发forward到jsp。
+
+    - 在JSP中：
+
+      - 从request域当中取出List集合。
+      - 遍历List集合，取出每个部门对象。动态生成tr。
+
+    - 思考一个问题：如果我只用JSP这一个技术，能不能开发web应用？
+
+      - 当然可以使用JSP来完成所有的功能。因为JSP就是Servlet，在JSP的<%%>里面写的代码就是在service方法当中的，所以在<%%>当中完全可以编写JDBC代码，连接数据库，查询数据，也可以在这个方法当中编写业务逻辑代码，处理业务，都是可以的，所以使用单独的JSP开发web应用完全没问题。
+      - 虽然JSP一个技术就可以完成web应用，但是不建议，还是建议采用servlet + jsp的方式进行开发。这样都能将各自的优点发挥出来。JSP就是做数据展示。Servlet就是做数据的收集。（JSP中编写的Java代码越少越好。）一定要职责分明。
+
+    - JSP文件的扩展名必须是xxx.jsp吗？
+
+      - jsp文件的扩展名是可以配置的。不是固定的。
+
+      - 在CATALINA_HOME/conf/web.xml，在这个文件当中配置jsp文件的扩展名。
+
+      - ```xml
+        <servlet-mapping>
+            <servlet-name>jsp</servlet-name>
+            <url-pattern>*.jsp</url-pattern>
+            <url-pattern>*.jspx</url-pattern>
+        </servlet-mapping>
+        ```
+
+      - xxx.jsp文件对于小猫咪来说，只是一个普通的文本文件，web容器会将xxx.jsp文件最终生成java程序，最终调用的是java对象相关的方法，真正执行的时候，和jsp文件就没有关系了。
+
+      - 小窍门：JSP如果看不懂，建议把jsp翻译成java代码，就能看懂了。
+
+    - 同学问：包名bean是什么意思？
+
+      - javabean（java的logo是一杯冒着热气的咖啡。javabean被翻译为：咖啡豆）
+      - java是一杯咖啡，咖啡又是由一粒一粒的咖啡豆研磨而成。
+      - 整个java程序中有很多bean的存在。由很多bean组成。
+      - 什么是javabean？实际上javabean你可以理解为符合某种规范的java类，比如：
+        - 有无参数构造方法
+        - 属性私有化
+        - 对外提供公开的set和get方法
+        - 实现java.io.Serializable接口
+        - 重写toString
+        - 重写hashCode+equals
+        - ....
+      - javabean其实就是java中的实体类。负责数据的封装。
+      - 由于javabean符合javabean规范，具有更强的通用性。
+
+    - 完成剩下所有功能的改造。
+
+- 当前的oa应用存在的问题：
+
+  - 任何一个用户都可以访问这个系统，都可以对这个系统当中的数据进行增删改这些危险的操作。我只想让合法的用户去使用这个系统，不合法的用户不能访问这个系统，怎么办？
+    - 加一个登录功能。登录成功的可以访问该系统，登录失败不能访问。
+  - 实现登录功能：
+    - 步骤1：数据库当中添加一个用户表：t_user
+      - t_user表当中存储的是用户的登录信息，最基本的也包括：登录的用户名和登录的密码。
+      - 密码一般在数据库表当中存储的是密文。一般不以明文的形式存储。（这里先使用明文方式。）
+      - 向t_user表中插入数据。
+    - 步骤2：再实现一个登录页面。
+      - 登录页面上应该有一个登录的表单。有用户名和密码输入的框。
+      - 用户点击登录，提交表单，提交用户名和密码。form是post方式提交。
+    - 步骤3：后台要有一个对应的Servlet来处理登录的请求。
+      - 登录成功：跳转到部门列表页面。
+      - 登录失败：跳转到失败的页面。
+    - 步骤4：再提供一个登录失败的页面。
+
+- 登录功能实现了，目前存在的最大的问题：
+
+  - 这个登录功能目前只是一个摆设，没有任何作用。只要用户知道后端的请求路径，照样可以在不登录的情况下访问。
+  - 这个登录没有真正起到拦截的作用。怎么解决？
+
+- JSP的指令
+
+  - 指令的作用：指导JSP的翻译引擎如何工作（指导当前的JSP翻译引擎如何翻译JSP文件。）
+
+  - 指令包括哪些呢？
+
+    - include指令：包含指令，在JSP中完成静态包含，很少用了。（这里不讲）
+    - taglib指令：引入标签库的指令。这个到JJSTL标签库的时候再学习。现在先不管。
+    - page指令：目前重点学习一个page指令。
+
+  - 指令的使用语法是什么？
+
+    - <%@指令名  属性名=属性值  属性名=属性值  属性名=属性值....%>
+
+  - 关于page指令当中都有哪些常用的属性呢？
+
+    - ```
+      <%@page session="true|false" %>
+      true表示启用JSP的内置对象session，表示一定启动session对象。没有session对象会创建。
+      如果没有设置，默认值就是session="true"
+      session="false" 表示不启动内置对象session。当前JSP页面中无法使用内置对象session。
+      ```
+
+    - ```
+      <%@page contentType="text/json" %>
+      contentType属性用来设置响应的内容类型
+      但同时也可以设置字符集。
+      <%@page contentType="text/json;charset=UTF-8" %>
+      ```
+
+    - ```
+      <%@page pageEncoding="UTF-8" %>
+      pageEncoding="UTF-8" 表示设置响应时采用的字符集。
+      ```
+
+    - ```
+      <%@page import="java.util.List, java.util.Date, java.util.ArrayList" %>
+      <%@page import="java.util.*" %>
+      import语句，导包。
+      ```
+
+    - ```
+      <%@page errorPage="/error.jsp" %>
+      当前页面出现异常之后，跳转到error.jsp页面。
+      errorPage属性用来指定出错之后的跳转位置。
+      ```
+
+    - ```
+      <%@page isErrorPage="true" %>
+      表示启用JSP九大内置对象之一：exception
+      默认值是false。
+      ```
+
+- JSP的九大内置对象
+
+  - jakarta.servlet.jsp.PageContext pageContext       页面作用域
+  - jakarta.servlet.http.HttpServletRequest request 请求作用域
+  - jakarta.servlet.http.HttpSession session  会话作用域
+  - jakarta.servlet.ServletContext application 应用作用域
+    - pageContext < request < session < application
+    - 以上四个作用域都有：setAttribute、getAttribute、removeAttribute方法。
+    - 以上作用域的使用原则：尽可能使用小的域。
+
+  - java.lang.Throwable exception   
+
+  - jakarta.servlet.ServletConfig config
+
+  - java.lang.Object page  （其实是this，当前的servlet对象）
+
+  - jakarta.servlet.jsp.JspWriter out  （负责输出）
+  - jakarta.servlet.http.HttpServletResponse response （负责响应）
