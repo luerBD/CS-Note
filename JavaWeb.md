@@ -4245,6 +4245,193 @@ public abstract class HttpServlet extends GenericServlet {
   - 思路很重要。使用什么样的思路去做、去解决这个问题
     - 上面的那个Servlet（Java程序）能不能不写了，让机器自动生成。我们程序员只需要写这个Servlet程序中的“前端的那段代码”，然后让机器将我们写的“前端代码”自动翻译生成“Servlet这种java程序”。然后机器再自动将“java”程序编译生成"class"文件。然后再使用JVM调用这个class中的方法。
 
+## 8.26 关于B/S结构系统的会话机制（session机制）
+
+- 什么是会话？
+
+  - 会话对应的英语单词：session
+  - 用户打开浏览器，进行一系列操作，然后最终将浏览器关闭，这个整个过程叫做：一次会话。会话在服务器端也有一个对应的java对象，这个java对象叫做：session。
+  - 什么是一次请求：用户在浏览器上点击了一下，然后到页面停下来，可以粗略认为是一次请求。请求对应的服务器端的java对象是：request。
+  - 一个会话当中包含多次请求。（一次会话对应N次请求。）
+
+- 在java的servlet规范当中，session对应的类名：HttpSession（jarkata.servlet.http.HttpSession）
+
+- session机制属于B/S结构的一部分。如果使用php语言开发WEB项目，同样也是有session这种机制的。session机制实际上是一个规范。然后不同的语言对这种会话机制都有实现。
+
+- session对象最主要的作用是：保存会话状态。（用户登录成功了，这是一种登录成功的状态，你怎么把登录成功的状态一直保存下来呢？使用session对象可以保留会话状态。）
+
+- 为什么需要session对象来保存会话状态呢？
+
+  - 因为HTTP协议是一种无状态协议。
+  - 什么是无状态：请求的时候，B和S是连接的，但是请求结束之后，连接就断了。为什么要这么做？HTTP协议为什么要设计成这样？因为这样的无状态协议，可以降低服务器的压力。请求的瞬间是连接的，请求结束之后，连接断开，这样服务器压力小。
+  - 只要B和S断开了，那么关闭浏览器这个动作，服务器知道吗？
+    - 不知道。服务器是不知道浏览器关闭的。
+
+- 张三打开一个浏览器A，李四打开一个浏览器B，访问服务器之后，在服务器端会生成：
+
+  - 张三专属的session对象
+  - 李四专属的session对象
+
+- 为什么不使用request对象保存会话状态？为什么不使用ServletContext对象保存会话状态？
+
+  - request.setAttribute()存，request.getAttribute()取，ServletContext也有这个方法。request是请求域。ServletContext是应用域。
+  - request是一次请求一个对象。
+  - ServletContext对象是服务器启动的时候创建，服务器关闭的时候销毁，这个ServletContext对象只有一个。
+  - ServletContext对象的域太大。
+  - request请求域（HttpServletRequest）、session会话域（HttpSession）、application域（ServletContext）
+  - request < session < application
+
+- 思考一下：session对象的实现原理。
+
+  - HttpSession session = request.getSession();
+  - 这行代码很神奇。张三访问的时候获取的session对象就是张三的。李四访问的时候获取的session对象就是李四的。
+
+- session的实现原理：
+
+  - JSESSIONID=xxxxxx  这个是以Cookie的形式保存在浏览器的内存中的。浏览器只要关闭。这个cookie就没有了。
+  - session列表是一个Map，map的key是sessionid，map的value是session对象。
+  - 用户第一次请求，服务器生成session对象，同时生成id，将id发送给浏览器。
+  - 用户第二次请求，自动将浏览器内存中的id发送给服务器，服务器根据id查找session对象。
+  - 关闭浏览器，内存消失，cookie消失，sessionid消失，会话等同于结束。
+
+- Cookie禁用了，session还能找到吗？
+
+  - cookie禁用是什么意思？服务器正常发送cookie给浏览器，但是浏览器不要了。拒收了。并不是服务器不发了。
+  - 找不到了。每一次请求都会获取到新的session对象。
+  - cookie禁用了，session机制还能实现吗？
+    - 可以。需要使用URL重写机制。
+    - http://localhost:8080/servlet12/test/session;jsessionid=19D1C99560DCBF84839FA43D58F56E16
+    - URL重写机制会提高开发者的成本。开发人员在编写任何请求路径的时候，后面都要添加一个sessionid，给开发带来了很大的难度，很大的成本。所以大部分的网站都是这样设计的：你要是禁用cookie，你就别用了。
+
+- 总结一下到目前位置我们所了解的域对象：
+
+  - request（对应的类名：HttpServletRequest）
+    - 请求域（请求级别的）
+  - session（对应的类名：HttpSession）
+    - 会话域（用户级别的）
+  - application（对应的类名：ServletContext）
+    - 应用域（项目级别的，所有用户共享的。）
+  - 这三个域对象的大小关系
+    - request < session < application
+  - 他们三个域对象都有以下三个公共的方法：
+    - setAttribute（向域当中绑定数据）
+    - getAttribute（从域当中获取数据）
+    - removeAttribute（删除域当中的数据）
+  - 使用原则：尽量使用小的域。
+
+- session掌握之后，我们怎么解决oa项目中的登录问题，怎么能让登录起作用。
+
+  - 登录成功之后，可以将用户的登录信息存储到session当中。也就是说session中如果有用户的信息就代表用户登录成功了。session中没有用户信息，表示用户没有登录过。则跳转到登录页面。
+
+- 销毁session对象：
+
+  - ```java
+    session.invalidate();
+    ```
+
+## 8.27 Cookie
+
+- session的实现原理中，每一个session对象都会关联一个sessionid，例如：
+
+  - JSESSIONID=41C481F0224664BDB28E95081D23D5B8
+  - 以上的这个键值对数据其实就是cookie对象。
+  - 对于session关联的cookie来说，这个cookie是被保存在浏览器的“运行内存”当中。
+  - 只要浏览器不关闭，用户再次发送请求的时候，会自动将运行内存中的cookie发送给服务器。
+  - 例如，这个Cookie: JSESSIONID=41C481F0224664BDB28E95081D23D5B8就会再次发送给服务器。
+  - 服务器就是根据41C481F0224664BDB28E95081D23D5B8这个值来找到对应的session对象的。
+
+- cookie怎么生成？cookie保存在什么地方？cookie有啥用？浏览器什么时候会发送cookie，发送哪些cookie给服务器？？？？？？？
+
+- cookie最终是保存在浏览器客户端上的。
+
+  - 可以保存在运行内存中。（浏览器只要关闭cookie就消失了。）
+  - 也可以保存在硬盘文件中。（永久保存。）
+
+- cookie有啥用呢？
+
+  - cookie和session机制其实都是为了保存会话的状态。
+  - cookie是将会话的状态保存在浏览器客户端上。（cookie数据存储在浏览器客户端上的。）
+  - session是将会话的状态保存在服务器端上。（session对象是存储在服务器上。）
+  - 为什么要有cookie和session机制呢？因为HTTP协议是无状态 无连接协议。
+
+- cookie的经典案例
+
+  - 京东商城，在未登录的情况下，向购物车中放几件商品。然后关闭商城，再次打开浏览器，访问京东商城的时候，购物车中的商品还在，这是怎么做的？我没有登录，为什么购物车中还有商品呢？
+    - 将购物车中的商品编号放到cookie当中，cookie保存在硬盘文件当中。这样即使关闭浏览器。硬盘上的cookie还在。下一次再打开京东商城的时候，查看购物车的时候，会自动读取本地硬盘中存储的cookie，拿到商品编号，动态展示购物车中的商品。
+      - 京东存储购物车中商品的cookie可能是这样的：productIds=xxxxx,yyyy,zzz,kkkk
+      - 注意：cookie如果清除掉，购物车中的商品就消失了。
+  - 126邮箱中有一个功能：十天内免登录
+    - 这个功能也是需要cookie来实现的。
+    - 怎么实现的呢？
+      - 用户输入正确的用户名和密码，并且同时选择十天内免登录。登录成功后。浏览器客户端会保存一个cookie，这个cookie中保存了用户名和密码等信息，这个cookie是保存在硬盘文件当中的，十天有效。在十天内用户再次访问126的时候，浏览器自动提交126的关联的cookie给服务器，服务器接收到cookie之后，获取用户名和密码，验证，通过之后，自动登录成功。
+      - 怎么让cookie失效？
+        - 十天过后自动失效。
+        - 或者改密码。
+        - 或者在客户端浏览器上清除cookie。
+
+- cookie机制和session机制其实都不属于java中的机制，实际上cookie机制和session机制都是HTTP协议的一部分。php开发中也有cookie和session机制，只要是你是做web开发，不管是什么编程语言，cookie和session机制都是需要的。
+
+- HTTP协议中规定：任何一个cookie都是由name和value组成的。name和value都是字符串类型的。
+
+- 在java的servlet中，对cookie提供了哪些支持呢？
+
+  - 提供了一个Cookie类来专门表示cookie数据。jakarta.servlet.http.Cookie;
+  - java程序怎么把cookie数据发送给浏览器呢？response.addCookie(cookie);
+
+- 在HTTP协议中是这样规定的：当浏览器发送请求的时候，会自动携带该path下的cookie数据给服务器。（URL。）
+
+- 关于cookie的有效时间
+
+  - 怎么用java设置cookie的有效时间
+    - cookie.setMaxAge(60 * 60); 设置cookie在一小时之后失效。
+  - 没有设置有效时间：默认保存在浏览器的运行内存中，浏览器关闭则cookie消失。
+  - 只要设置cookie的有效时间 > 0，这个cookie一定会存储到硬盘文件当中。
+  - 设置cookie的有效时间 = 0 呢？
+    - cookie被删除，同名cookie被删除。
+  - 设置cookie的有效时间 < 0 呢？
+    - 保存在运行内存中。和不设置一样。
+
+- 关于cookie的path，cookie关联的路径：
+
+  - 假设现在发送的请求路径是“http://localhost:8080/servlet13/cookie/generate”生成的cookie，如果cookie没有设置path，默认的path是什么？
+    - 默认的path是：http://localhost:8080/servlet13/cookie 以及它的子路径。
+    - 也就是说，以后只要浏览器的请求路径是http://localhost:8080/servlet13/cookie 这个路径以及这个路径下的子路径，cookie都会被发送到服务器。
+  - 手动设置cookie的path
+    - cookie.setPath(“/servlet13”); 表示只要是这个servlet13项目的请求路径，都会提交这个cookie给服务器。
+
+- 浏览器发送cookie给服务器了，服务器中的java程序怎么接收？
+
+  - ```java
+    Cookie[] cookies = request.getCookies(); // 这个方法可能返回null
+    if(cookies != null){
+        for(Cookie cookie : cookies){
+            // 获取cookie的name
+            String name = cookie.getName();
+            // 获取cookie的value
+            String value = cookie.getValue();
+        }
+    }
+    
+    ```
+
+- 使用cookie实现一下十天内免登录功能。
+
+  - 先实现登录功能
+    - 登录成功
+      - 跳转到部门列表页面
+    - 登录失败
+      - 跳转到登录失败页面
+  - 修改前端页面
+    - 在登录页面给一个复选框，复选框后面给一句话：十天内免登录。
+    - 用户选择了复选框：表示要支持十天内免登录。
+    - 用户没有选择复选框：表示用户不想使用十天内免登录功能。
+  - 修改Servlet中的login方法
+    - 如果用户登录成功了，并且用户登录时选择了十天内免登录功能，这个时候应该在Servlet的login方法中创建cookie，用来存储用户名和密码，并且设置路径，设置有效期，将cookie响应给浏览器。（浏览器将其自动保存在硬盘文件当中10天）
+  - 用户再次访问该网站的时候，访问这个网站的首页的时候，有两个走向:
+    - 要么跳转到部门列表页面
+    - 要么跳转到登录页面
+    - 以上分别有两个走向，这显然是需要编写java程序进行控制的。
+
 # 9.JSP
 
 - 我的第一个JSP程序：
