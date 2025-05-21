@@ -320,7 +320,7 @@ const myVue = new Vue({
     - v-bind简写方式：
 
       - ```
-        v-bind:参数="表达式"    简写为      :参数="表达式"
+        v-bind:参数="表达式"     简写为      :参数="表达式"
         ```
 
     - 
@@ -330,8 +330,9 @@ const myVue = new Vue({
         v-model:value="表达式"  简写为      v-model="表达式"
         ```
 
-
 ## 2.3 初识MVVM分层思想
+
+<img src="assets/image-20250521170954325.png" alt="image-20250521170954325" style="zoom: 33%;" />
 
 - MVVM是什么？
   - M：Model（模型/数据）
